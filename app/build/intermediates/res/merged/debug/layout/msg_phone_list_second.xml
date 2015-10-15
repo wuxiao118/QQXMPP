@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <TextView 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="15dp"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
+        android:background="@color/news_content_bg_color"
+        android:textColor="@color/setting_dark_text_color"
+        android:textSize="10sp"
+        android:text="通话记录"
+        />
+
+</LinearLayout>
+<!-- From: file:/G:/android/androidstudioprojects/QQXMPP/app/src/main/res/layout/msg_phone_list_second.xml -->

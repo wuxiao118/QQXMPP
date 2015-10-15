@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/search_bg_color"
+    android:orientation="vertical" >
+
+    <include layout="@layout/search" />
+
+    <LinearLayout
+        android:id="@+id/llDisconncted"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/msg_net_disconnected_bg_color"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <TextView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="15dp"
+            android:background="@drawable/circle_red"
+            android:gravity="center"
+            android:text="！"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:text="世界上最遥远的距离就是没网。检查设置"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/qzone_list_icon_arrow" />
+    </LinearLayout>
+
+</LinearLayout>

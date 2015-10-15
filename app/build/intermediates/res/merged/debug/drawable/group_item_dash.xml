@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:shape="line">
+    <!-- dash破折线宽度  dashGap破折线间间隙,为0时为实线 -->
+    <stroke android:width="1dp"
+        android:color="#d5d5d5"
+        android:dashWidth="2dp"
+        android:dashGap="2dp"
+      />
+    <size android:height="2dp"/>
+
+</shape>
+<!-- From: file:/G:/android/androidstudioprojects/QQXMPP/app/src/main/res/drawable/group_item_dash.xml -->

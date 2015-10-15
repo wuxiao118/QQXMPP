@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp" >
+
+    <TextView
+        android:id="@+id/tvChatTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="12:32"
+        android:textColor="@color/setting_text_color" />
+
+    <LinearLayout
+        android:id="@+id/llChatLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <com.zyxb.qqxmpp.view.CircleImageView2
+            android:id="@+id/ciChatLeftIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_launcher" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/tvChatLeftGroupTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/group_chat_group_title_bg"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:text="话唠"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvChatLeftName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="3dp"
+                    android:text="name"
+                    android:textColor="@color/setting_dark_text_color"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingRight="30dp" >
+
+                <TextView
+                    android:id="@+id/tvChatLeftContent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/chatfrom_bg"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="5dp"
+                    android:paddingTop="5dp"
+                    android:text="content"
+                    android:textColor="@color/black"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/ivChatLeftImage"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:background="@drawable/chatfrom_bg"
+                    android:gravity="center"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="5dp"
+                    android:paddingTop="5dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/skin_about_brand"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/ivChatLeftLoc"
+                    android:layout_width="200dp"
+                    android:layout_height="120dp"
+                    android:background="@drawable/chatfrom_bg"
+                    android:gravity="center"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="15dp"
+                    android:paddingTop="5dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/location_default"
+                    android:text="湖北省广水市"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/ivChatLeftLoading"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/chat_loading"
+                    android:paddingLeft="2dp"
+                    android:visibility="gone" />
+
+                <ProgressBar
+                    android:id="@+id/pbChatLeftLoading"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/chat_loading"
+                    android:indeterminateDrawable="@drawable/loading"
+                    android:paddingLeft="2dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/llChatRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:orientation="horizontal" >
+
+        <com.zyxb.qqxmpp.view.CircleImageView2
+            android:id="@+id/ciChatRightIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_launcher" />
+
+        <LinearLayout
+            android:id="@+id/llChatRightName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/ciChatRightIcon"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tvChatRightGroupTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/group_chat_group_title_bg"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="话唠"
+                android:textColor="@android:color/white"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tvChatRightName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="3dp"
+                android:text="name"
+                android:textColor="@color/setting_dark_text_color"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/llChatRightName"
+            android:layout_toLeftOf="@id/ciChatRightIcon"
+            android:orientation="horizontal"
+            android:paddingLeft="30dp"
+            android:paddingTop="5dp" >
+
+            <ImageView
+                android:id="@+id/ivChatRightLoading"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/chat_loading"
+                android:paddingRight="2dp"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/pbChatRightLoading"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/chat_loading"
+                android:indeterminateDrawable="@drawable/loading"
+                android:paddingLeft="2dp" />
+
+            <TextView
+                android:id="@+id/tvChatRightContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:background="@drawable/chatto_bg"
+                android:gravity="center_vertical"
+                android:paddingBottom="5dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="15dp"
+                android:singleLine="false"
+                android:text="content"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/ivChatRightImage"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_below="@id/llChatRightName"
+                android:layout_toLeftOf="@id/ciChatRightIcon"
+                android:background="@drawable/chatto_bg"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="5dp"
+                android:paddingTop="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/skin_about_brand"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/ivChatRightLoc"
+                android:layout_width="200dp"
+                android:layout_height="120dp"
+                android:layout_below="@id/llChatRightName"
+                android:layout_toLeftOf="@id/ciChatRightIcon"
+                android:background="@drawable/chatto_bg"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="5dp"
+                android:paddingTop="5dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/location_default"
+                android:text="湖北省广水市"
+                android:visibility="gone" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

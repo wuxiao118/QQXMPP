@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="sidebar_item_background_activated_dark">#ff4c365d</color>
+    <color name="devide_line">#CBCED2</color>
+    <color name="blue">#499BF7</color>
+    <color name="whites">#ffffff</color>
+    <color name="grays">#818181</color>
+    <color name="gray_font">#818181</color>
+    <color name="common_title">#18B4ED</color>
+    <color name="black">#000000</color>
+    <color name="pull_refresh_textview">#000000</color>
+    <color name="gold">#000000</color>
+    <color name="transparent">#00000000</color>
+    <color name="refresh_head_bg">#2B2B2B</color>
+    <color name="red">#FF0000</color>
+    <color name="backColor">#2000</color>
+    <color name="detail_bgColor">#f5f5f5</color>
+    <color name="defaultTextColor">#666</color>
+    <color name="viewfinder_frame">#2477ab</color>
+    <color name="viewfinder_mask">#60000000</color>
+    <color name="possible_result_points">#c0ffff00</color>
+    <color name="result_view">#b0000000</color>
+    <color name="gray">#AFAFAF</color>
+    <color name="yellow">#F99503</color>
+    <color name="item_back_press">#10000000</color>
+    <color name="orange">#ff9900</color>
+    <color name="deepcolor">#faaa5f</color>
+    <color name="shadowcolor">#333333</color>
+    <color name="naming">#ABABAB</color>
+    <color name="background">#272727</color>
+    <color name="orange_yellow">#9b9ba0</color>
+
+    <drawable name="semi_black">#80000000</drawable>
+
+    <color name="remote_connect_text">#FFe78018</color>
+    <color name="remote_disconnect_text">#FF901821</color>
+    <color name="common_red">#00ff0000</color>
+    <color name="dark_gray">#8B8B83</color>
+    <color name="bg_blue">#18B4ED</color>
+    <color name="setting_text_color">#B5B7B9</color>
+    <color name="setting_dark_text_color">#546169</color>
+    <color name="setting_line_color">#31363B</color>
+    <color name="setting_bg_color">#ff191F24</color>
+    <color name="search_bg_color">#EBECED</color>
+    <color name="msg_net_disconnected_bg_color">#FFF3BB</color>
+    <color name="msg_title_bg_color">#D1F0FB</color>
+    <color name="msg_title_bg_pressed_color">#18B4ED</color>
+    <color name="msg_title_text_color">#F9FDFF</color>
+    <color name="news_content_bg_color">#F8F9FA</color>
+    <color name="news_content_line_color">#E3E4E4</color>
+    <color name="circle_red">#F74C31</color>
+
+    <!-- 聊天 -->
+    <color name="chat_bg_color_top">#ACE7EF</color>
+    <color name="chat_bg_color_middle">#C0E2E1</color>
+    <color name="chat_bg_color_bottom">#E7D9C5</color>
+    <color name="color_daren">#FFA800</color>
+    <color name="setttings_new_red">#F75231</color>
+
+    <!-- 群 -->
+    <color name="group_color_blue">#00A5E0</color>
+    <color name="group_color_gray">#A7A7A7</color>
+    <color name="group_color_gray2">#484848</color>
+    <color name="group_color_black">#232323</color>
+    <color name="group_color_white_bg">#F8F9FA</color>
+    <color name="group_item_icon_bg">#F9FFFF</color>
+    <color name="group_item_devide_line">#E5E7E7</color>
+    <color name="group_item_text_gray">#ADADAD</color>
+    <color name="group_members_list_group_tilte_orange">#FFBA25</color>
+    <color name="group_members_list_group_tilte_green">#82D052</color>
+    <color name="group_members_list_group_tilte_gray">#CCCCCC</color>
+    
+    <!-- popup -->
+    <color name="popup_bg_color">#99000000</color>
+    <color name="popup_item_bg_color">#E9EAEA</color>
+    <color name="popup_item_line_color">#B3B3B3</color>
+    
+    <!-- 用户基本信息 -->
+    <color name="friend_info_daren_bg">#F9F9F9</color>
+    <color name="friend_info_daren_bg_stroke">#D8D8D8</color>
+
+</resources>

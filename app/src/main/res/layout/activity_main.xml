@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/id_drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/setting_bg_color" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <FrameLayout
+            android:id="@+id/fl_content"
+            android:layout_width="match_parent"
+            android:background="@android:color/white"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+        </FrameLayout>
+
+        <View
+            android:id="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/devide_line" />
+
+        <LinearLayout
+            android:id="@+id/buttom_bar_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFF9F9F9"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" >
+
+            <RelativeLayout style="@style/ButtomBar" >
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true" >
+
+                    <ImageButton
+                        android:id="@+id/buttom_msg"
+                        style="@style/ButtomBarImgBtn"
+                        android:background="@drawable/bar_news"
+                        android:contentDescription="@string/app_name" />
+
+                    <TextView
+                        android:id="@+id/tv_newmsg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|right"
+                        android:background="@drawable/skin_tips_newmessage"
+                        android:gravity="center"
+                        android:text="99+"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp" />
+                </FrameLayout>
+            </RelativeLayout>
+
+            <RelativeLayout style="@style/ButtomBar" >
+
+                <ImageButton
+                    android:id="@+id/buttom_constact"
+                    style="@style/ButtomBarImgBtn"
+                    android:background="@drawable/bar_constact"
+                    android:contentDescription="@string/app_name" />
+            </RelativeLayout>
+
+            <RelativeLayout style="@style/ButtomBar" >
+
+                <ImageButton
+                    android:id="@+id/buttom_news"
+                    style="@style/ButtomBarImgBtn"
+                    android:background="@drawable/bar_setting"
+                    android:contentDescription="@string/app_name" />
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <fragment
+        android:id="@+id/id_left_menu"
+        android:name="com.zyxb.qqxmpp.fragment.MenuLeftFragment"
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:tag="LEFT" />
+
+    <fragment
+        android:id="@+id/id_right_menu"
+        android:name="com.zyxb.qqxmpp.fragment.MenuRightFragment"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:tag="RIGHT" />
+
+</android.support.v4.widget.DrawerLayout>

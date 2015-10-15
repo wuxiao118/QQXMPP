@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_blue"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="5dp" >
+
+        <ImageView
+            android:id="@+id/ivMenuLeft"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/login_default_avatar" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <FrameLayout
+                android:id="@+id/flMsg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <ImageView
+                    android:id="@+id/ivMessage"
+                    android:layout_width="60dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/msg_title_bg_normal_left"
+                    android:scaleType="fitXY" />
+
+                <TextView
+                    android:id="@+id/tvMessage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="消息"
+                    android:textColor="@color/bg_blue" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/flPhone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <ImageView
+                    android:id="@+id/ivPhone"
+                    android:layout_width="60dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/msg_title_bg_pressed_right"
+                    android:scaleType="fitXY" />
+
+                <TextView
+                    android:id="@+id/tvPhone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="电话"
+                    android:textColor="@color/msg_title_text_color" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/ivMenuRight"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/button_details_gohome" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <com.zyxb.qqxmpp.view.CustomListView
+            android:id="@+id/dlList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/whites"
+            android:cacheColorHint="@android:color/transparent"
+            android:fadingEdge="none"
+            android:fadingEdgeLength="0dp"
+            android:listSelector="@drawable/list_item_selector" />
+
+        <com.zyxb.qqxmpp.view.CustomListView
+            android:id="@+id/dlPhone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/news_content_bg_color"
+            android:cacheColorHint="@android:color/transparent"
+            android:fadingEdge="none"
+            android:fadingEdgeLength="0dp"
+            android:listSelector="@drawable/list_item_selector"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+</LinearLayout><!-- From: file:/G:/android/androidstudioprojects/QQXMPP/app/src/main/res/layout/msg.xml -->

@@ -1,0 +1,77 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zyxb.qqxmpp"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="8" />
+
+    <instrumentation
+        android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="com.zyxb.qqxmpp" />
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:name=".App"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <uses-library android:name="android.test.runner" />
+
+        <activity android:name=".ui.SplashActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".ui.BaseActivity" />
+        <activity android:name=".ui.ChatActivity" />
+        <activity android:name=".ui.LoginActivity" />
+        <activity android:name=".ui.RegisterActivity" />
+        <activity android:name=".ui.SettingsActivity" />
+        <activity android:name=".ui.AccountManagerActivity" />
+        <activity android:name=".ui.FriendDtailActivity" />
+        <activity android:name=".ui.GroupFriendDetailActivity" />
+        <activity android:name=".ui.DataManagerActivity" />
+        <activity android:name=".ui.GroupActivity" />
+        <activity android:name=".ui.GroupDetailActivity" />
+        <activity android:name=".ui.GroupMembersActivity" />
+        <activity android:name=".ui.FriendMoreActivity" />
+        <activity android:name=".ui.GroupFriendMoreActivity" />
+        <activity android:name=".ui.FriendChatSettingActivity" />
+        <activity android:name=".ui.GroupFriendChatSettingActivity" />
+        <activity android:name=".ui.GroupFriendChatActivity" />
+        <activity android:name=".ui.GroupFriendCardActivity" />
+        <activity android:name=".ui.LoginUserDetail" />
+
+        <receiver android:name=".receiver.NetChangedReceiver3" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.SCREEN_OFF" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".service.ConnectService"
+            android:exported="false" />
+        <service
+            android:name=".service.ChatService"
+            android:exported="false" />
+        
+    </application>
+
+</manifest>
