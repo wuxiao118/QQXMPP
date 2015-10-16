@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.zyxb.qqxmpp.db3.DB3Init;
+import com.zyxb.qqxmpp.db.DBInit;
 import com.zyxb.qqxmpp.R;
 
 public class DataManagerActivity extends BaseActivity implements
@@ -83,7 +83,7 @@ public class DataManagerActivity extends BaseActivity implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.tvSettingsBack:
-				app.back();
+				mApp.back();
 				break;
 			case R.id.llSettingsDataManagerCreateData:
 				// helper.create();
@@ -99,8 +99,8 @@ public class DataManagerActivity extends BaseActivity implements
 					public void run() {
 						// helper.clear();
 						// helper.create();
-						DB3Init.clear(mContext);
-						DB3Init.create(mContext);
+						DBInit.clear(mContext);
+						DBInit.create(mContext);
 
 						Message m = Message.obtain();
 						m.what = 0;
@@ -130,10 +130,10 @@ public class DataManagerActivity extends BaseActivity implements
 		// 数据重新加载完成后,重新加载数据
 
 		// 清楚数据,重新登录
-		app.setUser(null);
+		mApp.setmUser(null);
 
 		Intent intent = new Intent(this, SplashActivity.class);
 		startActivity(intent);
-		app.finish();
+		mApp.finish();
 	}
 }

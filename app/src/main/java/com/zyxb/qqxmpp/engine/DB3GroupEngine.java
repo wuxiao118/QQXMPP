@@ -2,31 +2,31 @@ package com.zyxb.qqxmpp.engine;
 
 import android.content.Context;
 
-import com.zyxb.qqxmpp.bean3.Contact;
-import com.zyxb.qqxmpp.bean3.Information;
-import com.zyxb.qqxmpp.bean3.po.DB3Group;
-import com.zyxb.qqxmpp.bean3.po.DB3GroupMapping;
-import com.zyxb.qqxmpp.bean3.po.DB3User;
-import com.zyxb.qqxmpp.bean3.vo.GroupInfo;
-import com.zyxb.qqxmpp.db3.DAOFactory;
-import com.zyxb.qqxmpp.db3.DB3Columns;
-import com.zyxb.qqxmpp.db3.dao.DB3GroupDAO;
-import com.zyxb.qqxmpp.db3.dao.DB3GroupMappingDAO;
+import com.zyxb.qqxmpp.bean.Contact;
+import com.zyxb.qqxmpp.bean.Information;
+import com.zyxb.qqxmpp.bean.po.DBGroup;
+import com.zyxb.qqxmpp.bean.po.DBGroupMapping;
+import com.zyxb.qqxmpp.bean.po.DBUser;
+import com.zyxb.qqxmpp.bean.vo.GroupInfo;
+import com.zyxb.qqxmpp.db.DAOFactory;
+import com.zyxb.qqxmpp.db.DBColumns;
+import com.zyxb.qqxmpp.db.dao.DBGroupDAO;
+import com.zyxb.qqxmpp.db.dao.DBGroupMappingDAO;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DB3GroupEngine {
-	private DB3GroupMappingDAO dao;
-	private DB3GroupDAO gDao;
+	private DBGroupMappingDAO dao;
+	private DBGroupDAO gDao;
 
 	public DB3GroupEngine(Context context) {
 		dao = DAOFactory.getDB3GroupMappingDAO(context);
 		gDao = DAOFactory.getDB3GroupDAO(context);
 	}
 
-	public List<GroupInfo> getGroups(DB3User user) {
-		List<DB3GroupMapping> mappings = dao.findMappingByUser(user);
+	public List<GroupInfo> getGroups(DBUser user) {
+		List<DBGroupMapping> mappings = dao.findMappingByUser(user);
 		dao.close();
 
 		ArrayList<GroupInfo> creators = new ArrayList<GroupInfo>();
@@ -34,7 +34,7 @@ public class DB3GroupEngine {
 		ArrayList<GroupInfo> members = new ArrayList<GroupInfo>();
 
 		GroupInfo info = null;
-		for (DB3GroupMapping m : mappings) {
+		for (DBGroupMapping m : mappings) {
 			int level = m.getLevel();
 			info = new GroupInfo();
 			info.setAccount(m.getGroup().getAccount());
@@ -44,14 +44,14 @@ public class DB3GroupEngine {
 			info.setType(GroupInfo.GROUP_TYPE_ITEM);
 
 			switch (level) {
-				case DB3Columns.GROUP_LEVEL_CREATOR:
+				case DBColumns.GROUP_LEVEL_CREATOR:
 					creators.add(info);
 					break;
-				case DB3Columns.GROUP_LEVEL_MASTER:
+				case DBColumns.GROUP_LEVEL_MASTER:
 					managers.add(info);
 					break;
-				case DB3Columns.GROUP_LEVEL_ELITE:
-				case DB3Columns.GROUP_LEVEL_COMMON:
+				case DBColumns.GROUP_LEVEL_ELITE:
+				case DBColumns.GROUP_LEVEL_COMMON:
 					members.add(info);
 					break;
 			}
@@ -95,8 +95,8 @@ public class DB3GroupEngine {
 		return creators;
 	}
 
-	public DB3Group getGroup(String account) {
-		DB3Group group = gDao.findByAccount(account);
+	public DBGroup getGroup(String account) {
+		DBGroup group = gDao.findByAccount(account);
 		gDao.close();
 
 		return group;
@@ -117,13 +117,13 @@ public class DB3GroupEngine {
 	}
 
 	public List<Information> getFriends(String groupAccount) {
-		List<DB3GroupMapping> mps = dao.findByGroup(groupAccount);
+		List<DBGroupMapping> mps = dao.findByGroup(groupAccount);
 		dao.close();
 
 		List<Information> infos = new ArrayList<Information>();
 		Information info = null;
 		for (int i = 0; i < mps.size(); i++) {
-			DB3GroupMapping map = mps.get(i);
+			DBGroupMapping map = mps.get(i);
 			info = new Information();
 			info.setAccount(map.getUser().getAccount());
 			info.setChannel(map.getLoginChannel());
@@ -143,12 +143,12 @@ public class DB3GroupEngine {
 	}
 
 	public Contact getFriend(String groupAccount, String contactAccount) {
-		DB3GroupMapping mapping = dao.getFriend(groupAccount, contactAccount);
+		DBGroupMapping mapping = dao.getFriend(groupAccount, contactAccount);
 		dao.close();
 
 		Contact cont = new Contact();
 		// 设置user信息
-		DB3User user = mapping.getUser();
+		DBUser user = mapping.getUser();
 		cont.setAccount(user.getAccount());
 		cont.setAge(user.getAge());
 		cont.setBirthday(user.getBirthday());
@@ -192,12 +192,12 @@ public class DB3GroupEngine {
 	}
 
 	/**
-	 * public List<GroupInfo> getGroups(DB3User user) { List<DB3GroupMapping>
-	 * mappings = dao.findMappingByUser(user); dao.close();
+	 * public List<GroupInfo> getGroups(DBUser mUser) { List<DBGroupMapping>
+	 * mappings = dao.findMappingByUser(mUser); dao.close();
 	 *
 	 * Map<Integer, List<GroupInfo>> map = new HashMap<Integer,
 	 * List<GroupInfo>>(); GroupInfo info = null; List<GroupInfo> infos = null;
-	 * List<Integer> keys = new ArrayList<Integer>(); for (DB3GroupMapping m :
+	 * List<Integer> keys = new ArrayList<Integer>(); for (DBGroupMapping m :
 	 * mappings) { int level = m.getLevel(); if (!map.containsKey(level)) {
 	 * List<GroupInfo> l = new ArrayList<GroupInfo>(); map.put(level, l);
 	 * keys.add(level); }
@@ -224,11 +224,11 @@ public class DB3GroupEngine {
 	 *
 	 * 死循环
 	 *
-	 * @param user
+	 * @param mUser
 	 * @return
 	 *
-	 *         public List<GroupInfo> getGroups(DB3User user) {
-	 *         List<DB3GroupMapping> mappings = dao.findMappingByUser(user);
+	 *         public List<GroupInfo> getGroups(DBUser mUser) {
+	 *         List<DBGroupMapping> mappings = dao.findMappingByUser(mUser);
 	 *         dao.close();
 	 *
 	 *         List<GroupInfo> infos = new ArrayList<GroupInfo>(); // 处理业务 int
@@ -243,7 +243,7 @@ public class DB3GroupEngine {
 	 *         title.setType(GroupInfo.GROUP_TYPE_TITLE); infos.add(title);
 	 *
 	 *         level--; tnum++; i--; isEnd = false; } else { // 群信息 info = new
-	 *         GroupInfo(); DB3Group group = mappings.get(i-tnum).getGroup();
+	 *         GroupInfo(); DBGroup group = mappings.get(i-tnum).getGroup();
 	 *         info.setAccount(group.getAccount());
 	 *         info.setIcon(group.getIcon());
 	 *         info.setLevel(mappings.get(i-tnum).getLevel());

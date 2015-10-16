@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.vo.Expression;
+import com.zyxb.qqxmpp.bean.vo.Expression;
 
 import java.io.IOException;
 import java.util.List;

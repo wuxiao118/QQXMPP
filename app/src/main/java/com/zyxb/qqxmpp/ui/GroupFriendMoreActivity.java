@@ -15,7 +15,7 @@ public class GroupFriendMoreActivity extends BaseActivity implements
 	private TextView tvBack;
 	private String contactAccount;
 	private String groupAccount;
-	//private Contact contact;
+	//private Contact mContact;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,17 +41,17 @@ public class GroupFriendMoreActivity extends BaseActivity implements
 		Intent intent = getIntent();
 		contactAccount = intent.getStringExtra("account");
 		groupAccount = intent.getStringExtra("groupAccount");
-		Logger.d(TAG, "user account:" + contactAccount + ",group account:"
+		Logger.d(TAG, "mUser account:" + contactAccount + ",group account:"
 				+ groupAccount);
 
-		//contact = engine.getGroupFriend(groupAccount, contactAccount);
+		//contact = mEngine.getGroupFriend(groupAccount, contactAccount);
 	}
 
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.tvGroupFriendMoreBack:
-				app.back();
+				mApp.back();
 				break;
 		}
 	}

@@ -13,9 +13,9 @@ import android.widget.Toast;
 
 import com.zyxb.qqxmpp.App;
 import com.zyxb.qqxmpp.MainActivity;
-import com.zyxb.qqxmpp.bean3.XMPPUser;
-import com.zyxb.qqxmpp.bean3.po.DB3User;
-import com.zyxb.qqxmpp.db3.DB3Init;
+import com.zyxb.qqxmpp.bean.XMPPUser;
+import com.zyxb.qqxmpp.bean.po.DBUser;
+import com.zyxb.qqxmpp.db.DBInit;
 import com.zyxb.qqxmpp.engine.DataEngine;
 import com.zyxb.qqxmpp.service.ChatService;
 import com.zyxb.qqxmpp.service.ConnectService;
@@ -34,11 +34,11 @@ import com.zyxb.qqxmpp.R;
 public class SplashActivity extends Activity {
 	private ImageView ivSplash;
 	private Context mContext;
-	private App app;
+	private App mApp;
 
 	// 是否已经登录
 	private boolean isLogin = false;
-	private ConnectReceiver connectReceiver;
+	private ConnectReceiver mConnectReceiver;
 	private String username;
 	private String pwd;
 
@@ -60,21 +60,21 @@ public class SplashActivity extends Activity {
 
 		ivSplash = (ImageView) findViewById(R.id.ivSplash);
 		mContext = this;
-		app = (App) getApplication();
+		mApp = (App) getApplication();
 
 		// 检测账号类型
 		userType = SharedPreferencesUtils.getString(mContext,
 				Const.SP_USER_TYPE, Const.USER_TYPE_LOCAL);
-		app.setUserType(userType);
+		mApp.setUserType(userType);
 
 		if (userType.equals(Const.USER_TYPE_XMPP)) {
 			// 注册广播接收者
-			connectReceiver = new ConnectReceiver();
+			mConnectReceiver = new ConnectReceiver();
 			IntentFilter connectFilter = new IntentFilter();
 			connectFilter.addAction(ConnectService.LOGIN_SERVER_CONNECTED);
 			connectFilter.addAction(ConnectService.LOGIN_SERVER_DISCONNECTED);
 			connectFilter.addAction(ChatService.LOGIN);
-			registerReceiver(connectReceiver, connectFilter);
+			registerReceiver(mConnectReceiver, connectFilter);
 		}
 
 		init();
@@ -82,8 +82,8 @@ public class SplashActivity extends Activity {
 
 	private void init() {
 		// 检查数据库,导入数据
-		if (DB3Init.isEmpty(this)) {
-			DB3Init.create(this);
+		if (DBInit.isEmpty(this)) {
+			DBInit.create(this);
 		}
 
 		// 开启服务
@@ -144,11 +144,11 @@ public class SplashActivity extends Activity {
 		if (!username.equals("") && !pwd.equals("")) {
 			// 从user表查询
 			DataEngine engine = new DataEngine(mContext);
-			DB3User user = engine.login(username, MD5Encoder.encode(pwd));
+			DBUser user = engine.login(username, MD5Encoder.encode(pwd));
 			if (user != null) {
 				Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
 
-				app.setUser(user);
+				mApp.setmUser(user);
 				intent = new Intent(mContext, MainActivity.class);
 			} else {
 				Toast.makeText(mContext, "用户名或密码不对", Toast.LENGTH_SHORT).show();
@@ -180,8 +180,8 @@ public class SplashActivity extends Activity {
 			public void run() {
 				// 如果2秒内未登录成功,使用本地登陆
 				if (!isLogin) {
-					unregisterReceiver(connectReceiver);
-					connectReceiver = null;
+					unregisterReceiver(mConnectReceiver);
+					mConnectReceiver = null;
 					localLogin("网络连接中,使用本地数据库登陆");
 				}
 			}
@@ -205,9 +205,9 @@ public class SplashActivity extends Activity {
 				ur.setJid(username);
 				ur.setNickname(username.split("@")[0]);
 				ur.setStatusMessage(pwd);
-				DB3User u = engine.getXMPPUser(ur);
-				app.setUser(u);
-				app.setConnected(true);
+				DBUser u = engine.getXMPPUser(ur);
+				mApp.setmUser(u);
+				mApp.setConnected(true);
 
 				// 发送用户消息保存完成广播
 				Intent userAddIntent = new Intent(
@@ -244,8 +244,8 @@ public class SplashActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 
-		if (connectReceiver != null) {
-			unregisterReceiver(connectReceiver);
+		if (mConnectReceiver != null) {
+			unregisterReceiver(mConnectReceiver);
 		}
 
 	}

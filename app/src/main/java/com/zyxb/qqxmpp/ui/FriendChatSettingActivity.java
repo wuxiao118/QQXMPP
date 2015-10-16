@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.Contact;
+import com.zyxb.qqxmpp.bean.Contact;
 
 public class FriendChatSettingActivity extends BaseActivity implements
 		OnClickListener {
@@ -19,7 +19,7 @@ public class FriendChatSettingActivity extends BaseActivity implements
 	private ImageView ivIcon;
 
 	// 数据
-	private Contact contact;
+	private Contact mContact;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,16 +49,16 @@ public class FriendChatSettingActivity extends BaseActivity implements
 	private void initData() {
 		Intent intent = getIntent();
 		String contactAccount = intent.getStringExtra("account");
-		contact = engine.getUserFriend(contactAccount);
+		mContact = mEngine.getUserFriend(contactAccount);
 
 		// 设置数据
-		String remark = contact.getRemark();
+		String remark = mContact.getRemark();
 		if (remark == null) {
-			remark = contact.getNickname();
+			remark = mContact.getNickname();
 		}
 		tvRemark.setText(remark);
-		tvAccount.setText(contact.getAccount());
-		String icon = contact.getIcon();
+		tvAccount.setText(mContact.getAccount());
+		String icon = mContact.getIcon();
 		if (icon != null) {
 			// TODO 加载图片
 
@@ -69,7 +69,7 @@ public class FriendChatSettingActivity extends BaseActivity implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.tvFriendChatSettingBack:
-				app.back();
+				mApp.back();
 				break;
 			case R.id.ivFriendChatSettingIcon:
 				// TODO 删除好友

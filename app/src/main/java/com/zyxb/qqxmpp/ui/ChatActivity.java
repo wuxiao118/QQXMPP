@@ -25,12 +25,12 @@ import android.widget.Toast;
 import com.zyxb.qqxmpp.R;
 import com.zyxb.qqxmpp.adapter.ChatAdapter;
 import com.zyxb.qqxmpp.adapter.FaceVPAdapter;
-import com.zyxb.qqxmpp.bean3.MessageInfo;
-import com.zyxb.qqxmpp.bean3.XMPPMessage;
-import com.zyxb.qqxmpp.bean3.po.DB3Group;
-import com.zyxb.qqxmpp.bean3.po.DB3User;
-import com.zyxb.qqxmpp.db3.DB3Columns;
-import com.zyxb.qqxmpp.db3.dao.DB3MessageDAO.OnMessageChangeListener;
+import com.zyxb.qqxmpp.bean.MessageInfo;
+import com.zyxb.qqxmpp.bean.XMPPMessage;
+import com.zyxb.qqxmpp.bean.po.DBGroup;
+import com.zyxb.qqxmpp.bean.po.DBUser;
+import com.zyxb.qqxmpp.db.DBColumns;
+import com.zyxb.qqxmpp.db.dao.DBMessageDAO.OnMessageChangeListener;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.MyExpressionUtil;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
@@ -52,7 +52,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 
 	// 消息列表
 	private DropdownListView dlMsgList;
-	private ChatAdapter chatAdaper;
+	private ChatAdapter mChatAdapter;
 
 	// 底部
 	// private LinearLayout llBottom;
@@ -82,11 +82,11 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 	// 表情列表
 	private List<String> staticFacesList;
 
-	private LayoutInflater inflater;
+	private LayoutInflater mInflater;
 
 	// 消息
 	private List<MessageInfo> messages;
-	private DB3User user;
+	private DBUser user;
 	private int messageType;
 	private String account;
 	private String toJid;
@@ -129,7 +129,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 		isShowAdd = false;
 		hide();
 
-		inflater = LayoutInflater.from(this);
+		mInflater = LayoutInflater.from(this);
 		staticFacesList = MyExpressionUtil.initStaticFaces(this);
 
 		// 初始化表情
@@ -138,26 +138,26 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 
 	private void initData() {
 		// 获取信息
-		user = app.getUser();
+		user = mApp.getmUser();
 
 		Intent intent = getIntent();
 		messageType = intent.getIntExtra("type", -1);
 		String fromAccount = intent.getStringExtra("fromAccount");
 		String toAccount = intent.getStringExtra("toAccount");
 
-		// System.out.println(DB3Columns.MESSAGE_TYPES[messageType] + ":" +
+		// System.out.println(DBColumns.MESSAGE_TYPES[messageType] + ":" +
 		// fromAccount + "--->" +toAccount);
-		Logger.d(TAG, DB3Columns.MESSAGE_TYPES[messageType] + ":" + fromAccount
+		Logger.d(TAG, DBColumns.MESSAGE_TYPES[messageType] + ":" + fromAccount
 				+ "--->" + toAccount);
 
 		switch (messageType) {
-			case DB3Columns.MESSAGE_TYPE_CONTACT:
+			case DBColumns.MESSAGE_TYPE_CONTACT:
 				String contactAccount = fromAccount;
 				if (contactAccount.equals(user.getAccount())) {
 					contactAccount = toAccount;
 				}
 				account = contactAccount;
-				messages = engine.getContactMessages(contactAccount, this);
+				messages = mEngine.getContactMessages(contactAccount, this);
 				if (messages.size() > 0) {
 					MessageInfo info = messages.get(0);
 					String remark = null;
@@ -173,25 +173,25 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 					tvTitleName.setText(remark);
 				} else {
 					// 获取用户信息
-					tvTitleName.setText(engine.getRemark(user.getAccount(),
+					tvTitleName.setText(mEngine.getRemark(user.getAccount(),
 							contactAccount));
 				}
 
 				break;
-			case DB3Columns.MESSAGE_TYPE_GROUP:
+			case DBColumns.MESSAGE_TYPE_GROUP:
 				account = toAccount;
-				messages = engine.getGroupMessages(toAccount, this);
+				messages = mEngine.getGroupMessages(toAccount, this);
 				if (messages.size() > 0) {
 					MessageInfo info = messages.get(0);
 					tvTitleName.setText(info.getTo().getName());
 				} else {
-					DB3Group groupInfo = engine.getGroupInfo(toAccount);
+					DBGroup groupInfo = mEngine.getGroupInfo(toAccount);
 					tvTitleName.setText(groupInfo.getName());
 				}
 				break;
-			case DB3Columns.MESSAGE_TYPE_SYS:
+			case DBColumns.MESSAGE_TYPE_SYS:
 				account = fromAccount;
-				messages = engine.getSystemMessages(fromAccount, this);
+				messages = mEngine.getSystemMessages(fromAccount, this);
 				if (messages.size() > 0) {
 					MessageInfo info = messages.get(0);
 					tvTitleName.setText(info.getFrom().getName());
@@ -199,8 +199,8 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 				break;
 		}
 
-		chatAdaper = new ChatAdapter(this, user, messages);
-		dlMsgList.setAdapter(chatAdaper);
+		mChatAdapter = new ChatAdapter(this, user, messages);
+		dlMsgList.setAdapter(mChatAdapter);
 		// 滚动到最下方 android:transcriptMode="alwaysScroll"
 		// android:stackFromBottom="true"
 		dlMsgList.setSelection(messages.size() - 1);
@@ -290,7 +290,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 	 */
 	@SuppressLint("InflateParams")
 	private ImageView dotsItem(int position) {
-		View layout = inflater.inflate(R.layout.dot_image, null);
+		View layout = mInflater.inflate(R.layout.dot_image, null);
 		ImageView iv = (ImageView) layout.findViewById(R.id.face_dot);
 		iv.setId(position);
 		return iv;
@@ -301,7 +301,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 		switch (v.getId()) {
 			case R.id.tvMsgTitleLeft:
 				// back
-				app.back();
+				mApp.back();
 				break;
 			case R.id.ivMsgTitleSecond:
 				// phone
@@ -311,15 +311,15 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 				// 个人/群/系统组 信息
 				Intent intent = null;
 				switch (messageType) {
-					case DB3Columns.MESSAGE_TYPE_CONTACT:
+					case DBColumns.MESSAGE_TYPE_CONTACT:
 						intent = new Intent(this, FriendChatSettingActivity.class);
 						// 传递好友ID
 						break;
-					case DB3Columns.MESSAGE_TYPE_GROUP:
+					case DBColumns.MESSAGE_TYPE_GROUP:
 						intent = new Intent(this, GroupDetailActivity.class);
 						// 传递群ID
 						break;
-					case DB3Columns.MESSAGE_TYPE_SYS:
+					case DBColumns.MESSAGE_TYPE_SYS:
 
 						return;
 					// break;
@@ -367,26 +367,26 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 					message.setFrom(user.getAccount());
 					message.setTo(account);
 					message.setMsgType(messageType);
-					message.setState(DB3Columns.MESSAGE_STATE_SENDING);
+					message.setState(DBColumns.MESSAGE_STATE_SENDING);
 					// 数据库中添加数据 ,先由engine写入数据库
 					// 连接服务器service完成后由service负责写入数据
-					engine.addMessage(message);
+					mEngine.addMessage(message);
 					message = null;
 
 					// 更新数据,service完成后,由service广播,在receiver中更新
 					switch (messageType) {
-						case DB3Columns.MESSAGE_TYPE_CONTACT:
-							messages = engine.getContactMessages(account, this);
+						case DBColumns.MESSAGE_TYPE_CONTACT:
+							messages = mEngine.getContactMessages(account, this);
 							break;
-						case DB3Columns.MESSAGE_TYPE_GROUP:
-							messages = engine.getGroupMessages(account, this);
+						case DBColumns.MESSAGE_TYPE_GROUP:
+							messages = mEngine.getGroupMessages(account, this);
 							break;
-						case DB3Columns.MESSAGE_TYPE_SYS:
-							messages = engine.getSystemMessages(account, this);
+						case DBColumns.MESSAGE_TYPE_SYS:
+							messages = mEngine.getSystemMessages(account, this);
 							break;
 					}
-					chatAdaper.setMessages(messages);
-					chatAdaper.notifyDataSetChanged();
+					mChatAdapter.setMessages(messages);
+					mChatAdapter.notifyDataSetChanged();
 
 					etInput.setText("");
 
@@ -396,7 +396,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 					// 关闭键盘
 
 					// 如果网络连通,并登陆,通过smack发送
-					if (app.isConnected()) {
+					if (mApp.isConnected()) {
 
 					}
 				}

@@ -2,73 +2,73 @@ package com.zyxb.qqxmpp.test;
 
 import java.util.List;
 
-import com.zyxb.qqxmpp.bean3.po.DB3Message;
-import com.zyxb.qqxmpp.db3.DB3Init;
+import com.zyxb.qqxmpp.bean.po.DBMessage;
+import com.zyxb.qqxmpp.db.DBInit;
 
 import android.test.AndroidTestCase;
 
 public class DB3Test extends AndroidTestCase {
 
 	public void testAddUser() {
-		DB3Init.addUser(getContext());
+		DBInit.addUser(getContext());
 	}
 
 	public void testAddFriendGroup() {
-		DB3Init.addFriendGroup(getContext());
+		DBInit.addFriendGroup(getContext());
 	}
 
 	public void testAddFriendState() {
-		DB3Init.addFriendState(getContext());
+		DBInit.addFriendState(getContext());
 	}
 
 	public void testAddGroup() {
-		DB3Init.addGroup(getContext());
+		DBInit.addGroup(getContext());
 	}
 
 	public void testAddGroupState() {
-		DB3Init.addGroupState(getContext());
+		DBInit.addGroupState(getContext());
 	}
 
 	public void testAddSystemGroup() {
-		DB3Init.addSystemGroup(getContext());
+		DBInit.addSystemGroup(getContext());
 	}
 
 	public void testAddMessage() {
-		DB3Init.addMessage(getContext());
+		DBInit.addMessage(getContext());
 	}
 
 	public void create() {
-		DB3Init.create(getContext());
+		DBInit.create(getContext());
 	}
 
 	public void clear() {
-		DB3Init.clear(getContext());
+		DBInit.clear(getContext());
 	}
 
 	public void testFindGroupMessage() {
-		List<DB3Message> messages = DB3Init.getGroupMessages(getContext());
-		for (DB3Message m : messages) {
+		List<DBMessage> messages = DBInit.getGroupMessages(getContext());
+		for (DBMessage m : messages) {
 			System.out.println(m);
 		}
 	}
 
 	public void testFindContactMessage() {
-		List<DB3Message> messages = DB3Init.getContactMessages(getContext());
-		for (DB3Message m : messages) {
+		List<DBMessage> messages = DBInit.getContactMessages(getContext());
+		for (DBMessage m : messages) {
 			System.out.println(m);
 		}
 	}
 
 	public void testFindSystemMessage() {
-		List<DB3Message> messages = DB3Init.getSystemMessages(getContext());
-		for (DB3Message m : messages) {
+		List<DBMessage> messages = DBInit.getSystemMessages(getContext());
+		for (DBMessage m : messages) {
 			System.out.println(m);
 		}
 	}
 
 	public void testFindNewestMessage() {
-		List<DB3Message> messages = DB3Init.getNewest(getContext());
-		for (DB3Message m : messages) {
+		List<DBMessage> messages = DBInit.getNewest(getContext());
+		for (DBMessage m : messages) {
 			System.out.println(m);
 		}
 	}

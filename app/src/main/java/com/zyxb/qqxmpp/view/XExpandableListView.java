@@ -26,7 +26,7 @@ public class XExpandableListView extends ExpandableListView implements OnScrollL
 
 	private float mLastY = -1; // save event y
 	private Scroller mScroller; // used for scroll back
-	private OnScrollListener mScrollListener; // user's scroll listener
+	private OnScrollListener mScrollListener; // mUser's scroll listener
 
 	/** the interface to trigger refresh and load more.*/
 	private IXExpandableListViewListener mListViewListener;
@@ -101,7 +101,7 @@ public class XExpandableListView extends ExpandableListView implements OnScrollL
 		mScroller = new Scroller(context, new DecelerateInterpolator());
 		/**
 		 * XListView need the scroll event,
-		 * and it will dispatch the event to user's listener (as a proxy).*/
+		 * and it will dispatch the event to mUser's listener (as a proxy).*/
 		super.setOnScrollListener(this);
 
 		// init header view
@@ -363,7 +363,7 @@ public class XExpandableListView extends ExpandableListView implements OnScrollL
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
 						 int visibleItemCount, int totalItemCount) {
-		// send to user's listener
+		// send to mUser's listener
 		mTotalItemCount = totalItemCount;
 		viewHeight = view.getHeight();
 		if (mScrollListener != null) {

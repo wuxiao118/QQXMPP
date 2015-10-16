@@ -943,7 +943,7 @@ public class XmppConnection {
 		// Data Forms
 		pm.addExtensionProvider("x", "jabber:x:data", new DataFormProvider());
 		// MUC User
-		pm.addExtensionProvider("x", "http://jabber.org/protocol/muc#user",
+		pm.addExtensionProvider("x", "http://jabber.org/protocol/muc#mUser",
 				new MUCUserProvider());
 		// MUC Admin
 		pm.addIQProvider("query", "http://jabber.org/protocol/muc#admin",

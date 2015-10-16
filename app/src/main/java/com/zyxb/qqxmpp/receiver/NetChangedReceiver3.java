@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.zyxb.qqxmpp.db3.DB3Columns;
+import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.engine.DataEngine;
 import com.zyxb.qqxmpp.service.ChatService;
 import com.zyxb.qqxmpp.service.ConnectService;
@@ -20,14 +20,14 @@ public class NetChangedReceiver3 extends BroadcastReceiver {
 	//public static final String STOP_XMPP_SERVICE = "com.zyxb.qqxmpp.STOP_XMPP_SERVICE";
 	private Context mContext;
 	private boolean isConnected;
-	private DataEngine engine;
+	private DataEngine mEngine;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		mContext = context;
 		String action = intent.getAction();
 		isConnected = NetUtil.checkNet(context);
-		engine = new DataEngine(context);
+		mEngine = new DataEngine(context);
 
 		Logger.d(TAG, "onReceive:" + intent.getAction() + ",net state:"
 				+ isConnected);
@@ -37,7 +37,7 @@ public class NetChangedReceiver3 extends BroadcastReceiver {
 			// 启动设置未读数量
 			String username = SharedPreferencesUtils.getString(context,
 					Const.SP_USERNAME, "");
-			int num = engine.getUnReadedMessage(DB3Columns.USER_NICKNAME,
+			int num = mEngine.getUnReadedMessage(DBColumns.USER_NICKNAME,
 					username);
 			AppShortCutUtil.addNumShortCut(context, null, true, num + "", true);
 		}

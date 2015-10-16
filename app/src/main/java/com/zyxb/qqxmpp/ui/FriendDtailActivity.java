@@ -11,8 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.Contact;
-import com.zyxb.qqxmpp.db3.DB3Columns;
+import com.zyxb.qqxmpp.bean.Contact;
+import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
 
@@ -25,11 +25,11 @@ public class FriendDtailActivity extends BaseActivity implements
 	private ImageView ivIcon;
 	private LinearLayout llPhone, llSendMsg, llDaren;
 
-	// private DB3User contact;
+	// private DBUser mContact;
 
 	// 当前用户
 	private String contactAccount;
-	private Contact contact;
+	private Contact mContact;
 
 	private boolean isFromeChat;
 
@@ -74,19 +74,19 @@ public class FriendDtailActivity extends BaseActivity implements
 		// System.out.println(TAG + ":" + contactAccount);
 		isFromeChat = intent.getBooleanExtra("isFromChat", false);
 		Logger.d(TAG, contactAccount);
-		// contact = engine.getUserInfo(contactAccount);
-		contact = engine.getUserFriend(contactAccount);
+		// mContact = mEngine.getUserInfo(contactAccount);
+		mContact = mEngine.getUserFriend(contactAccount);
 
 		// 设置数据
 		// 名字
-		String name = contact.getRemark();
+		String name = mContact.getRemark();
 		if (name == null) {
-			name = contact.getNickname();
+			name = mContact.getNickname();
 		}
 		tvName.setText(name);
 
 		// 图标
-		String icon = contact.getIcon();
+		String icon = mContact.getIcon();
 		if (icon != null) {
 			// 加载icon
 			Bitmap bmp = BitmapFactory.decodeFile(icon);
@@ -95,7 +95,7 @@ public class FriendDtailActivity extends BaseActivity implements
 
 		// 性别 年龄 位置
 		StringBuilder sb = new StringBuilder();
-		String gender = contact.getGender();
+		String gender = mContact.getGender();
 		if (gender != null && gender.equalsIgnoreCase("M")) {
 			sb.append("男 ");
 		} else if (gender != null && gender.equalsIgnoreCase("F")) {
@@ -103,13 +103,13 @@ public class FriendDtailActivity extends BaseActivity implements
 		}
 		gender = null;
 
-		Integer ageInt = contact.getAge();
+		Integer ageInt = mContact.getAge();
 		if (ageInt != null) {
 			sb.append(ageInt.toString() + " ");
 		}
 		ageInt = null;
 
-		String location = contact.getLocation();
+		String location = mContact.getLocation();
 		if (location != null) {
 			sb.append(location);
 		}
@@ -118,20 +118,20 @@ public class FriendDtailActivity extends BaseActivity implements
 		sb = null;
 
 		// account
-		tvAccount.setText(contact.getAccount());
+		tvAccount.setText(mContact.getAccount());
 
 		// 昵称
-		tvNickname.setText(contact.getNickname());
+		tvNickname.setText(mContact.getNickname());
 
 		// 个性签名
-		String ps = contact.getPersonalitySignature();
+		String ps = mContact.getPersonalitySignature();
 		if (ps == null) {
 			ps = "这个家伙什么也没留下";
 		}
 		tvPersonalitySignature.setText(ps);
 
 		// 达人
-		Integer days = contact.getExportDays();
+		Integer days = mContact.getExportDays();
 		if (days == null) {
 			llDaren.setVisibility(View.GONE);
 		} else {
@@ -144,7 +144,7 @@ public class FriendDtailActivity extends BaseActivity implements
 		Intent intent = null;
 		switch (v.getId()) {
 			case R.id.tvFriendDetailBack:
-				app.back();
+				mApp.back();
 				break;
 			case R.id.tvFriendMore:
 				intent = new Intent(this, FriendMoreActivity.class);
@@ -159,8 +159,8 @@ public class FriendDtailActivity extends BaseActivity implements
 					UIAnimUtils.sildRightOut(this);
 				} else {
 					intent = new Intent(this, ChatActivity.class);
-					intent.putExtra("type", DB3Columns.MESSAGE_TYPE_CONTACT);
-					intent.putExtra("fromAccount", user.getAccount());
+					intent.putExtra("type", DBColumns.MESSAGE_TYPE_CONTACT);
+					intent.putExtra("fromAccount", mUser.getAccount());
 					intent.putExtra("toAccount", contactAccount);
 					startActivity(intent);
 					UIAnimUtils.sildLeftIn(this);

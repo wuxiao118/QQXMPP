@@ -11,7 +11,7 @@ import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smackx.ping.packet.Ping;
 
-import com.zyxb.qqxmpp.engine.XMPPEngine3;
+import com.zyxb.qqxmpp.engine.XMPPEngine;
 import com.zyxb.qqxmpp.util.Const;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.NetUtil;
@@ -73,21 +73,21 @@ public class ConnectService extends Service {
 
 	//
 	private Service mService;
-	private XMPPEngine3 engine;
+	private XMPPEngine mEngine;
 	private XMPPConnection mXMPPConnection;
 	private PacketListener mPacketListener;
 
 	// 连接和关闭
-	private ConnectReceiver connectReceiver;
+	private ConnectReceiver mConnectReceiver;
 	public static final String CONNECT_CLOSE = "com.zyxb.qqxmpp.CONNECT_CLOSE";
 	public static final String CONNECT_OPEN = "com.zyxb.qqxmpp.CONNECT_OPEN";
 
 	// service关闭
 	public static final String CONNECT_SERVICE_CLOSE = "com.zyxb.qqxmpp.CONNECT_SERVICE_CLOSE";
-	private ConnectCloseReceiver closeReceiver;
+	private ConnectCloseReceiver mCloseReceiver;
 
 	// 更换服务器地址
-	private ServerChangedReceiver serverChangedReceiver;
+	private ServerChangedReceiver mServerChangedReceiver;
 	public static final String SERVER_CHANGED = "com.zyxb.qqxmp.SERVER_CHANGED";
 
 	// ping-pong
@@ -126,23 +126,23 @@ public class ConnectService extends Service {
 		registerReceiver(mAlarmReceiver, new IntentFilter(RECONNECT_ALARM));
 
 		// 连接和关闭连接
-		connectReceiver = new ConnectReceiver();
+		mConnectReceiver = new ConnectReceiver();
 		IntentFilter connectFilter = new IntentFilter();
 		connectFilter.addAction(CONNECT_CLOSE);
 		connectFilter.addAction(CONNECT_OPEN);
-		registerReceiver(connectReceiver, connectFilter);
+		registerReceiver(mConnectReceiver, connectFilter);
 
 		// 服务器更改
-		serverChangedReceiver = new ServerChangedReceiver();
+		mServerChangedReceiver = new ServerChangedReceiver();
 		IntentFilter serverFilter = new IntentFilter();
 		serverFilter.addAction(SERVER_CHANGED);
-		registerReceiver(serverChangedReceiver, serverFilter);
+		registerReceiver(mServerChangedReceiver, serverFilter);
 
 		// 服务关闭
-		closeReceiver = new ConnectCloseReceiver();
+		mCloseReceiver = new ConnectCloseReceiver();
 		IntentFilter closeFilter = new IntentFilter();
 		closeFilter.addAction(CONNECT_SERVICE_CLOSE);
-		registerReceiver(closeReceiver, closeFilter);
+		registerReceiver(mCloseReceiver, closeFilter);
 	}
 
 	@Override
@@ -260,11 +260,11 @@ public class ConnectService extends Service {
 				isRunning = true;
 
 				// 初始化xmpp
-				if (engine == null) {
-					// engine = XMPPEngine3.getInstance(mService);
-					engine = new XMPPEngine3(mService);
-					XMPPEngine3.setEngine(engine);
-					mXMPPConnection = engine.getConn();
+				if (mEngine == null) {
+					// mEngine = XMPPEngine.getInstance(mService);
+					mEngine = new XMPPEngine(mService);
+					XMPPEngine.setEngine(mEngine);
+					mXMPPConnection = mEngine.getConn();
 				}
 
 				try {
@@ -608,7 +608,7 @@ public class ConnectService extends Service {
 			isRunning = false;
 			isConnected = false;
 			mXMPPConnection = null;
-			engine = null;
+			mEngine = null;
 			RECONNECT_TIMES = 1;
 			connect();
 		}
@@ -657,9 +657,9 @@ public class ConnectService extends Service {
 		isConnectServiceRunning = false;
 		isConnected = false;
 
-		unregisterReceiver(connectReceiver);
-		unregisterReceiver(closeReceiver);
-		unregisterReceiver(serverChangedReceiver);
+		unregisterReceiver(mConnectReceiver);
+		unregisterReceiver(mCloseReceiver);
+		unregisterReceiver(mServerChangedReceiver);
 		((AlarmManager) getSystemService(Context.ALARM_SERVICE))
 				.cancel(mPAlarmIntent);// 取消重连闹钟
 		unregisterReceiver(mAlarmReceiver);// 注销广播监听

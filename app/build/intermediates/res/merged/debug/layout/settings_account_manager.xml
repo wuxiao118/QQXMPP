@@ -121,7 +121,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
                             android:gravity="center_vertical"
-                            android:text="150506383"
+                            android:text="100001"
                             android:textColor="@color/setting_text_color"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -182,7 +182,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
                             android:gravity="center_vertical"
-                            android:text="125371698"
+                            android:text="100002"
                             android:textColor="@color/setting_text_color"
                             android:textSize="12sp" />
                     </LinearLayout>

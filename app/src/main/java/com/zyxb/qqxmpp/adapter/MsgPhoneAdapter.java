@@ -10,18 +10,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.MsgPhoneInfo;
+import com.zyxb.qqxmpp.bean.MsgPhoneInfo;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
 public class MsgPhoneAdapter extends BaseAdapter {
 	private List<MsgPhoneInfo> items;
-	private LayoutInflater inflater;
+	private LayoutInflater mInflater;
 
 	public MsgPhoneAdapter(Context context, List<MsgPhoneInfo> phoneInfos) {
 		this.items = phoneInfos;
-		this.inflater = LayoutInflater.from(context);
+		this.mInflater = LayoutInflater.from(context);
 	}
 
 	@Override
@@ -56,25 +56,25 @@ public class MsgPhoneAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (position == 0) {
-			convertView = inflater.inflate(R.layout.msg_phone_list_first, null);
+			convertView = mInflater.inflate(R.layout.msg_phone_list_first, null);
 
 			return convertView;
 		}
 
 		if (position == 1) {
-			convertView = inflater
+			convertView = mInflater
 					.inflate(R.layout.msg_phone_list_second, null);
 
 			return convertView;
 		}
 
 		if (position == (items.size() + 2)) {
-			convertView = inflater.inflate(R.layout.msg_phone_list_bottom, null);
+			convertView = mInflater.inflate(R.layout.msg_phone_list_bottom, null);
 
 			return convertView;
 		}
 
-		convertView = inflater.inflate(R.layout.msg_phone_list_item, null);
+		convertView = mInflater.inflate(R.layout.msg_phone_list_item, null);
 
 		ImageView rightIcon = (ImageView) convertView.findViewById(R.id.ivMsgPhoneListItemRightIcon);
 		TextView title = (TextView) convertView.findViewById(R.id.tvMsgPhoneListItemName);

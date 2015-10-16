@@ -8,7 +8,7 @@ import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
 
-import com.zyxb.qqxmpp.engine.XMPPEngine3;
+import com.zyxb.qqxmpp.engine.XMPPEngine;
 import com.zyxb.qqxmpp.util.Const;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
@@ -16,7 +16,7 @@ import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
 public class ChatService extends Service {
 	private static final String TAG = "ChatService";
 	private ChatService mService;
-	private XMPPEngine3 mEngine;
+	private XMPPEngine mEngine;
 
 	public static final String USER_LOCAL_ADD_COMPLETE = "com.zyxb.qqxmpp.USER_LOCAL_ADD_COMPLETE";
 	public static final String LOGIN = "com.zyxb.qqxmpp.SERVER_LOGIN";
@@ -32,42 +32,42 @@ public class ChatService extends Service {
 	public static final int SERVER_CONNECTED_USER_LOGOUT = 12;
 
 	// 连接
-	private ConnectReceiver connReceiver;
+	private ConnectReceiver mConnReceiver;
 	private boolean isLogin = false;
 
 	// 登陆用户信息保存完成
-	private UserSaveReceiver userSaveReceiver;
+	private UserSaveReceiver mUserSaveReceiver;
 
 	// 关闭自己
-	private CloseReceiver closeReceiver;
+	private CloseReceiver mCloseReceiver;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		Logger.d(TAG, "chat service created");
 		mService = this;
-		// mEngine = XMPPEngine3.getInstance(mService);
-		// mEngine = new XMPPEngine3(mService);
-		// mEngine = XMPPEngine3.getmEngine();
+		// mEngine = XMPPEngine.getInstance(mService);
+		// mEngine = new XMPPEngine(mService);
+		// mEngine = XMPPEngine.getmEngine();
 
 		// 连接receiver
-		connReceiver = new ConnectReceiver();
+		mConnReceiver = new ConnectReceiver();
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ConnectService.LOGIN_SERVER_CONNECTED);
 		filter.addAction(ConnectService.LOGIN_SERVER_DISCONNECTED);
-		registerReceiver(connReceiver, filter);
+		registerReceiver(mConnReceiver, filter);
 
 		// 注册用户添加完成receiver,添加完成后可启动线程添加好友
-		userSaveReceiver = new UserSaveReceiver();
+		mUserSaveReceiver = new UserSaveReceiver();
 		IntentFilter userSaveFilter = new IntentFilter();
 		userSaveFilter.addAction(USER_LOCAL_ADD_COMPLETE);
-		registerReceiver(userSaveReceiver, userSaveFilter);
+		registerReceiver(mUserSaveReceiver, userSaveFilter);
 
 		// 关闭
-		closeReceiver = new CloseReceiver();
+		mCloseReceiver = new CloseReceiver();
 		IntentFilter closeFilter = new IntentFilter();
 		closeFilter.addAction(CHAT_SERVICE_CLOSE);
-		registerReceiver(closeReceiver, closeFilter);
+		registerReceiver(mCloseReceiver, closeFilter);
 	}
 
 	@Override
@@ -80,9 +80,9 @@ public class ChatService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 
-		unregisterReceiver(connReceiver);
-		unregisterReceiver(userSaveReceiver);
-		unregisterReceiver(closeReceiver);
+		unregisterReceiver(mConnReceiver);
+		unregisterReceiver(mUserSaveReceiver);
+		unregisterReceiver(mCloseReceiver);
 	}
 
 	@Override
@@ -98,13 +98,13 @@ public class ChatService extends Service {
 	}
 
 	// 设置engine
-	public void setmEngine(XMPPEngine3 mEngine) {
+	public void setmEngine(XMPPEngine mEngine) {
 		this.mEngine = mEngine;
 	}
 
-	public XMPPEngine3 getmEngine() {
+	public XMPPEngine getmEngine() {
 		if (mEngine == null) {
-			mEngine = XMPPEngine3.getEngine();
+			mEngine = XMPPEngine.getEngine();
 		}
 
 		return mEngine;
@@ -118,7 +118,7 @@ public class ChatService extends Service {
 	public void login(String account, String pwd, String ressource) {
 		getmEngine();
 
-		Logger.d(TAG, "user login:" + account + "," + ressource);
+		Logger.d(TAG, "mUser login:" + account + "," + ressource);
 		Intent intent = new Intent(LOGIN);
 		boolean isLogin = mEngine.login(account, pwd, ressource);
 		if (isLogin) {
@@ -207,7 +207,7 @@ public class ChatService extends Service {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Logger.d(TAG, "login user added.");
+			Logger.d(TAG, "login mUser added.");
 			// 开启线程,添加数据
 			//mEngine.startMessageQueue();
 		}

@@ -17,8 +17,8 @@ import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
 import com.zyxb.qqxmpp.adapter.GroupAdapter;
-import com.zyxb.qqxmpp.bean3.vo.GroupInfo;
-import com.zyxb.qqxmpp.db3.DB3Columns;
+import com.zyxb.qqxmpp.bean.vo.GroupInfo;
+import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.view.CustomListView;
 import com.zyxb.qqxmpp.view.CustomListView.OnRefreshListener;
 
@@ -28,10 +28,10 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 		OnRefreshListener, OnItemClickListener {
 	private TextView tvBack;
 	private ImageView ivMenu;
-	private LinearLayout menu;
-	private LinearLayout disContainer;
-	private CustomListView list;
-	private View bg;
+	private LinearLayout llMenu;
+	private LinearLayout llDisContainer;
+	private CustomListView clList;
+	private View vBg;
 
 	private LinearLayout llGroup;
 	private LinearLayout llDiscussion;
@@ -44,7 +44,7 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 
 	private boolean isMenuShowing = false;
 
-	private GroupAdapter adapter;
+	private GroupAdapter mAdapter;
 	private List<GroupInfo> groups;
 
 	@Override
@@ -61,10 +61,10 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 	private void initUI() {
 		tvBack = findView(R.id.tvGroupListBack);
 		ivMenu = findView(R.id.ivGroupMenu);
-		menu = findView(R.id.llGroupMenu);
-		bg = findView(R.id.vGroupTransBg);
-		disContainer = findView(R.id.llDiscussionContainer);
-		list = findView(R.id.lvGroups);
+		llMenu = findView(R.id.llGroupMenu);
+		vBg = findView(R.id.vGroupTransBg);
+		llDisContainer = findView(R.id.llDiscussionContainer);
+		clList = findView(R.id.lvGroups);
 
 		llGroup = findView(R.id.llMyGroup);
 		llDiscussion = findView(R.id.llDiscussion);
@@ -82,22 +82,22 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 		llGroup.setOnClickListener(this);
 		llDiscussion.setOnClickListener(this);
 
-		list.setCanRefresh(true);
-		list.setCanLoadMore(false);
-		list.setOnRefreshListener(this);
-		list.setOnItemClickListener(this);
+		clList.setCanRefresh(true);
+		clList.setCanLoadMore(false);
+		clList.setOnRefreshListener(this);
+		clList.setOnItemClickListener(this);
 
-		bg.setOnClickListener(this);
+		vBg.setOnClickListener(this);
 	}
 
 	private void initData() {
-		menu.setVisibility(View.GONE);
-		bg.setVisibility(View.GONE);
+		llMenu.setVisibility(View.GONE);
+		vBg.setVisibility(View.GONE);
 
-		groups = engine.getGroups();
-		adapter = new GroupAdapter(this);
-		adapter.setGroups(groups);
-		list.setAdapter(adapter);
+		groups = mEngine.getGroups();
+		mAdapter = new GroupAdapter(this);
+		mAdapter.setGroups(groups);
+		clList.setAdapter(mAdapter);
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.tvGroupListBack:
-				app.back();
+				mApp.back();
 				break;
 			case R.id.ivGroupMenu:
 				if (!isMenuShowing) {
@@ -142,14 +142,14 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 		// 所有相关设置为非点击状态
 		tvGroup.setTextColor(getResources().getColor(R.color.group_color_gray));
 		vGroupLine.setVisibility(View.INVISIBLE);
-		list.setVisibility(View.GONE);
+		clList.setVisibility(View.GONE);
 		vGroupLineGray.setBackgroundColor(getResources().getColor(
 				R.color.group_item_devide_line));
 
 		tvDiscussion.setTextColor(getResources().getColor(
 				R.color.group_color_gray));
 		vDiscussionLine.setVisibility(View.INVISIBLE);
-		disContainer.setVisibility(View.GONE);
+		llDisContainer.setVisibility(View.GONE);
 		vDiscussionLineGray.setBackgroundColor(getResources().getColor(
 				R.color.group_item_devide_line));
 
@@ -158,7 +158,7 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 				tvGroup.setTextColor(getResources().getColor(
 						R.color.group_color_blue));
 				vGroupLine.setVisibility(View.VISIBLE);
-				list.setVisibility(View.VISIBLE);
+				clList.setVisibility(View.VISIBLE);
 				vGroupLineGray.setBackgroundColor(getResources().getColor(
 						R.color.group_color_blue));
 				break;
@@ -167,7 +167,7 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 				tvDiscussion.setTextColor(getResources().getColor(
 						R.color.group_color_blue));
 				vDiscussionLine.setVisibility(View.VISIBLE);
-				disContainer.setVisibility(View.VISIBLE);
+				llDisContainer.setVisibility(View.VISIBLE);
 				vDiscussionLineGray.setBackgroundColor(getResources().getColor(
 						R.color.group_color_blue));
 				break;
@@ -219,10 +219,10 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 			@Override
 			public void onAnimationEnd(Animation arg0) {
 				if (!t) {
-					bg.setVisibility(View.GONE);
-					bg.clearAnimation();
-					bg.setClickable(false);
-					bg.setEnabled(false);
+					vBg.setVisibility(View.GONE);
+					vBg.clearAnimation();
+					vBg.setClickable(false);
+					vBg.setEnabled(false);
 				}
 			}
 		});
@@ -242,22 +242,22 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 			@Override
 			public void onAnimationEnd(Animation arg0) {
 				if (!t) {
-					menu.setVisibility(View.GONE);
-					menu.clearAnimation();
-					menu.setClickable(false);
-					menu.setEnabled(false);
+					llMenu.setVisibility(View.GONE);
+					llMenu.clearAnimation();
+					llMenu.setClickable(false);
+					llMenu.setEnabled(false);
 				}
 			}
 		});
 
-		bg.setVisibility(View.VISIBLE);
-		bg.setEnabled(true);
-		bg.setClickable(true);
-		menu.setVisibility(View.VISIBLE);
-		menu.setClickable(true);
-		menu.setEnabled(true);
-		bg.startAnimation(alpha);
-		menu.startAnimation(trans);
+		vBg.setVisibility(View.VISIBLE);
+		vBg.setEnabled(true);
+		vBg.setClickable(true);
+		llMenu.setVisibility(View.VISIBLE);
+		llMenu.setClickable(true);
+		llMenu.setEnabled(true);
+		vBg.startAnimation(alpha);
+		llMenu.startAnimation(trans);
 	}
 
 	@Override
@@ -267,7 +267,7 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 
 			@Override
 			public void run() {
-				list.onRefreshComplete();
+				clList.onRefreshComplete();
 			}
 		}, 1000);
 	}
@@ -277,7 +277,7 @@ public class GroupActivity extends BaseActivity implements OnClickListener,
 							long id) {
 		Intent intent = new Intent(this, ChatActivity.class);
 		intent.putExtra("toAccount", groups.get(position - 2).getAccount());
-		intent.putExtra("type", DB3Columns.MESSAGE_TYPE_GROUP);
+		intent.putExtra("type", DBColumns.MESSAGE_TYPE_GROUP);
 		startActivity(intent);
 		overridePendingTransition(R.anim.slide_left, R.anim.slide_right);
 	}

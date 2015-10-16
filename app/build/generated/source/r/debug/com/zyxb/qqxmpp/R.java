@@ -805,13 +805,14 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int popup_vertical=0x7f030038;
         public static final int refresh_footer=0x7f030039;
         public static final int refresh_head=0x7f03003a;
-        public static final int search=0x7f03003b;
-        public static final int settings=0x7f03003c;
-        public static final int settings_account_manager=0x7f03003d;
-        public static final int splash=0x7f03003e;
-        public static final int test_lay=0x7f03003f;
-        public static final int xlistview_footer=0x7f030040;
-        public static final int xlistview_header=0x7f030041;
+        public static final int register=0x7f03003b;
+        public static final int search=0x7f03003c;
+        public static final int settings=0x7f03003d;
+        public static final int settings_account_manager=0x7f03003e;
+        public static final int splash=0x7f03003f;
+        public static final int test_lay=0x7f030040;
+        public static final int xlistview_footer=0x7f030041;
+        public static final int xlistview_header=0x7f030042;
     }
     public static final class string {
         public static final int app_name=0x7f060000;

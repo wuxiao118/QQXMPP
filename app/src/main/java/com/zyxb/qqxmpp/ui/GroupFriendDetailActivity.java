@@ -8,8 +8,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.Contact;
-import com.zyxb.qqxmpp.db3.DB3Columns;
+import com.zyxb.qqxmpp.bean.Contact;
+import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
 import com.zyxb.qqxmpp.view.CircleImageView2;
@@ -25,7 +25,7 @@ public class GroupFriendDetailActivity extends BaseActivity implements
 
 	private String contactAccount;
 	private String groupAccount;
-	private Contact contact;
+	private Contact mContact;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,22 +67,22 @@ public class GroupFriendDetailActivity extends BaseActivity implements
 		Intent intent = getIntent();
 		contactAccount = intent.getStringExtra("account");
 		groupAccount = intent.getStringExtra("groupAccount");
-		Logger.d(TAG, "user account:" + contactAccount + ",group account:"
+		Logger.d(TAG, "mUser account:" + contactAccount + ",group account:"
 				+ groupAccount);
 
-		contact = engine.getGroupFriend(groupAccount, contactAccount);
+		mContact = mEngine.getGroupFriend(groupAccount, contactAccount);
 
 		// 设置数据
-		String remark = contact.getRemark();
+		String remark = mContact.getRemark();
 		if (remark == null) {
-			remark = contact.getNickname();
+			remark = mContact.getNickname();
 		}
 		tvRemark.setText(remark);
-		tvAccount.setText(contact.getAccount());
+		tvAccount.setText(mContact.getAccount());
 
 		// 性别 年龄 位置
 		StringBuilder sb = new StringBuilder();
-		String gender = contact.getGender();
+		String gender = mContact.getGender();
 		if (gender != null && gender.equalsIgnoreCase("M")) {
 			sb.append("男 ");
 		} else if (gender != null && gender.equalsIgnoreCase("F")) {
@@ -90,13 +90,13 @@ public class GroupFriendDetailActivity extends BaseActivity implements
 		}
 		gender = null;
 
-		Integer ageInt = contact.getAge();
+		Integer ageInt = mContact.getAge();
 		if (ageInt != null) {
 			sb.append(ageInt.toString() + " ");
 		}
 		ageInt = null;
 
-		String location = contact.getLocation();
+		String location = mContact.getLocation();
 		if (location != null) {
 			sb.append(location);
 		}
@@ -111,7 +111,7 @@ public class GroupFriendDetailActivity extends BaseActivity implements
 
 		switch (v.getId()) {
 			case R.id.tvGroupFriendDetailBack:
-				app.back();
+				mApp.back();
 				break;
 			case R.id.tvGroupFriendDetailMore:
 				intent = new Intent(this, GroupFriendMoreActivity.class);
@@ -120,12 +120,12 @@ public class GroupFriendDetailActivity extends BaseActivity implements
 				startActivity(intent);
 				break;
 			case R.id.llFriendSendMsg:
-				boolean isMyFriend = engine.isMyFriend(contactAccount);
+				boolean isMyFriend = mEngine.isMyFriend(contactAccount);
 				if(isMyFriend){
 					//是好友
 					intent = new Intent(this,ChatActivity.class);
-					intent.putExtra("type", DB3Columns.MESSAGE_TYPE_CONTACT);
-					intent.putExtra("fromAccount", user.getAccount());
+					intent.putExtra("type", DBColumns.MESSAGE_TYPE_CONTACT);
+					intent.putExtra("fromAccount", mUser.getAccount());
 					intent.putExtra("toAccount", contactAccount);
 				}else{
 					//不是好友

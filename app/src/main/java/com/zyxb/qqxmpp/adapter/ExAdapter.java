@@ -14,8 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.FriendGroupInfo;
-import com.zyxb.qqxmpp.bean3.Information;
+import com.zyxb.qqxmpp.bean.FriendGroupInfo;
+import com.zyxb.qqxmpp.bean.Information;
 import com.zyxb.qqxmpp.ui.GroupActivity;
 import com.zyxb.qqxmpp.util.Const;
 
@@ -23,16 +23,16 @@ import java.util.List;
 
 public class ExAdapter extends BaseExpandableListAdapter implements
 		OnClickListener {
-	private Activity context;
-	private LayoutInflater inflater;
+	private Activity mContext;
+	private LayoutInflater mInflater;
 	private List<FriendGroupInfo> groups;
 
 	public void setGroupClickPosition(int position, int state) {
 	}
 
 	public ExAdapter(Context context, List<FriendGroupInfo> groups) {
-		this.context = (Activity) context;
-		inflater = LayoutInflater.from(context);
+		this.mContext = (Activity) context;
+		mInflater = LayoutInflater.from(context);
 		this.groups = groups;
 	}
 
@@ -57,7 +57,7 @@ public class ExAdapter extends BaseExpandableListAdapter implements
 
 		ChildHolder holder = null;
 		if (convertView == null) {
-			convertView = inflater.inflate(R.layout.child, null);
+			convertView = mInflater.inflate(R.layout.child, null);
 			holder = new ChildHolder();
 			holder.tvName = (TextView) convertView.findViewById(R.id.item_name);
 			holder.tvContent = (TextView) convertView
@@ -160,7 +160,7 @@ public class ExAdapter extends BaseExpandableListAdapter implements
 							 View convertView, ViewGroup parent) {
 
 		if (groupPosition == 0) {
-			convertView = inflater.inflate(R.layout.contact_detail_first, null);
+			convertView = mInflater.inflate(R.layout.contact_detail_first, null);
 			LinearLayout llGroups = (LinearLayout) convertView
 					.findViewById(R.id.llGroups);
 			llGroups.setOnClickListener(this);
@@ -170,7 +170,7 @@ public class ExAdapter extends BaseExpandableListAdapter implements
 
 		ParentHolder holder = null;
 		if (convertView == null || convertView.getTag() == null) {
-			convertView = inflater.inflate(R.layout.group, null);
+			convertView = mInflater.inflate(R.layout.group, null);
 			holder = new ParentHolder();
 
 			holder.tvName = (TextView) convertView
@@ -228,9 +228,9 @@ public class ExAdapter extends BaseExpandableListAdapter implements
 		Intent intent = null;
 		switch (v.getId()) {
 			case R.id.llGroups:
-				intent = new Intent(context, GroupActivity.class);
-				context.startActivity(intent);
-				context.overridePendingTransition(R.anim.slide_left,
+				intent = new Intent(mContext, GroupActivity.class);
+				mContext.startActivity(intent);
+				mContext.overridePendingTransition(R.anim.slide_left,
 						R.anim.slide_right);
 				break;
 		}

@@ -24,9 +24,9 @@ import com.zyxb.qqxmpp.MainActivity.MainDrawerListener;
 import com.zyxb.qqxmpp.R;
 import com.zyxb.qqxmpp.adapter.MsgAdapter;
 import com.zyxb.qqxmpp.adapter.MsgPhoneAdapter;
-import com.zyxb.qqxmpp.bean3.MessageInfo;
-import com.zyxb.qqxmpp.bean3.MsgPhoneInfo;
-import com.zyxb.qqxmpp.db3.dao.DB3MessageDAO.OnMessageChangeListener;
+import com.zyxb.qqxmpp.bean.MessageInfo;
+import com.zyxb.qqxmpp.bean.MsgPhoneInfo;
+import com.zyxb.qqxmpp.db.dao.DBMessageDAO.OnMessageChangeListener;
 import com.zyxb.qqxmpp.engine.DataEngine;
 import com.zyxb.qqxmpp.ui.ChatActivity;
 import com.zyxb.qqxmpp.util.AppShortCutUtil;
@@ -41,7 +41,7 @@ public class MassegeFragment extends Fragment implements OnClickListener,
 		OnItemClickListener, OnItemLongClickListener, OnRefreshListener,
 		MainDrawerListener, OnMessageChangeListener {
 	private MainActivity context;
-	// private App app;
+	// private App mApp;
 	private ImageView ivMenuLeft;
 	private ImageView ivMenuRight;
 	private ImageView ivMessage;
@@ -53,9 +53,9 @@ public class MassegeFragment extends Fragment implements OnClickListener,
 	private TextView tvMessage;
 	private TextView tvPhone;
 
-	// private DB3User user;
-	private DataEngine engine;
-	private MsgAdapter adapter;
+	// private DBUser mUser;
+	private DataEngine mEngine;
+	private MsgAdapter mAdapter;
 	private List<MessageInfo> messages;
 
 	private static final int STATE_MESSAGE = 0;
@@ -141,12 +141,12 @@ public class MassegeFragment extends Fragment implements OnClickListener,
 		dlPhone.setAdapter(adapter);
 
 		// 获取messages
-		// app = context.getApp();
-		// user = app.getUser();
-		engine = context.getEngine();
-		messages = engine.getNewest(this);
-		this.adapter = new MsgAdapter(getActivity(), messages);
-		dlMsgList.setAdapter(this.adapter);
+		// mApp = context.getmApp();
+		// mUser = mApp.getmUser();
+		mEngine = context.getmEngine();
+		messages = mEngine.getNewest(this);
+		this.mAdapter = new MsgAdapter(getActivity(), messages);
+		dlMsgList.setAdapter(this.mAdapter);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -241,10 +241,10 @@ public class MassegeFragment extends Fragment implements OnClickListener,
 					context.updateUnReadMessageCount(context
 							.getUnReadMessageCount() - unReadCount);
 					message.setCount(0);
-					adapter.notifyDataSetChanged();
+					mAdapter.notifyDataSetChanged();
 
 					// 更新数据库
-					engine.setReadedMessage(message.getFrom().getAccount(), message
+					mEngine.setReadedMessage(message.getFrom().getAccount(), message
 							.getTo().getAccount(), message.getType());
 
 					// 更新launch未读数量
@@ -261,17 +261,17 @@ public class MassegeFragment extends Fragment implements OnClickListener,
 				intent.putExtra("type", message.getType());
 				// String name = null;
 				// switch(message.getType()){
-				// case DB3Columns.MESSAGE_TYPE_CONTACT:
-				// if(message.getFrom().getAccount().equals(user.getAccount())){
+				// case DBColumns.MESSAGE_TYPE_CONTACT:
+				// if(message.getFrom().getAccount().equals(mUser.getAccount())){
 				// name = message.getTo().getComments();
 				// }else{
 				// name = message.getFrom().getComments();
 				// }
 				// break;
-				// case DB3Columns.MESSAGE_TYPE_GROUP:
+				// case DBColumns.MESSAGE_TYPE_GROUP:
 				// name = message.getTo().getName();
 				// break;
-				// case DB3Columns.MESSAGE_TYPE_SYS:
+				// case DBColumns.MESSAGE_TYPE_SYS:
 				// name = message.getFrom().getName();
 				// break;
 				// }
@@ -312,7 +312,7 @@ public class MassegeFragment extends Fragment implements OnClickListener,
 	}
 
 	private void initListData() {
-		messages = engine.getNewest(this);
+		messages = mEngine.getNewest(this);
 
 		int unReadMessageCount = 0;
 		for (MessageInfo m : messages) {
@@ -320,8 +320,8 @@ public class MassegeFragment extends Fragment implements OnClickListener,
 		}
 		context.updateUnReadMessageCount(unReadMessageCount);
 
-		adapter.setMessages(messages);
-		adapter.notifyDataSetChanged();
+		mAdapter.setMessages(messages);
+		mAdapter.notifyDataSetChanged();
 	}
 
 	@Override

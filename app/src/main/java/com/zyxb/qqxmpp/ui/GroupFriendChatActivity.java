@@ -9,8 +9,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.Contact;
-import com.zyxb.qqxmpp.db3.dao.DB3MessageDAO.OnMessageChangeListener;
+import com.zyxb.qqxmpp.bean.Contact;
+import com.zyxb.qqxmpp.db.dao.DBMessageDAO.OnMessageChangeListener;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
 
@@ -22,7 +22,7 @@ public class GroupFriendChatActivity extends BaseActivity implements
 	private ImageView ivInfo;
 
 	// 非好友
-	private Contact groupContact;
+	private Contact mGroupContact;
 	private String groupContactAccount;
 	private String groupAccount;
 
@@ -60,20 +60,20 @@ public class GroupFriendChatActivity extends BaseActivity implements
 		groupContactAccount = intent.getStringExtra("account");
 		groupAccount = intent.getStringExtra("groupAccount");
 
-		groupContact = engine.getGroupFriend(groupAccount, groupContactAccount);
+		mGroupContact = mEngine.getGroupFriend(groupAccount, groupContactAccount);
 		Logger.d(TAG, "contact:" + groupContactAccount + ",group account:"
 				+ groupAccount);
 
 		// 设置数据
-		String remark = groupContact.getRemark();
+		String remark = mGroupContact.getRemark();
 		if (remark == null) {
-			remark = groupContact.getNickname();
+			remark = mGroupContact.getNickname();
 		}
 		tvTitleName.setText(remark);
-		tvTitleFrom.setText("来自\"" + groupContact.getGroupName() + "\"群");
+		tvTitleFrom.setText("来自\"" + mGroupContact.getGroupName() + "\"群");
 
 		// 查询消息 user和groupContactAccount消息
-		// messages = engine.getGroupMessages(groupAccount, this);
+		// messages = mEngine.getGroupMessages(groupAccount, this);
 
 	}
 
@@ -81,7 +81,7 @@ public class GroupFriendChatActivity extends BaseActivity implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.tvMsgTitleLeft:
-				app.back();
+				mApp.back();
 				break;
 			case R.id.ivMsgTitleRight:
 				Intent intent = new Intent(this,

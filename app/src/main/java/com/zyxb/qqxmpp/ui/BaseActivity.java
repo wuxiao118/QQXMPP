@@ -15,7 +15,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.zyxb.qqxmpp.App;
-import com.zyxb.qqxmpp.bean3.po.DB3User;
+import com.zyxb.qqxmpp.bean.po.DBUser;
 import com.zyxb.qqxmpp.engine.DataEngine;
 import com.zyxb.qqxmpp.service.ChatService;
 import com.zyxb.qqxmpp.service.ConnectService;
@@ -24,10 +24,10 @@ import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
 
 public class BaseActivity extends Activity {
 	protected static String TAG = "BaseActivity";
-	protected App app;
+	protected App mApp;
 	protected Context mContext;
-	protected DB3User user;
-	protected DataEngine engine;
+	protected DBUser mUser;
+	protected DataEngine mEngine;
 
 	// 连接服务器广播
 	// private LoginReceiver loginReceiver;
@@ -35,8 +35,8 @@ public class BaseActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		app = (App) getApplication();
-		app.add(this);
+		mApp = (App) getApplication();
+		mApp.add(this);
 		mContext = this;
 
 		// 去掉title
@@ -57,8 +57,8 @@ public class BaseActivity extends Activity {
 	}
 
 	protected boolean checkUser() {
-		user = app.getUser();
-		if (user == null) {
+		mUser = mApp.getmUser();
+		if (mUser == null) {
 			Intent intent = new Intent(this, LoginActivity.class);
 			// TODO 登陆后，如何返回当前页面
 			intent.putExtra("packageName", getPackageName());
@@ -72,7 +72,7 @@ public class BaseActivity extends Activity {
 			return false;
 		}
 
-		engine = new DataEngine(this, app.getUser());
+		mEngine = new DataEngine(this, mApp.getmUser());
 
 		return true;
 	}
@@ -84,9 +84,9 @@ public class BaseActivity extends Activity {
 		Intent connCloseIntent = new Intent(ConnectService.CONNECT_CLOSE);
 		sendBroadcast(connCloseIntent);
 
-		app.finish();
+		mApp.finish();
 		SharedPreferencesUtils.clear(this);
-		app.setUser(null);
+		mApp.setmUser(null);
 		checkUser();
 	}
 
@@ -112,8 +112,8 @@ public class BaseActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		app.remove(this);
-		engine = null;
+		mApp.remove(this);
+		mEngine = null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -156,7 +156,7 @@ public class BaseActivity extends Activity {
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			app.back();
+			mApp.back();
 
 			return true;
 		}
@@ -181,11 +181,11 @@ public class BaseActivity extends Activity {
 			Logger.d(TAG, "action:" + action);
 
 			if (action.equals(ConnectService.LOGIN_SERVER_CONNECTED)) {
-				app.setConnected(true);
+				mApp.setConnected(true);
 			} else if (action.equals(ConnectService.LOGIN_SERVER_DISCONNECTED)) {
-				app.setConnected(false);
+				mApp.setConnected(false);
 			} else if (action.equals(ConnectService.LOGIN_SERVER_RECONNECT)) {
-				app.setConnected(false);
+				mApp.setConnected(false);
 
 				Toast.makeText(mContext, "服务器连接失败,重新连接中...", Toast.LENGTH_LONG)
 						.show();
@@ -196,7 +196,7 @@ public class BaseActivity extends Activity {
 				// 连接成功
 				case ChatService.SERVER_CONNECTED_USER_LOGIN:
 					// 登陆成功
-					app.setConnected(true);
+					mApp.setConnected(true);
 
 					break;
 				case ConnectService.SERVER_CONNECTED:
@@ -208,7 +208,7 @@ public class BaseActivity extends Activity {
 					Toast.makeText(mContext, "连接服务器成功,用户名或密码错误,请重新登录",
 							Toast.LENGTH_SHORT).show();
 
-					app.finish();
+					mApp.finish();
 					Intent it = new Intent(mContext, LoginActivity.class);
 					mContext.startActivity(it);
 

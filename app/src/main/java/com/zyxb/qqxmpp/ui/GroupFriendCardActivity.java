@@ -9,8 +9,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.Contact;
-import com.zyxb.qqxmpp.db3.DB3Columns;
+import com.zyxb.qqxmpp.bean.Contact;
+import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.util.DateUtils;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
@@ -27,7 +27,7 @@ public class GroupFriendCardActivity extends BaseActivity implements
 	private LinearLayout llAdd, llPhone;
 
 	// 数据
-	private Contact contact;
+	private Contact mContact;
 	private String groupAccount;
 	private String contactAccount;
 
@@ -73,21 +73,21 @@ public class GroupFriendCardActivity extends BaseActivity implements
 		contactAccount = intent.getStringExtra("account");
 		groupAccount = intent.getStringExtra("groupAccount");
 		// System.out.println("friendAccount:" + friendAccount);
-		Logger.d(TAG, "user account:" + contactAccount + ",group account:"
+		Logger.d(TAG, "mUser account:" + contactAccount + ",group account:"
 				+ groupAccount);
 
-		contact = engine.getGroupFriend(groupAccount, contactAccount);
+		mContact = mEngine.getGroupFriend(groupAccount, contactAccount);
 
 		// 设置数据
-		String remark = contact.getRemark();
-		String time = DateUtils.format(contact.getInterTime(), "yyyy-MM-dd")
+		String remark = mContact.getRemark();
+		String time = DateUtils.format(mContact.getInterTime(), "yyyy-MM-dd")
 				+ "入群";
-		tvName.setText(contact.getNickname());
+		tvName.setText(mContact.getNickname());
 		tvInterTime.setText(time);
-		tvAccount.setText(contact.getAccount());
+		tvAccount.setText(mContact.getAccount());
 		tvRemark.setText(remark == null ? "" : remark);
-		tvGroupTitle.setText(DB3Columns.GROUP_TITLES[contact.getGroupTitle()]);
-		String icon = contact.getIcon();
+		tvGroupTitle.setText(DBColumns.GROUP_TITLES[mContact.getGroupTitle()]);
+		String icon = mContact.getIcon();
 		if (icon != null) {
 			// TODO 加载图片
 		}
@@ -98,18 +98,18 @@ public class GroupFriendCardActivity extends BaseActivity implements
 		Intent intent = null;
 		switch (v.getId()) {
 			case R.id.tvGroupFriendCardBack:
-				app.back();
+				mApp.back();
 				break;
 			case R.id.llGroupFriendCardSend:
 				// intent = new Intent(this, GroupFriendChatActivity.class);
 				// intent.putExtra("account",groupAccount);
 				// startActivity(intent);
-				boolean isMyFriend = engine.isMyFriend(contactAccount);
+				boolean isMyFriend = mEngine.isMyFriend(contactAccount);
 				if (isMyFriend) {
 					// 是好友
 					intent = new Intent(this, ChatActivity.class);
-					intent.putExtra("type", DB3Columns.MESSAGE_TYPE_CONTACT);
-					intent.putExtra("fromAccount", user.getAccount());
+					intent.putExtra("type", DBColumns.MESSAGE_TYPE_CONTACT);
+					intent.putExtra("fromAccount", mUser.getAccount());
 					intent.putExtra("toAccount", contactAccount);
 				} else {
 					// 不是好友

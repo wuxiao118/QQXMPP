@@ -2,38 +2,38 @@ package com.zyxb.qqxmpp.engine;
 
 import android.content.Context;
 
-import com.zyxb.qqxmpp.bean3.Contact;
-import com.zyxb.qqxmpp.bean3.FriendGroupInfo;
-import com.zyxb.qqxmpp.bean3.Information;
-import com.zyxb.qqxmpp.bean3.XMPPUser;
-import com.zyxb.qqxmpp.bean3.po.DB3FriendGroup;
-import com.zyxb.qqxmpp.bean3.po.DB3FriendGroupMapping;
-import com.zyxb.qqxmpp.bean3.po.DB3User;
-import com.zyxb.qqxmpp.db3.DAOFactory;
-import com.zyxb.qqxmpp.db3.DB3Columns;
-import com.zyxb.qqxmpp.db3.dao.DB3FriendGroupDAO;
-import com.zyxb.qqxmpp.db3.dao.DB3FriendGroupMappingDAO;
+import com.zyxb.qqxmpp.bean.Contact;
+import com.zyxb.qqxmpp.bean.FriendGroupInfo;
+import com.zyxb.qqxmpp.bean.Information;
+import com.zyxb.qqxmpp.bean.XMPPUser;
+import com.zyxb.qqxmpp.bean.po.DBFriendGroup;
+import com.zyxb.qqxmpp.bean.po.DBFriendGroupMapping;
+import com.zyxb.qqxmpp.bean.po.DBUser;
+import com.zyxb.qqxmpp.db.DAOFactory;
+import com.zyxb.qqxmpp.db.DBColumns;
+import com.zyxb.qqxmpp.db.dao.DBFriendGroupDAO;
+import com.zyxb.qqxmpp.db.dao.DBFriendGroupMappingDAO;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DB3FriendGroupEngine {
-	private DB3FriendGroupMappingDAO dao;
-	private DB3FriendGroupDAO fgDao;
+	private DBFriendGroupMappingDAO dao;
+	private DBFriendGroupDAO fgDao;
 
 	public DB3FriendGroupEngine(Context context) {
 		dao = DAOFactory.getDB3FriendGroupMappingDAO(context);
 		fgDao = DAOFactory.getDB3FriendGroupDAO(context);
 	}
 
-	public List<FriendGroupInfo> getFriends(DB3User user) {
+	public List<FriendGroupInfo> getFriends(DBUser user) {
 		List<FriendGroupInfo> infos = new ArrayList<FriendGroupInfo>();
 
 		// 查找当前用户所有的分组
-		List<DB3FriendGroup> fgroups = fgDao.findByUser(user);
+		List<DBFriendGroup> fgroups = fgDao.findByUser(user);
 		FriendGroupInfo info = null;
 		for (int i = 0; i < fgroups.size(); i++) {
-			DB3FriendGroup fg = fgroups.get(i);
+			DBFriendGroup fg = fgroups.get(i);
 			info = new FriendGroupInfo();
 			info.setAccount(fg.getAccount());
 			info.setName(fg.getName());
@@ -41,12 +41,12 @@ public class DB3FriendGroupEngine {
 			// 查找当前分组user
 			List<Information> users = new ArrayList<Information>();
 			info.setFriends(users);
-			List<DB3FriendGroupMapping> mappings = dao
+			List<DBFriendGroupMapping> mappings = dao
 					.findMappingByFriendGroup(fg);
 			int k = 0;
 			Information us = null;
 			for (int j = 0; j < mappings.size(); j++) {
-				DB3FriendGroupMapping mapping = mappings.get(j);
+				DBFriendGroupMapping mapping = mappings.get(j);
 				us = new Information();
 				us.setAccount(mapping.getUser().getAccount());
 				us.setChannel(mapping.getLoginChannel());
@@ -61,8 +61,8 @@ public class DB3FriendGroupEngine {
 				us = null;
 
 				// 判断是否登陆
-				if (mapping.getLoginState() != DB3Columns.LOGIN_STATE_OFFLINE
-						&& mapping.getLoginState() != DB3Columns.LOGIN_STATE_LEAVE_MESSAGE) {
+				if (mapping.getLoginState() != DBColumns.LOGIN_STATE_OFFLINE
+						&& mapping.getLoginState() != DBColumns.LOGIN_STATE_LEAVE_MESSAGE) {
 					k++;
 				}
 			}
@@ -79,10 +79,10 @@ public class DB3FriendGroupEngine {
 	}
 
 	public Contact getFriend(String userAccount,String contactAccount) {
-		DB3FriendGroupMapping mapping = dao.find(userAccount,contactAccount);
+		DBFriendGroupMapping mapping = dao.find(userAccount,contactAccount);
 		dao.close();
 
-		DB3User user = mapping.getUser();
+		DBUser user = mapping.getUser();
 		Contact cont = new Contact();
 		cont.setAccount(user.getAccount());
 		cont.setAge(user.getAge());
@@ -150,8 +150,8 @@ public class DB3FriendGroupEngine {
 		dao.close();
 	}
 
-	public DB3User find(XMPPUser ur) {
-		DB3User user = fgDao.find(ur);
+	public DBUser find(XMPPUser ur) {
+		DBUser user = fgDao.find(ur);
 		fgDao.close();
 
 		return user;

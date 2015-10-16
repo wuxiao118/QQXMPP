@@ -17,7 +17,7 @@ import com.zyxb.qqxmpp.R;
 
 public class MenuLeftFragment extends Fragment implements OnClickListener {
 	private LinearLayout mSettings;
-	private MainActivity context;
+	private MainActivity mContext;
 	private TextView tvName;
 
 	@SuppressLint("InflateParams")
@@ -28,8 +28,8 @@ public class MenuLeftFragment extends Fragment implements OnClickListener {
 		mSettings = (LinearLayout) view.findViewById(R.id.llSettings);
 		tvName = (TextView) view.findViewById(R.id.tvLeftMenuName);
 
-		context = (MainActivity) getActivity();
-		//tvName.setText(context.getApp().getUser().getComments());
+		mContext = (MainActivity) getActivity();
+		//tvName.setText(mContext.getmApp().getmUser().getComments());
 
 		initEvent();
 
@@ -40,7 +40,7 @@ public class MenuLeftFragment extends Fragment implements OnClickListener {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		tvName.setText(context.getApp().getUser().getNickname());
+		tvName.setText(mContext.getmApp().getmUser().getNickname());
 	}
 
 	private void initEvent() {
@@ -51,9 +51,9 @@ public class MenuLeftFragment extends Fragment implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.llSettings:
-				Intent intent = new Intent(context, SettingsActivity.class);
+				Intent intent = new Intent(mContext, SettingsActivity.class);
 				startActivity(intent);
-				context.overridePendingTransition(R.anim.slide_left,
+				mContext.overridePendingTransition(R.anim.slide_left,
 						R.anim.slide_right);
 				break;
 		}

@@ -4,17 +4,17 @@ import java.util.List;
 
 import android.content.Context;
 
-import com.zyxb.qqxmpp.bean3.Contact;
-import com.zyxb.qqxmpp.bean3.FriendGroupInfo;
-import com.zyxb.qqxmpp.bean3.Information;
-import com.zyxb.qqxmpp.bean3.XMPPMessage;
-import com.zyxb.qqxmpp.bean3.MessageInfo;
-import com.zyxb.qqxmpp.bean3.XMPPUser;
-import com.zyxb.qqxmpp.bean3.po.DB3Group;
-import com.zyxb.qqxmpp.bean3.po.DB3User;
-import com.zyxb.qqxmpp.bean3.vo.GroupInfo;
-import com.zyxb.qqxmpp.db3.dao.DB3MessageDAO.OnMessageChangeListener;
-import com.zyxb.qqxmpp.db3.dao.DB3UserDAO.OnUserChangeListener;
+import com.zyxb.qqxmpp.bean.Contact;
+import com.zyxb.qqxmpp.bean.FriendGroupInfo;
+import com.zyxb.qqxmpp.bean.Information;
+import com.zyxb.qqxmpp.bean.XMPPMessage;
+import com.zyxb.qqxmpp.bean.MessageInfo;
+import com.zyxb.qqxmpp.bean.XMPPUser;
+import com.zyxb.qqxmpp.bean.po.DBGroup;
+import com.zyxb.qqxmpp.bean.po.DBUser;
+import com.zyxb.qqxmpp.bean.vo.GroupInfo;
+import com.zyxb.qqxmpp.db.dao.DBMessageDAO.OnMessageChangeListener;
+import com.zyxb.qqxmpp.db.dao.DBUserDAO.OnUserChangeListener;
 import com.zyxb.qqxmpp.util.Logger;
 
 /**
@@ -25,27 +25,27 @@ import com.zyxb.qqxmpp.util.Logger;
  */
 public class DataEngine {
 	private static final String TAG = "DataEngine";
-	private Context context;
-	private DB3User user;
-	private DB3UserEngine userEngine;
+	private Context mContext;
+	private DBUser mUser;
+	private DB3UserEngine mUserEngine;
 
 	// private DB3GroupEngine groupEngine;
 
-	public DataEngine(Context context, DB3User user) {
-		this.context = context;
-		this.user = user;
+	public DataEngine(Context context, DBUser user) {
+		this.mContext = context;
+		this.mUser = user;
 
-		userEngine = new DB3UserEngine(context);
-		// groupEngine = new DB3GroupEngine(context);
+		mUserEngine = new DB3UserEngine(context);
+		// groupEngine = new DB3GroupEngine(mContext);
 	}
 
 	public DataEngine(Context context) {
-		this.context = context;
-		userEngine = new DB3UserEngine(context);
+		this.mContext = context;
+		mUserEngine = new DB3UserEngine(context);
 	}
 
-	public void setUser(DB3User user) {
-		this.user = user;
+	public void setmUser(DBUser mUser) {
+		this.mUser = mUser;
 	}
 
 	/**
@@ -56,7 +56,7 @@ public class DataEngine {
 	 */
 	public List<MessageInfo> getNewest(OnMessageChangeListener listener) {
 
-		return DB3EngineFactory.getDB3MessageEngine(context).getNewest(user);
+		return DB3EngineFactory.getDB3MessageEngine(mContext).getNewest(mUser);
 	}
 
 	/**
@@ -66,8 +66,8 @@ public class DataEngine {
 	 * @return
 	 */
 	public List<FriendGroupInfo> getFriends(OnUserChangeListener listener) {
-		return DB3EngineFactory.getDB3FriendGroupEngine(context).getFriends(
-				user);
+		return DB3EngineFactory.getDB3FriendGroupEngine(mContext).getFriends(
+				mUser);
 	}
 
 	/**
@@ -80,21 +80,21 @@ public class DataEngine {
 	public List<MessageInfo> getGroupMessages(String groupAccount,
 											  OnMessageChangeListener listener) {
 
-		return DB3EngineFactory.getDB3MessageEngine(context).getGroupMessage(
-				user.getAccount(), groupAccount, listener);
+		return DB3EngineFactory.getDB3MessageEngine(mContext).getGroupMessage(
+				mUser.getAccount(), groupAccount, listener);
 	}
 
 	/**
 	 * 好友聊天
 	 *
-	 * @param contact
+	 * @param contactAccount
 	 * @param listener
 	 * @return
 	 */
 	public List<MessageInfo> getContactMessages(String contactAccount,
 												OnMessageChangeListener listener) {
-		DB3MessageEngine engine = DB3EngineFactory.getDB3MessageEngine(context);
-		return engine.getContactMessage(user.getAccount(), contactAccount,
+		DB3MessageEngine engine = DB3EngineFactory.getDB3MessageEngine(mContext);
+		return engine.getContactMessage(mUser.getAccount(), contactAccount,
 				listener);
 	}
 
@@ -108,8 +108,8 @@ public class DataEngine {
 	public List<MessageInfo> getSystemMessages(String sysAccount,
 											   OnMessageChangeListener listener) {
 
-		return DB3EngineFactory.getDB3MessageEngine(context).getSystemMessage(
-				user.getAccount(), sysAccount, listener);
+		return DB3EngineFactory.getDB3MessageEngine(mContext).getSystemMessage(
+				mUser.getAccount(), sysAccount, listener);
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class DataEngine {
 	 */
 	public List<GroupInfo> getGroups() {
 
-		return DB3EngineFactory.getDB3GroupEngine(context).getGroups(user);
+		return DB3EngineFactory.getDB3GroupEngine(mContext).getGroups(mUser);
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class DataEngine {
 	 */
 	public List<Information> getGroupFriends(String groupAccount) {
 
-		return DB3EngineFactory.getDB3GroupEngine(context).getFriends(
+		return DB3EngineFactory.getDB3GroupEngine(mContext).getFriends(
 				groupAccount);
 	}
 
@@ -139,8 +139,8 @@ public class DataEngine {
 	 * @param account
 	 * @return
 	 */
-	public DB3User getUserInfo(String account) {
-		return DB3EngineFactory.getDB3UserEngine(context).getUser(account);
+	public DBUser getUserInfo(String account) {
+		return DB3EngineFactory.getDB3UserEngine(mContext).getUser(account);
 
 	}
 
@@ -150,9 +150,9 @@ public class DataEngine {
 	 * @param account
 	 * @return
 	 */
-	public DB3Group getGroupInfo(String account) {
+	public DBGroup getGroupInfo(String account) {
 
-		return DB3EngineFactory.getDB3GroupEngine(context).getGroup(account);
+		return DB3EngineFactory.getDB3GroupEngine(mContext).getGroup(account);
 	}
 
 	/**
@@ -162,12 +162,12 @@ public class DataEngine {
 	 * @param pwd
 	 * @return
 	 */
-	public DB3User login(String username, String pwd) {
-		// DB3UserDAO dao = DAOFactory.getDB3UserDAO(context);
-		// DB3User u = dao.login(username, pwd);
+	public DBUser login(String username, String pwd) {
+		// DBUserDAO dao = DAOFactory.getDB3UserDAO(mContext);
+		// DBUser u = dao.login(username, pwd);
 		// dao.close();
 
-		return userEngine.login(username, pwd);
+		return mUserEngine.login(username, pwd);
 	}
 
 	public int login() {
@@ -185,11 +185,11 @@ public class DataEngine {
 	/**
 	 * 更新已读信息
 	 *
-	 * @param account
-	 * @param account2
+	 * @param fromAccount
+	 * @param toAccount
 	 */
 	public void setReadedMessage(String fromAccount, String toAccount, int type) {
-		DB3MessageEngine engine = DB3EngineFactory.getDB3MessageEngine(context);
+		DB3MessageEngine engine = DB3EngineFactory.getDB3MessageEngine(mContext);
 		engine.updateReadedMessage(fromAccount, toAccount, type);
 	}
 
@@ -200,7 +200,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public int getUnReadedMessage(String userAccount) {
-		return DB3EngineFactory.getDB3MessageEngine(context)
+		return DB3EngineFactory.getDB3MessageEngine(mContext)
 				.getUnReadedMessages(userAccount);
 	}
 
@@ -212,7 +212,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public int getUnReadedMessage(String attr, String value) {
-		return DB3EngineFactory.getDB3MessageEngine(context)
+		return DB3EngineFactory.getDB3MessageEngine(mContext)
 				.getUnReadedMessages(attr, value);
 	}
 
@@ -225,7 +225,7 @@ public class DataEngine {
 	 */
 	public String getGroupRemark(String groupAccount, String userAccount) {
 
-		return DB3EngineFactory.getDB3GroupEngine(context).getGroupRemark(
+		return DB3EngineFactory.getDB3GroupEngine(mContext).getGroupRemark(
 				groupAccount, userAccount);
 	}
 
@@ -237,7 +237,7 @@ public class DataEngine {
 	 */
 	public int getGroupNum(String groupAccount) {
 
-		return DB3EngineFactory.getDB3GroupEngine(context).getGroupNum(
+		return DB3EngineFactory.getDB3GroupEngine(mContext).getGroupNum(
 				groupAccount);
 	}
 
@@ -248,8 +248,8 @@ public class DataEngine {
 	 * @return
 	 */
 	public Contact getUserFriend(String contactAccount) {
-		return DB3EngineFactory.getDB3FriendGroupEngine(context).getFriend(
-				user.getAccount(), contactAccount);
+		return DB3EngineFactory.getDB3FriendGroupEngine(mContext).getFriend(
+				mUser.getAccount(), contactAccount);
 	}
 
 	/**
@@ -259,7 +259,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public Contact getGroupFriend(String groupAccount, String contactAccount) {
-		return DB3EngineFactory.getDB3GroupEngine(context).getFriend(
+		return DB3EngineFactory.getDB3GroupEngine(mContext).getFriend(
 				groupAccount, contactAccount);
 	}
 
@@ -271,7 +271,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public String getRemark(String userAccount, String contactAccount) {
-		return DB3EngineFactory.getDB3FriendGroupEngine(context).getRemark(
+		return DB3EngineFactory.getDB3FriendGroupEngine(mContext).getRemark(
 				userAccount, contactAccount);
 	}
 
@@ -282,8 +282,8 @@ public class DataEngine {
 	 * @return
 	 */
 	public boolean isMyFriend(String contactAccount) {
-		return DB3EngineFactory.getDB3FriendGroupEngine(context).checkFriend(
-				user.getAccount(), contactAccount);
+		return DB3EngineFactory.getDB3FriendGroupEngine(mContext).checkFriend(
+				mUser.getAccount(), contactAccount);
 	}
 
 	/**
@@ -292,8 +292,8 @@ public class DataEngine {
 	 * @param message
 	 */
 	public void addMessage(XMPPMessage message) {
-		// message.setTo(user.getAccount());
-		DB3EngineFactory.getDB3MessageEngine(context).add(message);
+		// message.setTo(mUser.getAccount());
+		DB3EngineFactory.getDB3MessageEngine(mContext).add(message);
 	}
 
 	/**
@@ -302,8 +302,8 @@ public class DataEngine {
 	 * @param message
 	 */
 	public void addNewXMPPMessge(XMPPMessage message) {
-		message.setTo(user.getAccount());
-		DB3EngineFactory.getDB3MessageEngine(context)
+		message.setTo(mUser.getAccount());
+		DB3EngineFactory.getDB3MessageEngine(mContext)
 				.addNewXMPPMessage(message);
 	}
 
@@ -313,8 +313,8 @@ public class DataEngine {
 	 * @param jid
 	 */
 	public void deleteXMPPUser(String jid) {
-		DB3EngineFactory.getDB3FriendGroupEngine(context).delete(
-				user.getAccount(), jid);
+		DB3EngineFactory.getDB3FriendGroupEngine(mContext).delete(
+				mUser.getAccount(), jid);
 	}
 
 	/**
@@ -325,12 +325,12 @@ public class DataEngine {
 	public void addXMPPUser(XMPPUser contact) {
 		Logger.d(
 				TAG,
-				"add xmpp user :" + user.getAccount() + ",contact:"
+				"add xmpp mUser :" + mUser.getAccount() + ",contact:"
 						+ contact.getJid() + "," + contact.getGroup() + ","
 						+ contact.getStatusMode() + ","
 						+ contact.getStatusMessage());
-		DB3EngineFactory.getDB3FriendGroupEngine(context).add(
-				user.getAccount(), contact);
+		DB3EngineFactory.getDB3FriendGroupEngine(mContext).add(
+				mUser.getAccount(), contact);
 	}
 
 	/**
@@ -339,8 +339,8 @@ public class DataEngine {
 	 * @param contact
 	 */
 	public void updateXMPPUser(XMPPUser contact) {
-		DB3EngineFactory.getDB3FriendGroupEngine(context).update(
-				user.getAccount(), contact);
+		DB3EngineFactory.getDB3FriendGroupEngine(mContext).update(
+				mUser.getAccount(), contact);
 	}
 
 	/**
@@ -348,22 +348,22 @@ public class DataEngine {
 	 *
 	 * @param ur
 	 */
-	public DB3User getXMPPUser(XMPPUser ur) {
-		// return DB3EngineFactory.getDB3UserEngine(context).find(ur);
-		return DB3EngineFactory.getDB3FriendGroupEngine(context).find(ur);
+	public DBUser getXMPPUser(XMPPUser ur) {
+		// return DB3EngineFactory.getDB3UserEngine(mContext).find(ur);
+		return DB3EngineFactory.getDB3FriendGroupEngine(mContext).find(ur);
 	}
 
-	public DB3User findXMPPUserByName(String loginJid) {
-		return DB3EngineFactory.getDB3UserEngine(context).find(loginJid);
+	public DBUser findXMPPUserByName(String loginJid) {
+		return DB3EngineFactory.getDB3UserEngine(mContext).find(loginJid);
 	}
 
 	public List<XMPPMessage> getOffLineMessages() {
-		return DB3EngineFactory.getDB3MessageEngine(context)
-				.getOffLineMessages(user.getAccount());
+		return DB3EngineFactory.getDB3MessageEngine(mContext)
+				.getOffLineMessages(mUser.getAccount());
 	}
 
 	public void updateXMPPMessageState(String messageAccount, int messageState) {
-		DB3EngineFactory.getDB3MessageEngine(context)
+		DB3EngineFactory.getDB3MessageEngine(mContext)
 				.updateXMPPMessageState(messageAccount, messageState);
 	}
 }

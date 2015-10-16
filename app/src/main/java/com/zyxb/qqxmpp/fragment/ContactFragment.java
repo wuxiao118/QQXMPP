@@ -23,9 +23,9 @@ import android.widget.Toast;
 import com.zyxb.qqxmpp.MainActivity;
 import com.zyxb.qqxmpp.R;
 import com.zyxb.qqxmpp.adapter.ExAdapter;
-import com.zyxb.qqxmpp.bean3.FriendGroupInfo;
-import com.zyxb.qqxmpp.bean3.Information;
-import com.zyxb.qqxmpp.db3.dao.DB3UserDAO.OnUserChangeListener;
+import com.zyxb.qqxmpp.bean.FriendGroupInfo;
+import com.zyxb.qqxmpp.bean.Information;
+import com.zyxb.qqxmpp.db.dao.DBUserDAO.OnUserChangeListener;
 import com.zyxb.qqxmpp.engine.DataEngine;
 import com.zyxb.qqxmpp.ui.FriendDtailActivity;
 import com.zyxb.qqxmpp.util.Const;
@@ -44,12 +44,12 @@ public class ContactFragment extends Fragment implements OnItemClickListener,
 	private XExpandableListView lvContactList;
 	private TextView tvContactAdd;
 
-	private MainActivity context;
-	// private DB3User user;
+	private MainActivity mContext;
+	// private DBUser mUser;
 
-	private ExAdapter adapter;
+	private ExAdapter mAdapter;
 	private List<FriendGroupInfo> groups;
-	private DataEngine engine;
+	private DataEngine mEngine;
 
 	// 记录展开个groupView
 	// private View[] expandGroupViews;
@@ -66,8 +66,8 @@ public class ContactFragment extends Fragment implements OnItemClickListener,
 		super.onActivityCreated(savedInstanceState);
 
 		// TODO 检查登陆
-		context = (MainActivity) getActivity();
-		// user = context.getUser();
+		mContext = (MainActivity) getActivity();
+		// mUser = mContext.getmUser();
 
 		initData();
 	}
@@ -99,9 +99,9 @@ public class ContactFragment extends Fragment implements OnItemClickListener,
 	}
 
 	private void initData() {
-		context = (MainActivity) getActivity();
-		engine = context.getEngine();
-		groups = engine.getFriends(this);
+		mContext = (MainActivity) getActivity();
+		mEngine = mContext.getmEngine();
+		groups = mEngine.getFriends(this);
 
 		// groups中添加我的设备
 		List<Information> friends = null;
@@ -130,14 +130,14 @@ public class ContactFragment extends Fragment implements OnItemClickListener,
 		friend = null;
 		groups.get(0).setCount(1);
 
-		adapter = new ExAdapter(context, groups);
-		lvContactList.setAdapter(adapter);
+		mAdapter = new ExAdapter(mContext, groups);
+		lvContactList.setAdapter(mAdapter);
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 							long id) {
-		// adapter.setGroupClickPosition(position);
+		// mAdapter.setGroupClickPosition(position);
 	}
 
 	@Override
@@ -153,7 +153,7 @@ public class ContactFragment extends Fragment implements OnItemClickListener,
 			@Override
 			public void run() {
 				lvContactList.stopRefresh();
-				Toast.makeText(context, "刷新完成", Toast.LENGTH_LONG).show();
+				Toast.makeText(mContext, "刷新完成", Toast.LENGTH_LONG).show();
 			}
 		}, 1000);
 	}
@@ -198,14 +198,14 @@ public class ContactFragment extends Fragment implements OnItemClickListener,
 			return true;
 		}
 
-		Intent intent = new Intent(context, FriendDtailActivity.class);
+		Intent intent = new Intent(mContext, FriendDtailActivity.class);
 		String account = groups.get(groupPosition - 1).getFriends()
 				.get(childPosition).getAccount();
 		// System.out.println(TAG + ":account:" + account);
 		Logger.d(TAG, account);
 		intent.putExtra("account", account);
 		startActivity(intent);
-		context.overridePendingTransition(R.anim.slide_left, R.anim.slide_right);
+		mContext.overridePendingTransition(R.anim.slide_left, R.anim.slide_right);
 
 		return true;
 	}

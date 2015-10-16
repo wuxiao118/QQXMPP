@@ -47,7 +47,7 @@ public class SettingsActivity extends BaseActivity implements OnClickListener {
 		
 		switch (v.getId()) {
 		case R.id.tvSettingsBack:
-			app.back();
+			mApp.back();
 			break;
 		case R.id.llSettingsAccountManager:
 			intent = new Intent(this, AccountManagerActivity.class);

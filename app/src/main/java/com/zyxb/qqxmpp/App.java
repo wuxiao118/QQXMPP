@@ -5,7 +5,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import com.zyxb.qqxmpp.bean3.po.DB3User;
+import com.zyxb.qqxmpp.bean.po.DBUser;
 import com.zyxb.qqxmpp.receiver.NetChangedReceiver3;
 import com.zyxb.qqxmpp.ui.LoginActivity;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
@@ -17,7 +17,7 @@ public class App extends Application {
     private List<Activity> mActivities;
     private static App mInstance = null;
     // 保存数据
-    private DB3User user = null;
+    private DBUser mUser = null;
     private String userType;
 
     // //ping service
@@ -110,17 +110,17 @@ public class App extends Application {
         }
     }
 
-    public void setUser(DB3User user) {
+    public void setmUser(DBUser mUser) {
 
-        this.user = user;
+        this.mUser = mUser;
     }
 
-    public DB3User getUser() {
-        return user;
+    public DBUser getmUser() {
+        return mUser;
     }
 
     public boolean isLogin() {
-        if (user == null) {
+        if (mUser == null) {
             return false;
         }
 

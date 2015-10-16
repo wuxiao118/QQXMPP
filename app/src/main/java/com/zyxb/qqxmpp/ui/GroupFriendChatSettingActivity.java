@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.Contact;
+import com.zyxb.qqxmpp.bean.Contact;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
 
 public class GroupFriendChatSettingActivity extends BaseActivity implements
@@ -23,7 +23,7 @@ public class GroupFriendChatSettingActivity extends BaseActivity implements
 
 	private String groupContactAccount;
 	private String groupAccount;
-	private Contact groupContact;
+	private Contact mGroupContact;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,22 +58,22 @@ public class GroupFriendChatSettingActivity extends BaseActivity implements
 		groupContactAccount = intent.getStringExtra("account");
 		groupAccount = intent.getStringExtra("groupAccount");
 
-		groupContact = engine.getGroupFriend(groupAccount, groupContactAccount);
+		mGroupContact = mEngine.getGroupFriend(groupAccount, groupContactAccount);
 
 		//设置数据
-		String remark = groupContact.getRemark();
+		String remark = mGroupContact.getRemark();
 		if(remark == null){
-			remark = groupContact.getNickname();
+			remark = mGroupContact.getNickname();
 		}
 		tvName.setText(remark);
-		tvAccount.setText(groupContact.getAccount());
+		tvAccount.setText(mGroupContact.getAccount());
 	}
 
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.tvGroupFriendChatSettingBack:
-				app.back();
+				mApp.back();
 				break;
 			case R.id.llGroupFriendChatSettingFriend:
 				Intent intent = new Intent(this,GroupFriendCardActivity.class);

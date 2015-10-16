@@ -15,11 +15,11 @@ public class Const {
 	// message
 	public static final String XMPP_MESSAGE_CARBONS = "xmpp_message_carbons";
 	public static final String XMPP_MESSAGE_STATUS_MODE = "xmpp_message_status_mode";
-	//user
+	//mUser
 	public static final String XMPP_USER_STATUS_MESSAGE = "在线";
 	//public static final String XMPP_USER_AVALIABLE = "0";
 	public static final String XMPP_USER_PRIORITY = "xmpp_user_priority";
-	//user status
+	//mUser status
 	public final static String USER_STATE_OFFLINE = "offline";
 	public final static String USER_STATE_DND = "dnd";
 	public final static String USER_STATE_XA = "xa";

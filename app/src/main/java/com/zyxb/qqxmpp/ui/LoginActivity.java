@@ -20,8 +20,8 @@ import android.widget.Toast;
 import com.zyxb.qqxmpp.App;
 import com.zyxb.qqxmpp.MainActivity;
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.XMPPUser;
-import com.zyxb.qqxmpp.bean3.po.DB3User;
+import com.zyxb.qqxmpp.bean.XMPPUser;
+import com.zyxb.qqxmpp.bean.po.DBUser;
 import com.zyxb.qqxmpp.engine.DataEngine;
 import com.zyxb.qqxmpp.service.ChatService;
 import com.zyxb.qqxmpp.service.ConnectService;
@@ -35,23 +35,23 @@ import com.zyxb.qqxmpp.view.TextURLView;
 
 public class LoginActivity extends Activity {
 	private Context mContext;
-	private RelativeLayout rl_user;
-	private Button mLogin;
-	private Button register;
+	private RelativeLayout rlUser;
+	private Button btLogin;
+	private Button btRegister;
 	private TextURLView mTextViewURL;
 
-	private EditText account, password;
-	private LoadingDialog loadDialog;
+	private EditText etAccount, etPwd;
+	private LoadingDialog ldLoading;
 	// private boolean isConnectedToServer = true;
-	private ConnectReceiver connectReceiver;
-	private IntentFilter connectFilter;
+	private ConnectReceiver mConnectReceiver;
+	private IntentFilter mConnectFilter;
 
 	private String username;// 用户名
 	private String pwd;// 密码
 	private String userType;
 	private String host;
 
-	private App app;
+	private App mApp;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +59,11 @@ public class LoginActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_login);
 
-		app = (App) getApplication();
+		mApp = (App) getApplication();
 		mContext = this;
-		loadDialog = new LoadingDialog(this);
-		loadDialog.setCancelable(false);
-		loadDialog.setTitle("正在登录...");
+		ldLoading = new LoadingDialog(this);
+		ldLoading.setCancelable(false);
+		ldLoading.setTitle("正在登录...");
 
 		findView();
 		initTvUrl();
@@ -71,22 +71,22 @@ public class LoginActivity extends Activity {
 	}
 
 	private void initReceiver() {
-		connectReceiver = new ConnectReceiver();
-		connectFilter = new IntentFilter();
-		connectFilter.addAction(ConnectService.LOGIN_SERVER_CONNECTED);
-		connectFilter.addAction(ConnectService.LOGIN_SERVER_DISCONNECTED);
-		connectFilter.addAction(ChatService.LOGIN);
-		registerReceiver(connectReceiver, connectFilter);
+		mConnectReceiver = new ConnectReceiver();
+		mConnectFilter = new IntentFilter();
+		mConnectFilter.addAction(ConnectService.LOGIN_SERVER_CONNECTED);
+		mConnectFilter.addAction(ConnectService.LOGIN_SERVER_DISCONNECTED);
+		mConnectFilter.addAction(ChatService.LOGIN);
+		registerReceiver(mConnectReceiver, mConnectFilter);
 	}
 
 	private void findView() {
-		rl_user = (RelativeLayout) findViewById(R.id.rl_user);
-		mLogin = (Button) findViewById(R.id.login);
-		register = (Button) findViewById(R.id.register);
+		rlUser = (RelativeLayout) findViewById(R.id.rl_user);
+		btLogin = (Button) findViewById(R.id.login);
+		btRegister = (Button) findViewById(R.id.register);
 		mTextViewURL = (TextURLView) findViewById(R.id.tv_forget_password);
 
-		account = (EditText) findViewById(R.id.account);
-		password = (EditText) findViewById(R.id.password);
+		etAccount = (EditText) findViewById(R.id.account);
+		etPwd = (EditText) findViewById(R.id.password);
 
 	}
 
@@ -94,9 +94,9 @@ public class LoginActivity extends Activity {
 		Animation anim = AnimationUtils.loadAnimation(mContext,
 				R.anim.login_anim);
 		anim.setFillAfter(true);
-		rl_user.startAnimation(anim);
-		mLogin.setOnClickListener(loginOnClickListener);
-		register.setOnClickListener(registerOnClickListener);
+		rlUser.startAnimation(anim);
+		btLogin.setOnClickListener(loginOnClickListener);
+		btRegister.setOnClickListener(registerOnClickListener);
 
 		// 开启连接,则关闭
 		if (SharedPreferencesUtils.getString(mContext, Const.SP_USER_TYPE,
@@ -133,8 +133,8 @@ public class LoginActivity extends Activity {
 
 	private void doLogin() {
 
-		username = account.getText().toString();
-		pwd = password.getText().toString();
+		username = etAccount.getText().toString();
+		pwd = etPwd.getText().toString();
 		if (TextUtils.isEmpty(username)) {
 			ToastUtil.showShortToast(mContext, "请输入您的账号");
 			return;
@@ -143,7 +143,7 @@ public class LoginActivity extends Activity {
 			ToastUtil.showShortToast(mContext, "请输入您的密码");
 			return;
 		}
-		loadDialog.show();
+		ldLoading.show();
 
 		// 检测账号类型 [xxx@xx.xx.xx为xmpp,xxx为local]
 		String[] un = username.split("@");
@@ -155,7 +155,7 @@ public class LoginActivity extends Activity {
 			// 关闭连接
 			Intent stopConn = new Intent(ConnectService.CONNECT_CLOSE);
 			sendBroadcast(stopConn);
-			app.setUserType(userType);
+			mApp.setUserType(userType);
 
 			localLogin("使用测试数据登陆");
 
@@ -165,12 +165,12 @@ public class LoginActivity extends Activity {
 			host = un[1];
 
 			// 注册receiver
-			if (connectReceiver == null) {
+			if (mConnectReceiver == null) {
 				initReceiver();
 			}
 		}
 
-		app.setUserType(userType);
+		mApp.setUserType(userType);
 
 		// 如果网络未开启,查询本地数据
 		if (!NetUtil.checkNet(this)) {
@@ -199,12 +199,12 @@ public class LoginActivity extends Activity {
 
 	private void localXMPPLogin() {
 		DataEngine engine = new DataEngine(this);
-		DB3User user = engine.login(username, MD5Encoder.encode(pwd));
+		DBUser user = engine.login(username, MD5Encoder.encode(pwd));
 		if (user != null) {
-			loadDialog.dismiss();
+			ldLoading.dismiss();
 			// 设置user
-			app.setUser(user);
-			app.setConnected(false);
+			mApp.setmUser(user);
+			mApp.setConnected(false);
 
 			// 进入主界面
 			Intent intent = new Intent(mContext, MainActivity.class);
@@ -212,13 +212,13 @@ public class LoginActivity extends Activity {
 
 			this.finish();
 		} else {
-			DB3User u = engine.findXMPPUserByName(username);
+			DBUser u = engine.findXMPPUserByName(username);
 			if (u != null) {
 				Toast.makeText(mContext, "密码错误", Toast.LENGTH_SHORT).show();
-				loadDialog.dismiss();
-				account.setText("");
-				password.setText("");
-				account.requestFocus();
+				ldLoading.dismiss();
+				etAccount.setText("");
+				etPwd.setText("");
+				etAccount.requestFocus();
 			} else {
 				// 等待服务器回应
 			}
@@ -227,9 +227,9 @@ public class LoginActivity extends Activity {
 
 	private void localLogin(String msg) {
 		DataEngine engine = new DataEngine(this);
-		DB3User user = engine.login(username, MD5Encoder.encode(pwd));
+		DBUser user = engine.login(username, MD5Encoder.encode(pwd));
 		if (user != null) {
-			loadDialog.dismiss();
+			ldLoading.dismiss();
 			Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
 			SharedPreferencesUtils.setString(mContext, Const.SP_USERNAME,
 					username);
@@ -239,8 +239,8 @@ public class LoginActivity extends Activity {
 			SharedPreferencesUtils.setString(mContext, Const.XMPP_HOST, host);
 
 			// 设置user
-			app.setUser(user);
-			app.setConnected(false);
+			mApp.setmUser(user);
+			mApp.setConnected(false);
 
 			// 进入主界面
 			Intent intent = new Intent(mContext, MainActivity.class);
@@ -250,10 +250,10 @@ public class LoginActivity extends Activity {
 		} else {
 
 			Toast.makeText(this, "用户名或密码不正确,请重新输入", Toast.LENGTH_LONG).show();
-			loadDialog.dismiss();
-			account.setText("");
-			password.setText("");
-			account.requestFocus();
+			ldLoading.dismiss();
+			etAccount.setText("");
+			etPwd.setText("");
+			etAccount.requestFocus();
 		}
 	}
 
@@ -261,8 +261,8 @@ public class LoginActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 
-		if (connectReceiver != null) {
-			unregisterReceiver(connectReceiver);
+		if (mConnectReceiver != null) {
+			unregisterReceiver(mConnectReceiver);
 		}
 	}
 
@@ -280,14 +280,14 @@ public class LoginActivity extends Activity {
 
 				// return;
 			} else if (action.equals(ConnectService.LOGIN_SERVER_RECONNECT)) {
-				loadDialog.dismiss();
+				ldLoading.dismiss();
 				// 服务器连接失败
 				Toast.makeText(mContext, "服务器连接失败,请稍后重试", Toast.LENGTH_LONG)
 						.show();
-				loadDialog.dismiss();
-				account.setText("");
-				password.setText("");
-				account.requestFocus();
+				ldLoading.dismiss();
+				etAccount.setText("");
+				etPwd.setText("");
+				etAccount.requestFocus();
 
 				// 断开连接
 				Intent closeConnIntent = new Intent(
@@ -298,7 +298,7 @@ public class LoginActivity extends Activity {
 			}
 
 			if (reason == ChatService.SERVER_CONNECTED_USER_LOGIN) {
-				loadDialog.dismiss();
+				ldLoading.dismiss();
 				// isLogin = true;
 
 				if (username == null || username.trim().equals("")
@@ -312,9 +312,9 @@ public class LoginActivity extends Activity {
 				ur.setJid(username);
 				ur.setNickname(username.split("@")[0]);
 				ur.setStatusMessage(pwd);
-				DB3User u = engine.getXMPPUser(ur);
-				app.setUser(u);
-				app.setConnected(true);
+				DBUser u = engine.getXMPPUser(ur);
+				mApp.setmUser(u);
+				mApp.setConnected(true);
 
 				// 发送用户消息保存完成广播
 				Intent userAddIntent = new Intent(
@@ -327,22 +327,22 @@ public class LoginActivity extends Activity {
 				LoginActivity.this.finish();
 
 			} else if (reason == ChatService.SERVER_CONNECTED_USER_REJECTED) {
-				loadDialog.dismiss();
+				ldLoading.dismiss();
 				Toast.makeText(LoginActivity.this, "用户名或密码错误,请重新登录",
 						Toast.LENGTH_SHORT).show();
 				// isLogin = false;
-				account.setText("");
-				password.setText("");
-				account.requestFocus();
+				etAccount.setText("");
+				etPwd.setText("");
+				etAccount.requestFocus();
 
 			} else {
-				loadDialog.dismiss();
+				ldLoading.dismiss();
 				Toast.makeText(LoginActivity.this, "网络连接错误", Toast.LENGTH_SHORT)
 						.show();
 
-				account.setText("");
-				password.setText("");
-				account.requestFocus();
+				etAccount.setText("");
+				etPwd.setText("");
+				etAccount.requestFocus();
 			}
 		}
 

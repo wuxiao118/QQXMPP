@@ -25,10 +25,10 @@ import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
 import com.zyxb.qqxmpp.adapter.GroupMembersAdapter;
-import com.zyxb.qqxmpp.bean3.Information;
-import com.zyxb.qqxmpp.bean3.PinyinComparator;
-import com.zyxb.qqxmpp.bean3.SortModel;
-import com.zyxb.qqxmpp.db3.DB3Columns;
+import com.zyxb.qqxmpp.bean.Information;
+import com.zyxb.qqxmpp.bean.PinyinComparator;
+import com.zyxb.qqxmpp.bean.SortModel;
+import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.util.CharacterParser;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.PopupUtils;
@@ -48,7 +48,7 @@ public class GroupMembersActivity extends BaseActivity implements
 	private TextView tvBack;
 	// private LinearLayout container;
 	// private int position = 1;
-	private LayoutInflater inflater;
+	private LayoutInflater mInflater;
 
 	private LinearLayout llPop, llSearch, llSearchContainer, llTitle,
 			llContent,llSearchBg;
@@ -68,18 +68,18 @@ public class GroupMembersActivity extends BaseActivity implements
 
 	// 数据
 	private List<Information> friends;
-	private GroupMembersAdapter adapter;
+	private GroupMembersAdapter mAdapter;
 
 	/**
 	 * 汉字转换成拼音的类
 	 */
-	private CharacterParser characterParser;
+	private CharacterParser mCharacterParser;
 	private List<SortModel> sourceDateList;
 
 	/**
 	 * 根据拼音来排列ListView里面的数据类
 	 */
-	private PinyinComparator pinyinComparator;
+	private PinyinComparator mPinyinComparator;
 
 	// 显示搜索框
 	// private boolean isShowSearch = false;
@@ -137,7 +137,7 @@ public class GroupMembersActivity extends BaseActivity implements
 			@Override
 			public void onTouchingLetterChanged(String s) {
 				// 该字母首次出现的位置
-				int position = adapter.getPositionForSection(s.charAt(0));
+				int position = mAdapter.getPositionForSection(s.charAt(0));
 				if (position != -1) {
 					lvMembers.setSelection(position);
 				}
@@ -196,7 +196,7 @@ public class GroupMembersActivity extends BaseActivity implements
 			filterDateList.clear();
 			for (SortModel sortModel : sourceDateList) {
 				String name = sortModel.getName();
-				if ((name.indexOf(filterStr.toString()) != -1 || characterParser
+				if ((name.indexOf(filterStr.toString()) != -1 || mCharacterParser
 						.getSelling(name).startsWith(filterStr.toString()))
 						&& sortModel.getInfo() != null) {
 					filterDateList.add(sortModel);
@@ -207,15 +207,15 @@ public class GroupMembersActivity extends BaseActivity implements
 		// 根据a-z进行排序
 		if (filterDateList.size() > 0) {
 			tvResult.setVisibility(View.GONE);
-			Collections.sort(filterDateList, pinyinComparator);
-			// adapter.updateListView(filterDateList);
+			Collections.sort(filterDateList, mPinyinComparator);
+			// mAdapter.updateListView(filterDateList);
 
 			// LinearLayout添加View
 			SortModel sm = null;
 			for (int i = 0; i < filterDateList.size(); i++) {
 				sm = filterDateList.get(i);
 
-				View view = inflater.inflate(
+				View view = mInflater.inflate(
 						R.layout.group_members_list_item_m, null);
 				ImageView icon = (ImageView) view
 						.findViewById(R.id.ivGroupMembersListItemIcon);
@@ -232,12 +232,12 @@ public class GroupMembersActivity extends BaseActivity implements
 
 				int level = sm.getInfo().getLevel();
 				switch (level) {
-					case DB3Columns.GROUP_LEVEL_CREATOR:
+					case DBColumns.GROUP_LEVEL_CREATOR:
 						tvGroupTitle
 								.setBackgroundResource(R.drawable.group_members_list_item_group_title_orange);
 						tvGroupTitle.setText("群主");
 						break;
-					case DB3Columns.GROUP_LEVEL_MASTER:
+					case DBColumns.GROUP_LEVEL_MASTER:
 						tvGroupTitle
 								.setBackgroundResource(R.drawable.group_members_list_group_tilte_green);
 						tvGroupTitle.setText("管理员");
@@ -245,7 +245,7 @@ public class GroupMembersActivity extends BaseActivity implements
 					default:
 						tvGroupTitle
 								.setBackgroundResource(R.drawable.group_members_list_group_tilte_gray);
-						tvGroupTitle.setText(DB3Columns.GROUP_TITLES[sm.getInfo()
+						tvGroupTitle.setText(DBColumns.GROUP_TITLES[sm.getInfo()
 								.getGroupTitle()]);
 						break;
 				}
@@ -265,7 +265,7 @@ public class GroupMembersActivity extends BaseActivity implements
 			// tvResult.setVisibility(View.VISIBLE);
 			// llGroupContainer.removeAllViews() 删除了tvResult
 			llResultContainer.removeAllViews();
-			View v = inflater.inflate(R.layout.group_members_textview, null);
+			View v = mInflater.inflate(R.layout.group_members_textview, null);
 			llResultContainer.addView(v);
 		}
 	}
@@ -276,37 +276,37 @@ public class GroupMembersActivity extends BaseActivity implements
 		//vBg.setClickable(true);
 
 		// 拼音
-		characterParser = CharacterParser.getInstance();
-		pinyinComparator = new PinyinComparator();
+		mCharacterParser = CharacterParser.getInstance();
+		mPinyinComparator = new PinyinComparator();
 
 		// 初始化成员数据
-		inflater = LayoutInflater.from(this);
+		mInflater = LayoutInflater.from(this);
 
 		// 获取群成员数据
 		Intent intent = getIntent();
 		String groupAccount = intent.getStringExtra("groupAccount");
 
 		// 加载View
-		// View view = inflater.inflate(R.layout.group_members_item_g, null);
+		// View view = mInflater.inflate(R.layout.group_members_item_g, null);
 		// view.setTag(position++);
 		// findView(view,R.id.llGroupMembersItemTitle).setOnClickListener(this);
 		// container.addView(view);
 
 		sbBar.setTextView(tvDialog);
 		// 查找群成员
-		friends = engine.getGroupFriends(groupAccount);
+		friends = mEngine.getGroupFriends(groupAccount);
 		// 填充数据
 		sourceDateList = filledData(friends);
 		// 排序并添加管理员、[A-Z]部分
 		sortData();
 		// 设置数据适配器
-		adapter = new GroupMembersAdapter(this, sourceDateList, this);
-		lvMembers.setAdapter(adapter);
+		mAdapter = new GroupMembersAdapter(this, sourceDateList, this);
+		lvMembers.setAdapter(mAdapter);
 	}
 
 	private void sortData() {
 		// 将数据按字母顺序排序
-		// Collections.sort(sourceDateList,pinyinComparator);
+		// Collections.sort(sourceDateList,mPinyinComparator);
 
 		// 将数据分类为[A-Z]、管理员
 		Map<String, List<SortModel>> map = new HashMap<String, List<SortModel>>();
@@ -335,11 +335,11 @@ public class GroupMembersActivity extends BaseActivity implements
 			// }
 
 			// 是否是管理员
-			if (source.getInfo().getLevel() == DB3Columns.GROUP_LEVEL_CREATOR
-					|| source.getInfo().getLevel() == DB3Columns.GROUP_LEVEL_MASTER) {
+			if (source.getInfo().getLevel() == DBColumns.GROUP_LEVEL_CREATOR
+					|| source.getInfo().getLevel() == DBColumns.GROUP_LEVEL_MASTER) {
 				source.setSortLetters(managerLetter);
 				// 如果是群主,放在第二个,第一个为title
-				if (source.getInfo().getLevel() == DB3Columns.GROUP_LEVEL_CREATOR) {
+				if (source.getInfo().getLevel() == DBColumns.GROUP_LEVEL_CREATOR) {
 					map.get(managerLetter).add(1, source);
 				} else {
 					map.get(managerLetter).add(source);
@@ -408,7 +408,7 @@ public class GroupMembersActivity extends BaseActivity implements
 			sortModel.setInfo(info);
 			sortModel.setName(name);
 			// 汉字转换成拼音
-			String pinyin = characterParser.getSelling(name);
+			String pinyin = mCharacterParser.getSelling(name);
 			String sortString = pinyin.substring(0, 1).toUpperCase();
 
 			// 正则表达式，判断首字母是否是英文字母
@@ -428,7 +428,7 @@ public class GroupMembersActivity extends BaseActivity implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.tvGroupMembersBack:
-				app.back();
+				mApp.back();
 				break;
 			// case R.id.llGroupMembersItemTitle:
 			//

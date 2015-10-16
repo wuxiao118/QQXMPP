@@ -10,20 +10,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.vo.GroupInfo;
+import com.zyxb.qqxmpp.bean.vo.GroupInfo;
 
 import java.util.List;
 
 public class GroupAdapter extends BaseAdapter {
 	// private Context context;
-	private LayoutInflater inflater;
+	private LayoutInflater mInflater;
 	private List<GroupInfo> groups;
 
 	// private List<GroupTitle> titles;
 
 	public GroupAdapter(Context context) {
 		// this.context = context;
-		inflater = LayoutInflater.from(context);
+		mInflater = LayoutInflater.from(context);
 	}
 
 	public void setGroups(List<GroupInfo> groups) {
@@ -74,9 +74,9 @@ public class GroupAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (position == 0) {
-			// convertView = inflater.inflate(R.layout.search, null);
+			// convertView = mInflater.inflate(R.layout.search, null);
 			// convertView.setBackgroundColor(context.getResources().getColor(R.color.search_bg_color));
-			convertView = inflater.inflate(R.layout.group_list_first, null);
+			convertView = mInflater.inflate(R.layout.group_list_first, null);
 			convertView.setTag(null);
 
 			return convertView;
@@ -84,7 +84,7 @@ public class GroupAdapter extends BaseAdapter {
 
 		GroupInfo group = groups.get(position - 1);
 		if (group.getType() == GroupInfo.GROUP_TYPE_TITLE) {
-			convertView = inflater.inflate(R.layout.group_members_item_g, null);
+			convertView = mInflater.inflate(R.layout.group_members_item_g, null);
 			TextView tv = (TextView) convertView
 					.findViewById(R.id.tvGroupMembersTitle);
 			tv.setText(group.getName() + "(" + group.getLevel() + ")");
@@ -94,7 +94,7 @@ public class GroupAdapter extends BaseAdapter {
 		}
 		ViewHolder holder;
 		if (convertView == null || convertView.getTag() == null) {
-			convertView = inflater.inflate(R.layout.group_list_item, null);
+			convertView = mInflater.inflate(R.layout.group_list_item, null);
 			holder = new ViewHolder();
 			holder.ivIcon = (ImageView) convertView
 					.findViewById(R.id.ivGroupItemIcon);
@@ -107,7 +107,7 @@ public class GroupAdapter extends BaseAdapter {
 		holder = (ViewHolder) convertView.getTag();
 
 		// 设置数据
-		// DB3Group group = groups.get(position - 1);
+		// DBGroup group = groups.get(position - 1);
 		holder.tvName.setText(group.getName());
 		if (group.getIcon() == null) {
 			holder.ivIcon.setBackgroundResource(R.drawable.h001);

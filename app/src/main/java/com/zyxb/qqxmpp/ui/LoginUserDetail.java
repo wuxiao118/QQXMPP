@@ -49,19 +49,19 @@ public class LoginUserDetail extends BaseActivity implements OnClickListener {
 	}
 
 	private void initData() {
-		tvName.setText(user.getNickname());
-		tvAccount.setText(user.getAccount());
-		tvSpace.setText(user.getNickname() + "的空间");
+		tvName.setText(mUser.getNickname());
+		tvAccount.setText(mUser.getAccount());
+		tvSpace.setText(mUser.getNickname() + "的空间");
 
-		if (user.getExportDays() <= 0) {
+		if (mUser.getExportDays() <= 0) {
 			llDaren.setVisibility(View.GONE);
 		} else {
-			tvDaren.setText(user.getExportDays() + "天");
+			tvDaren.setText(mUser.getExportDays() + "天");
 		}
 
 		// 性别 年龄 位置
 		StringBuilder sb = new StringBuilder();
-		String gender = user.getGender();
+		String gender = mUser.getGender();
 		if (gender != null && gender.equalsIgnoreCase("M")) {
 			sb.append("男 ");
 		} else if (gender != null && gender.equalsIgnoreCase("F")) {
@@ -69,13 +69,13 @@ public class LoginUserDetail extends BaseActivity implements OnClickListener {
 		}
 		gender = null;
 
-		Integer ageInt = user.getAge();
+		Integer ageInt = mUser.getAge();
 		if (ageInt != null) {
 			sb.append(ageInt.toString() + " ");
 		}
 		ageInt = null;
 
-		String location = user.getLocation();
+		String location = mUser.getLocation();
 		if (location != null) {
 			sb.append(location);
 		}
@@ -88,7 +88,7 @@ public class LoginUserDetail extends BaseActivity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.tvUserDetailBack:
-				app.back();
+				mApp.back();
 				break;
 		}
 	}

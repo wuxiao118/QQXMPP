@@ -16,9 +16,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.MessageInfo;
-import com.zyxb.qqxmpp.bean3.po.DB3User;
-import com.zyxb.qqxmpp.db3.DB3Columns;
+import com.zyxb.qqxmpp.bean.MessageInfo;
+import com.zyxb.qqxmpp.bean.po.DBUser;
+import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.ui.ChatActivity;
 import com.zyxb.qqxmpp.ui.FriendDtailActivity;
 import com.zyxb.qqxmpp.ui.GroupFriendCardActivity;
@@ -36,19 +36,19 @@ import java.util.List;
 public class ChatAdapter extends BaseAdapter implements OnClickListener,
 		OnLongClickListener {
 	private List<MessageInfo> messages;
-	private DB3User user;
-	private LayoutInflater inflater;
-	private ChatActivity context;
+	private DBUser mUser;
+	private LayoutInflater mInflater;
+	private ChatActivity mContext;
 	private int type;
 	private String account;
 	private String groupAccount;
 
-	public ChatAdapter(ChatActivity context, DB3User user,
+	public ChatAdapter(ChatActivity context, DBUser mUser,
 					   List<MessageInfo> messages) {
-		this.context = context;
+		this.mContext = context;
 		this.messages = messages;
-		this.user = user;
-		this.inflater = LayoutInflater.from(context);
+		this.mUser = mUser;
+		this.mInflater = LayoutInflater.from(context);
 	}
 
 	public void setMessages(List<MessageInfo> messages) {
@@ -75,7 +75,7 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder = null;
 		if (convertView == null) {
-			convertView = inflater.inflate(R.layout.chat_list_item, null);
+			convertView = mInflater.inflate(R.layout.chat_list_item, null);
 
 			holder = new ViewHolder();
 			holder.tvTime = findView(convertView, R.id.tvChatTime);
@@ -116,17 +116,17 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 		// System.out.println("type:" + message.getType());
 		type = message.getType();
 		account = message.getFrom().getAccount();
-		if (user.getAccount().equals(account)) {
+		if (mUser.getAccount().equals(account)) {
 			account = message.getTo().getAccount();
 		}
-		if(type == DB3Columns.MESSAGE_TYPE_GROUP){
+		if(type == DBColumns.MESSAGE_TYPE_GROUP){
 			groupAccount = message.getTo().getAccount();
 		}
 
 		holder.tvTime.setText(DateUtils.getMsgDate(message.getCreateTime()));
 
 		// 自己发送的消息
-		if (user.getAccount().equals(message.getFrom().getAccount())) {
+		if (mUser.getAccount().equals(message.getFrom().getAccount())) {
 			// 右边
 			holder.llLeft.setVisibility(View.GONE);
 			holder.llRight.setVisibility(View.VISIBLE);
@@ -142,13 +142,13 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 			}
 
 			holder.tvRightName.setVisibility(View.GONE);
-			holder.tvRightContent.setText(MyExpressionUtil.prase(context,
+			holder.tvRightContent.setText(MyExpressionUtil.prase(mContext,
 					holder.tvRightContent, message.getMsg()));
 			holder.ivRightImage.setVisibility(View.GONE);
 			holder.ivRightLoc.setVisibility(View.GONE);
 			holder.tvRightGroupTitle.setVisibility(View.GONE);
 			// holder.pbLeftLoading.setVisibility(View.GONE);
-			if (message.getState() == DB3Columns.MESSAGE_STATE_SENDING) {
+			if (message.getState() == DBColumns.MESSAGE_STATE_SENDING) {
 				holder.pbRightLoading.setVisibility(View.VISIBLE);
 			} else {
 				holder.pbRightLoading.setVisibility(View.GONE);
@@ -161,13 +161,13 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 
 			String icon = null;
 			switch (message.getType()) {
-				case DB3Columns.MESSAGE_TYPE_CONTACT:
+				case DBColumns.MESSAGE_TYPE_CONTACT:
 					icon = message.getFrom().getIcon();
 					break;
-				case DB3Columns.MESSAGE_TYPE_GROUP:
+				case DBColumns.MESSAGE_TYPE_GROUP:
 					icon = message.getTo().getIcon();
 					break;
-				case DB3Columns.MESSAGE_TYPE_SYS:
+				case DBColumns.MESSAGE_TYPE_SYS:
 					icon = message.getFrom().getIcon();
 					break;
 			}
@@ -182,8 +182,8 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 
 			// System.out.println("type:" + message.getType() + ",name:"
 			// + message.getName());
-			if (message.getType() == DB3Columns.MESSAGE_TYPE_CONTACT
-					|| message.getType() == DB3Columns.MESSAGE_TYPE_SYS) {
+			if (message.getType() == DBColumns.MESSAGE_TYPE_CONTACT
+					|| message.getType() == DBColumns.MESSAGE_TYPE_SYS) {
 				holder.tvLeftName.setVisibility(View.GONE);
 				holder.tvLeftGroupTitle.setVisibility(View.GONE);
 			} else {
@@ -193,13 +193,13 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 						.setText(message.getFrom().getComments() + ":");
 
 				holder.tvLeftGroupTitle.setVisibility(View.VISIBLE);
-				holder.tvLeftGroupTitle.setText(DB3Columns.GROUP_TITLES[message
+				holder.tvLeftGroupTitle.setText(DBColumns.GROUP_TITLES[message
 						.getFrom().getGroupTitle()]);
 				// System.out.println("group title:" + message.getGroupTitle());
 			}
 
 			// holder.tvLeftContent.setText(message.getMsg());
-			holder.tvLeftContent.setText(MyExpressionUtil.prase(context,
+			holder.tvLeftContent.setText(MyExpressionUtil.prase(mContext,
 					holder.tvLeftContent, message.getMsg()));
 			holder.ivLeftImage.setVisibility(View.GONE);
 			holder.ivLeftLoc.setVisibility(View.GONE);
@@ -254,35 +254,35 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 		switch (v.getId()) {
 			case R.id.tvChatLeftContent:
 			case R.id.tvChatRightContent:
-				// PopupUtils.showPop(context, v, new String[] { "复制", "转发", "收藏",
+				// PopupUtils.showPop(mContext, v, new String[] { "复制", "转发", "收藏",
 				// "转发多条", "删除" });
 
 				break;
 			case R.id.ciChatRightIcon:
-				if (type == DB3Columns.MESSAGE_TYPE_CONTACT) {
+				if (type == DBColumns.MESSAGE_TYPE_CONTACT) {
 					// TODO 显示自己
-					intent = new Intent(context,LoginUserDetail.class);
-					context.startActivity(intent);
-					UIAnimUtils.sildLeftIn(context);
+					intent = new Intent(mContext,LoginUserDetail.class);
+					mContext.startActivity(intent);
+					UIAnimUtils.sildLeftIn(mContext);
 					return;
 				}
 			case R.id.ciChatLeftIcon:
-				if (type == DB3Columns.MESSAGE_TYPE_GROUP) {
-					// intent = new Intent(context, GroupDetailActivity.class);
-					intent = new Intent(context, GroupFriendCardActivity.class);
+				if (type == DBColumns.MESSAGE_TYPE_GROUP) {
+					// intent = new Intent(mContext, GroupDetailActivity.class);
+					intent = new Intent(mContext, GroupFriendCardActivity.class);
 					intent.putExtra("groupAccount", groupAccount);
-				} else if (type == DB3Columns.MESSAGE_TYPE_CONTACT) {
-					intent = new Intent(context, FriendDtailActivity.class);
+				} else if (type == DBColumns.MESSAGE_TYPE_CONTACT) {
+					intent = new Intent(mContext, FriendDtailActivity.class);
 				} else {
 					return;
 				}
 
 				intent.putExtra("account", account);
 				intent.putExtra("isFromChat", true);
-				context.startActivity(intent);
-				// context.overridePendingTransition(R.anim.slide_left,
+				mContext.startActivity(intent);
+				// mContext.overridePendingTransition(R.anim.slide_left,
 				// R.anim.slide_right);
-				UIAnimUtils.sildLeftIn(context);
+				UIAnimUtils.sildLeftIn(mContext);
 				break;
 		}
 	}
@@ -300,15 +300,15 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 				// int[] location = new int[2];
 				// v.getLocationOnScreen(location);
 				// System.out.println("x=" + location[0] + ",y=" + location[1]);
-				// PopupUtils.showPop(context, v, new String[] { "复制", "转发", "收藏",
+				// PopupUtils.showPop(mContext, v, new String[] { "复制", "转发", "收藏",
 				// "转发多条", "删除" }, i, j);
 				final String[] menus = new String[] { "复制", "转发", "收藏",
 						"转发多条", "删除" };
-				PopupUtils.showQuickAction(context, v, menus, new OnActionItemClickListener() {
+				PopupUtils.showQuickAction(mContext, v, menus, new OnActionItemClickListener() {
 
 					@Override
 					public void onItemClick(QuickAction source, int pos, int actionId) {
-						Toast.makeText(context, menus[pos], Toast.LENGTH_SHORT).show();
+						Toast.makeText(mContext, menus[pos], Toast.LENGTH_SHORT).show();
 					}
 				});
 

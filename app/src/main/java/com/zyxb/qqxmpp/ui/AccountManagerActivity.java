@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.zyxb.qqxmpp.bean3.po.DB3User;
+import com.zyxb.qqxmpp.bean.po.DBUser;
 import com.zyxb.qqxmpp.R;
 
 public class AccountManagerActivity extends BaseActivity implements
@@ -22,7 +22,7 @@ public class AccountManagerActivity extends BaseActivity implements
 	private TextView tvBack, tvCurrentName, tvCurrentUserAccount;
 	private ImageView ivCurrentUserIcon;
 	private LinearLayout llExit;
-	private PopupWindow popWindow;
+	private PopupWindow mPopWindow;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +50,10 @@ public class AccountManagerActivity extends BaseActivity implements
 	}
 
 	private void initData() {
-		DB3User user = app.getUser();
+		DBUser user = mApp.getmUser();
 
 		if (user.getIcon() != null) {
-			// Bitmap bmp = BitmapFactory.decodeFile(user.getIcon());
+			// Bitmap bmp = BitmapFactory.decodeFile(mUser.getIcon());
 			// ivCurrentUserIcon.setImageBitmap(bmp);
 		} else {
 			ivCurrentUserIcon
@@ -67,7 +67,7 @@ public class AccountManagerActivity extends BaseActivity implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.tvAccountManagerBack:
-				app.back();
+				mApp.back();
 				break;
 			case R.id.llCurrentExit:
 				// userExit();
@@ -78,20 +78,20 @@ public class AccountManagerActivity extends BaseActivity implements
 
 	@SuppressLint("InflateParams")
 	private void showPopupWindow(View parent) {
-		if (popWindow == null) {
+		if (mPopWindow == null) {
 			LayoutInflater inflater = LayoutInflater.from(this);
 			View view = inflater.inflate(R.layout.pop_loginout, null);
-			popWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
+			mPopWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
 					LayoutParams.MATCH_PARENT, true);
 			initPop(view);
 		}
-		popWindow.setAnimationStyle(android.R.style.Animation_InputMethod);
-		popWindow.setFocusable(true);
-		popWindow.setOutsideTouchable(true);
-		popWindow.setBackgroundDrawable(new BitmapDrawable());
-		popWindow
+		mPopWindow.setAnimationStyle(android.R.style.Animation_InputMethod);
+		mPopWindow.setFocusable(true);
+		mPopWindow.setOutsideTouchable(true);
+		mPopWindow.setBackgroundDrawable(new BitmapDrawable());
+		mPopWindow
 				.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-		popWindow.showAtLocation(parent, Gravity.CENTER, 0, 0);
+		mPopWindow.showAtLocation(parent, Gravity.CENTER, 0, 0);
 	}
 
 	public void initPop(View view) {
@@ -100,14 +100,14 @@ public class AccountManagerActivity extends BaseActivity implements
 		loginout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				popWindow.dismiss();
+				mPopWindow.dismiss();
 				userExit();
 			}
 		});
 		cancel.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				popWindow.dismiss();
+				mPopWindow.dismiss();
 			}
 		});
 	}

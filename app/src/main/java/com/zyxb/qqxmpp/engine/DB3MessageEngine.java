@@ -2,27 +2,27 @@ package com.zyxb.qqxmpp.engine;
 
 import android.content.Context;
 
-import com.zyxb.qqxmpp.bean3.Information;
-import com.zyxb.qqxmpp.bean3.MessageInfo;
-import com.zyxb.qqxmpp.bean3.XMPPMessage;
-import com.zyxb.qqxmpp.bean3.po.DB3Group;
-import com.zyxb.qqxmpp.bean3.po.DB3Message;
-import com.zyxb.qqxmpp.bean3.po.DB3SystemGroup;
-import com.zyxb.qqxmpp.bean3.po.DB3User;
-import com.zyxb.qqxmpp.db3.DAOFactory;
-import com.zyxb.qqxmpp.db3.DB3Columns;
-import com.zyxb.qqxmpp.db3.dao.DB3FriendGroupMappingDAO;
-import com.zyxb.qqxmpp.db3.dao.DB3GroupMappingDAO;
-import com.zyxb.qqxmpp.db3.dao.DB3MessageDAO;
-import com.zyxb.qqxmpp.db3.dao.DB3MessageDAO.OnMessageChangeListener;
+import com.zyxb.qqxmpp.bean.Information;
+import com.zyxb.qqxmpp.bean.MessageInfo;
+import com.zyxb.qqxmpp.bean.XMPPMessage;
+import com.zyxb.qqxmpp.bean.po.DBGroup;
+import com.zyxb.qqxmpp.bean.po.DBMessage;
+import com.zyxb.qqxmpp.bean.po.DBSystemGroup;
+import com.zyxb.qqxmpp.bean.po.DBUser;
+import com.zyxb.qqxmpp.db.DAOFactory;
+import com.zyxb.qqxmpp.db.DBColumns;
+import com.zyxb.qqxmpp.db.dao.DBFriendGroupMappingDAO;
+import com.zyxb.qqxmpp.db.dao.DBGroupMappingDAO;
+import com.zyxb.qqxmpp.db.dao.DBMessageDAO;
+import com.zyxb.qqxmpp.db.dao.DBMessageDAO.OnMessageChangeListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DB3MessageEngine {
-	private DB3MessageDAO dao;
-	private DB3GroupMappingDAO gmDao;
-	private DB3FriendGroupMappingDAO fgDao;
+	private DBMessageDAO dao;
+	private DBGroupMappingDAO gmDao;
+	private DBFriendGroupMappingDAO fgDao;
 
 	public DB3MessageEngine(Context context) {
 		dao = DAOFactory.getDB3MessageDAO(context);
@@ -30,14 +30,14 @@ public class DB3MessageEngine {
 		fgDao = DAOFactory.getDB3FriendGroupMappingDAO(context);
 	}
 
-	public List<MessageInfo> getNewest(DB3User user) {
+	public List<MessageInfo> getNewest(DBUser user) {
 		List<MessageInfo> messages = new ArrayList<MessageInfo>();
-		List<DB3Message> ms = dao.findNewest(user);
+		List<DBMessage> ms = dao.findNewest(user);
 
 		// 将DB3Message转换为MessageInfo
 		MessageInfo minfo = null;
 		for (int i = 0; i < ms.size(); i++) {
-			DB3Message mm = ms.get(i);
+			DBMessage mm = ms.get(i);
 
 			minfo = new MessageInfo();
 			minfo.setAccount(mm.getAccount());
@@ -50,9 +50,9 @@ public class DB3MessageEngine {
 			Information from = new Information();
 			Information to = new Information();
 			switch (mm.getType()) {
-				case DB3Columns.MESSAGE_TYPE_GROUP:
-					DB3User u = mm.getFrom();
-					DB3Group g = mm.getToGroup();
+				case DBColumns.MESSAGE_TYPE_GROUP:
+					DBUser u = mm.getFrom();
+					DBGroup g = mm.getToGroup();
 					from.setAccount(u.getAccount());
 					from.setName(u.getNickname());
 					from.setComments(gmDao.getRemark(u.getAccount(), g.getAccount()));
@@ -62,9 +62,9 @@ public class DB3MessageEngine {
 					u = null;
 					g = null;
 					break;
-				case DB3Columns.MESSAGE_TYPE_CONTACT:
-					DB3User u1 = mm.getFrom();
-					DB3User u2 = mm.getTo();
+				case DBColumns.MESSAGE_TYPE_CONTACT:
+					DBUser u1 = mm.getFrom();
+					DBUser u2 = mm.getTo();
 
 					from.setAccount(u1.getAccount());
 					from.setName(u1.getNickname());
@@ -88,9 +88,9 @@ public class DB3MessageEngine {
 					u2 = null;
 
 					break;
-				case DB3Columns.MESSAGE_TYPE_SYS:
-					DB3SystemGroup sys = mm.getFromGroup();
-					DB3User u3 = mm.getTo();
+				case DBColumns.MESSAGE_TYPE_SYS:
+					DBSystemGroup sys = mm.getFromGroup();
+					DBUser u3 = mm.getTo();
 
 					from.setAccount(sys.getAccount());
 					from.setIcon(sys.getIcon());
@@ -127,12 +127,12 @@ public class DB3MessageEngine {
 	public List<MessageInfo> getContactMessage(String currentAccount,
 											   String contactAccount, OnMessageChangeListener listener) {
 		dao.setOnMessageChangeListener(listener);
-		List<DB3Message> ms = dao.findContact(currentAccount, contactAccount);
+		List<DBMessage> ms = dao.findContact(currentAccount, contactAccount);
 
 		List<MessageInfo> infos = new ArrayList<MessageInfo>();
 		MessageInfo info = null;
 		for (int i = 0; i < ms.size(); i++) {
-			DB3Message m = ms.get(i);
+			DBMessage m = ms.get(i);
 			info = new MessageInfo();
 
 			info.setAccount(m.getAccount());
@@ -142,7 +142,7 @@ public class DB3MessageEngine {
 			info.setType(m.getType());
 
 			// from
-			DB3User u = m.getFrom();
+			DBUser u = m.getFrom();
 			Information ifrom = new Information();
 			ifrom.setAccount(u.getAccount());
 			ifrom.setName(u.getNickname());
@@ -186,12 +186,12 @@ public class DB3MessageEngine {
 	public List<MessageInfo> getSystemMessage(String userAccount,
 											  String sysAccount, OnMessageChangeListener listener) {
 		dao.setOnMessageChangeListener(listener);
-		List<DB3Message> ms = dao.findSystemMessage(userAccount, sysAccount);
+		List<DBMessage> ms = dao.findSystemMessage(userAccount, sysAccount);
 
 		List<MessageInfo> infos = new ArrayList<MessageInfo>();
 		MessageInfo info = null;
 		for (int i = 0; i < ms.size(); i++) {
-			DB3Message m = ms.get(i);
+			DBMessage m = ms.get(i);
 			info = new MessageInfo();
 
 			info.setAccount(m.getAccount());
@@ -201,7 +201,7 @@ public class DB3MessageEngine {
 			info.setType(m.getType());
 
 			// from
-			DB3SystemGroup sg = m.getFromGroup();
+			DBSystemGroup sg = m.getFromGroup();
 			Information ifrom = new Information();
 			ifrom.setAccount(sg.getAccount());
 			ifrom.setName(sg.getName());
@@ -222,12 +222,12 @@ public class DB3MessageEngine {
 	public List<MessageInfo> getGroupMessage(String userAccount,
 											 String groupAccount, OnMessageChangeListener listener) {
 		dao.setOnMessageChangeListener(listener);
-		List<DB3Message> ms = dao.findGroup(userAccount, groupAccount);
+		List<DBMessage> ms = dao.findGroup(userAccount, groupAccount);
 
 		List<MessageInfo> infos = new ArrayList<MessageInfo>();
 		MessageInfo info = null;
 		for (int i = 0; i < ms.size(); i++) {
-			DB3Message m = ms.get(i);
+			DBMessage m = ms.get(i);
 			info = new MessageInfo();
 
 			info.setAccount(m.getAccount());
@@ -237,7 +237,7 @@ public class DB3MessageEngine {
 			info.setType(m.getType());
 
 			// from
-			DB3User u = m.getFrom();
+			DBUser u = m.getFrom();
 			Information ifrom = new Information();
 			ifrom.setAccount(u.getAccount());
 			ifrom.setName(u.getNickname());
@@ -250,7 +250,7 @@ public class DB3MessageEngine {
 			ifrom = null;
 
 			// to
-			DB3Group g = m.getToGroup();
+			DBGroup g = m.getToGroup();
 			ifrom = new Information();
 			ifrom.setAccount(g.getAccount());
 			ifrom.setName(g.getName());
@@ -284,15 +284,15 @@ public class DB3MessageEngine {
 	}
 
 	public void add(XMPPMessage message) {
-		// message.setMsgType(DB3Columns.MESSAGE_TYPE_CONTACT);
-		// message.setState(DB3Columns.MESSAGE_STATE_RECEIVED);
+		// message.setMsgType(DBColumns.MESSAGE_TYPE_CONTACT);
+		// message.setState(DBColumns.MESSAGE_STATE_RECEIVED);
 		dao.add(message);
 		dao.close();
 	}
 
 	public void addNewXMPPMessage(XMPPMessage message) {
-		message.setMsgType(DB3Columns.MESSAGE_TYPE_CONTACT);
-		message.setState(DB3Columns.MESSAGE_STATE_RECEIVED);
+		message.setMsgType(DBColumns.MESSAGE_TYPE_CONTACT);
+		message.setState(DBColumns.MESSAGE_STATE_RECEIVED);
 		dao.add(message);
 		dao.close();
 	}

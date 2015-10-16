@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.zyxb.qqxmpp.bean3.po.DB3Group;
+import com.zyxb.qqxmpp.bean.po.DBGroup;
 import com.zyxb.qqxmpp.util.PopupUtils;
 import com.zyxb.qqxmpp.util.PopupUtils.OnPopupLayoutView;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
@@ -28,7 +28,7 @@ public class GroupDetailActivity extends BaseActivity implements
 	private ImageView ivIcon;
 
 	// private PopupWindow popWindow;
-	private DB3Group group;
+	private DBGroup mGroup;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,24 +65,24 @@ public class GroupDetailActivity extends BaseActivity implements
 		Intent intent = getIntent();
 		String groupAccount = intent.getStringExtra("account");
 		//System.out.println("groupAccount:" + groupAccount);
-		group = engine.getGroupInfo(groupAccount);
+		mGroup = mEngine.getGroupInfo(groupAccount);
 
 		// 初始化界面
-		if (group.getIcon() == null) {
+		if (mGroup.getIcon() == null) {
 			ivIcon.setBackgroundResource(R.drawable.qq_contact_list_friend_entry_icon);
 		} else {
 			// 加载图片
 		}
-		tvName.setText(group.getName());
-		tvAccount.setText(group.getAccount());
-		tvClassification.setText(group.getClassification());
-		tvVistingCard.setText(engine.getGroupRemark(group.getAccount(),
-				user.getAccount()));
-		tvMemberNum.setText(engine.getGroupNum(group.getAccount()) + "");
-		if (group.getDesp() == null) {
+		tvName.setText(mGroup.getName());
+		tvAccount.setText(mGroup.getAccount());
+		tvClassification.setText(mGroup.getClassification());
+		tvVistingCard.setText(mEngine.getGroupRemark(mGroup.getAccount(),
+				mUser.getAccount()));
+		tvMemberNum.setText(mEngine.getGroupNum(mGroup.getAccount()) + "");
+		if (mGroup.getDesp() == null) {
 			tvDesp.setText("这个家伙很懒，什么都没留下");
 		} else {
-			tvDesp.setText(group.getDesp());
+			tvDesp.setText(mGroup.getDesp());
 		}
 	}
 
@@ -90,11 +90,11 @@ public class GroupDetailActivity extends BaseActivity implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.tvGroupItemBack:
-				app.back();
+				mApp.back();
 				break;
 			case R.id.llGroupMembers:
 				Intent intent = new Intent(this, GroupMembersActivity.class);
-				intent.putExtra("groupAccount", group.getAccount());
+				intent.putExtra("groupAccount", mGroup.getAccount());
 				startActivity(intent);
 				//overridePendingTransition(R.anim.slide_left, R.anim.slide_right);
 				UIAnimUtils.sildLeftIn(this);

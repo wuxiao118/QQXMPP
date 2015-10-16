@@ -13,16 +13,16 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.SortModel;
-import com.zyxb.qqxmpp.db3.DB3Columns;
+import com.zyxb.qqxmpp.bean.SortModel;
+import com.zyxb.qqxmpp.db.DBColumns;
 
 import java.util.List;
 
 public class GroupMembersAdapter extends BaseAdapter implements SectionIndexer {
 	// private Context context;
-	private LayoutInflater inflater;
+	private LayoutInflater mInflater;
 	private List<SortModel> friends;
-	private OnClickListener listener;
+	private OnClickListener mListener;
 
 	public interface OnSearchClickListener {
 		public void onClick(View v);
@@ -31,9 +31,9 @@ public class GroupMembersAdapter extends BaseAdapter implements SectionIndexer {
 	public GroupMembersAdapter(Context context, List<SortModel> sourceDateList,
 							   OnClickListener listener) {
 		// this.context = context;
-		this.inflater = LayoutInflater.from(context);
+		this.mInflater = LayoutInflater.from(context);
 		this.friends = sourceDateList;
-		this.listener = listener;
+		this.mListener = listener;
 	}
 
 	@Override
@@ -75,11 +75,11 @@ public class GroupMembersAdapter extends BaseAdapter implements SectionIndexer {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// 加载搜素
 		if (position == 0) {
-			convertView = inflater.inflate(R.layout.group_list_first, null);
+			convertView = mInflater.inflate(R.layout.group_list_first, null);
 			LinearLayout llSearch = (LinearLayout) convertView
 					.findViewById(R.id.llSearch);
 			// llSearch.setOnClickListener(this);
-			llSearch.setOnClickListener(listener);
+			llSearch.setOnClickListener(mListener);
 
 			convertView.setTag(null);
 
@@ -89,7 +89,7 @@ public class GroupMembersAdapter extends BaseAdapter implements SectionIndexer {
 		SortModel sm = friends.get(position - 1);
 		// 字母头部
 		if (sm.getInfo() == null) {
-			convertView = inflater.inflate(R.layout.group_members_item_g, null);
+			convertView = mInflater.inflate(R.layout.group_members_item_g, null);
 			TextView tv = (TextView) convertView
 					.findViewById(R.id.tvGroupMembersTitle);
 			tv.setText(sm.getName());
@@ -101,7 +101,7 @@ public class GroupMembersAdapter extends BaseAdapter implements SectionIndexer {
 		// 成员部分
 		ViewHolder holder = null;
 		if (convertView == null || convertView.getTag() == null) {
-			convertView = inflater.inflate(R.layout.group_members_list_item_m,
+			convertView = mInflater.inflate(R.layout.group_members_list_item_m,
 					null);
 			holder = new ViewHolder();
 			holder.tvName = (TextView) convertView
@@ -132,12 +132,12 @@ public class GroupMembersAdapter extends BaseAdapter implements SectionIndexer {
 		// 设置头衔并修改背景
 		int level = sm.getInfo().getLevel();
 		switch (level) {
-			case DB3Columns.GROUP_LEVEL_CREATOR:
+			case DBColumns.GROUP_LEVEL_CREATOR:
 				holder.tvGroupTitle
 						.setBackgroundResource(R.drawable.group_members_list_item_group_title_orange);
 				holder.tvGroupTitle.setText("群主");
 				break;
-			case DB3Columns.GROUP_LEVEL_MASTER:
+			case DBColumns.GROUP_LEVEL_MASTER:
 				holder.tvGroupTitle
 						.setBackgroundResource(R.drawable.group_members_list_group_tilte_green);
 				holder.tvGroupTitle.setText("管理员");
@@ -145,7 +145,7 @@ public class GroupMembersAdapter extends BaseAdapter implements SectionIndexer {
 			default:
 				holder.tvGroupTitle
 						.setBackgroundResource(R.drawable.group_members_list_group_tilte_gray);
-				holder.tvGroupTitle.setText(DB3Columns.GROUP_TITLES[sm.getInfo()
+				holder.tvGroupTitle.setText(DBColumns.GROUP_TITLES[sm.getInfo()
 						.getGroupTitle()]);
 				break;
 		}

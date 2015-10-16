@@ -14,9 +14,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zyxb.qqxmpp.R;
-import com.zyxb.qqxmpp.bean3.Information;
-import com.zyxb.qqxmpp.bean3.MessageInfo;
-import com.zyxb.qqxmpp.db3.DB3Columns;
+import com.zyxb.qqxmpp.bean.Information;
+import com.zyxb.qqxmpp.bean.MessageInfo;
+import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.util.DateUtils;
 import com.zyxb.qqxmpp.util.MyExpressionUtil;
 import com.zyxb.qqxmpp.util.NetUtil;
@@ -25,13 +25,13 @@ import java.util.List;
 
 public class MsgAdapter extends BaseAdapter {
 	private List<MessageInfo> messages;
-	private LayoutInflater inflater;
-	private Context context;
+	private LayoutInflater mInflater;
+	private Context mContext;
 
 	public MsgAdapter(Context context, List<MessageInfo> messages) {
 		this.messages = messages;
-		inflater = LayoutInflater.from(context);
-		this.context = context;
+		mInflater = LayoutInflater.from(context);
+		this.mContext = context;
 	}
 
 	public void setMessages(List<MessageInfo> messages) {
@@ -63,10 +63,10 @@ public class MsgAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (position == 0) {
-			convertView = inflater.inflate(R.layout.msg_detail_first, null);
+			convertView = mInflater.inflate(R.layout.msg_detail_first, null);
 			LinearLayout llDisconnected = (LinearLayout) convertView
 					.findViewById(R.id.llDisconncted);
-			if (NetUtil.checkNet(context)) {
+			if (NetUtil.checkNet(mContext)) {
 				llDisconnected.setVisibility(View.GONE);
 			} else {
 				llDisconnected.setVisibility(View.VISIBLE);
@@ -77,7 +77,7 @@ public class MsgAdapter extends BaseAdapter {
 
 		ViewHolder holder = null;
 		if (convertView == null || convertView.getTag() == null) {
-			convertView = inflater.inflate(R.layout.msg_detail, null);
+			convertView = mInflater.inflate(R.layout.msg_detail, null);
 			holder = new ViewHolder();
 			holder.ivIcon = (ImageView) convertView
 					.findViewById(R.id.ivMsgIcon);
@@ -105,7 +105,7 @@ public class MsgAdapter extends BaseAdapter {
 		}
 
 		String icon = null;
-		if (message.getType() == DB3Columns.MESSAGE_TYPE_GROUP) {
+		if (message.getType() == DBColumns.MESSAGE_TYPE_GROUP) {
 			icon = message.getTo().getIcon();
 		} else {
 			icon = message.getFrom().getIcon();
@@ -121,13 +121,13 @@ public class MsgAdapter extends BaseAdapter {
 			holder.ivIcon.setImageBitmap(bitmap);
 		}
 
-		if (message.getState() == DB3Columns.MESSAGE_STATE_SENDING) {
+		if (message.getState() == DBColumns.MESSAGE_STATE_SENDING) {
 			holder.ivSending.setVisibility(View.VISIBLE);
 		} else {
 			holder.ivSending.setVisibility(View.GONE);
 		}
 
-		if (message.getType() == DB3Columns.MESSAGE_TYPE_CONTACT) {
+		if (message.getType() == DBColumns.MESSAGE_TYPE_CONTACT) {
 			if (message.getFrom().getType() == Information.TYPE_CONTACT_USER) {
 				String remark = message.getFrom().getComments();
 				if (remark != null) {
@@ -143,17 +143,17 @@ public class MsgAdapter extends BaseAdapter {
 					holder.tvTitle.setText(message.getTo().getName());
 				}
 			}
-		} else if (message.getType() == DB3Columns.MESSAGE_TYPE_SYS) {
+		} else if (message.getType() == DBColumns.MESSAGE_TYPE_SYS) {
 			holder.tvTitle.setText(message.getFrom().getName());
-		} else if (message.getType() == DB3Columns.MESSAGE_TYPE_GROUP) {
+		} else if (message.getType() == DBColumns.MESSAGE_TYPE_GROUP) {
 			holder.tvTitle.setText(message.getTo().getName());
 		}
 
-		if (message.getType() == DB3Columns.MESSAGE_TYPE_GROUP) {
-			holder.tvContent.setText(MyExpressionUtil.parse(context,message.getFrom().getComments() + ":"
+		if (message.getType() == DBColumns.MESSAGE_TYPE_GROUP) {
+			holder.tvContent.setText(MyExpressionUtil.parse(mContext,message.getFrom().getComments() + ":"
 					+ message.getMsg()));
 		} else {
-			holder.tvContent.setText(MyExpressionUtil.parse(context,message.getMsg()));
+			holder.tvContent.setText(MyExpressionUtil.parse(mContext,message.getMsg()));
 		}
 
 		holder.tvTime.setText(DateUtils.getMsgDate(message.getCreateTime()));

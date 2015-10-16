@@ -21,7 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nineoldandroids.view.ViewHelper;
-import com.zyxb.qqxmpp.bean3.po.DB3User;
+import com.zyxb.qqxmpp.bean.po.DBUser;
 import com.zyxb.qqxmpp.engine.DataEngine;
 import com.zyxb.qqxmpp.fragment.ContactFragment;
 import com.zyxb.qqxmpp.fragment.MassegeFragment;
@@ -62,9 +62,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 	private ContactFragment mContactFragment;
 
 	private int state = Const.FRAGMENT_STATE_MESSAGE;
-	protected App app;
-	protected DB3User user;
-	protected DataEngine engine;
+	protected App mApp;
+	protected DBUser mUser;
+	protected DataEngine mEngine;
 
 	private boolean isExit = false;
 
@@ -72,12 +72,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 	private int unReadMessageCount = 0;
 
 	// 监听DrawerLayout打开关闭
-	private MainDrawerListener listener;
+	private MainDrawerListener mListener;
 
 	// connect receiver处理连接,登陆消息
-	private ConnectReceiver connReceiver;
+	private ConnectReceiver mConnectReceiver;
 	// message receiver处理联系人,消息变化
-	private MessageReceiver msgReceiver;
+	private MessageReceiver mMessageReceiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +88,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		mFragmentManager = getSupportFragmentManager();
 		state = SharedPreferencesUtils.getInt(this, Const.SP_MAIN_FRAGMENT,
 				Const.FRAGMENT_STATE_MESSAGE);
-		app = (App) getApplication();
-		app.add(this);
+		mApp = (App) getApplication();
+		mApp.add(this);
 		isExit = false;
 		mContext = this;
 
@@ -106,9 +106,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 	}
 
 	protected boolean checkUser() {
-		user = app.getUser();
+		mUser = mApp.getmUser();
 
-		if (user == null) {
+		if (mUser == null) {
 
 			// 进入登陆界面
 			Intent intent = new Intent(this, LoginActivity.class);
@@ -118,17 +118,17 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 			return false;
 		}
 
-		engine = new DataEngine(this, user);
+		mEngine = new DataEngine(this, mUser);
 
 		return true;
 	}
 
-	public App getApp() {
-		return app;
+	public App getmApp() {
+		return mApp;
 	}
 
 	private void initUnReadMessage() {
-		updateUnReadMessageCount(engine.getUnReadedMessage(user.getAccount()));
+		updateUnReadMessageCount(mEngine.getUnReadedMessage(mUser.getAccount()));
 	}
 
 	public int getUnReadMessageCount() {
@@ -145,13 +145,13 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		}
 	}
 
-	public DB3User getUser() {
+	public DBUser getmUser() {
 
-		return app.getUser();
+		return mApp.getmUser();
 	}
 
-	public DataEngine getEngine() {
-		return engine;
+	public DataEngine getmEngine() {
+		return mEngine;
 	}
 
 	private void initView() {
@@ -245,12 +245,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 				boolean isRightOpen = mDrawerLayout.isDrawerOpen(Gravity.RIGHT);
 				boolean isLeftOpen = mDrawerLayout.isDrawerOpen(Gravity.LEFT);
 
-				if (isRightOpen && listener != null) {
-					listener.open(Gravity.RIGHT);
+				if (isRightOpen && mListener != null) {
+					mListener.open(Gravity.RIGHT);
 				}
 
-				if (isLeftOpen && listener != null) {
-					listener.open(Gravity.LEFT);
+				if (isLeftOpen && mListener != null) {
+					mListener.open(Gravity.LEFT);
 				}
 			}
 
@@ -261,15 +261,15 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 
 				// mDrawerLayout.isDrawerVisible(Gravity.RIGHT);
 
-				if (listener != null) {
-					listener.close();
+				if (mListener != null) {
+					mListener.close();
 				}
 			}
 		});
 	}
 
 	public void setOnMainDrawerListener(MainDrawerListener listener) {
-		this.listener = listener;
+		this.mListener = listener;
 	}
 
 	public interface MainDrawerListener {
@@ -369,7 +369,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		super.onDestroy();
 
 		// SharedPreferencesUtils.setInt(this, Const.SP_MAIN_FRAGMENT, state);
-		app.remove(this);
+		mApp.remove(this);
 
 	}
 
@@ -447,26 +447,26 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		super.onResume();
 
 		// 注册receiver
-		connReceiver = new ConnectReceiver();
+		mConnectReceiver = new ConnectReceiver();
 		IntentFilter connFilter = new IntentFilter();
 		connFilter.addAction(ConnectService.LOGIN_SERVER_CONNECTED);
 		connFilter.addAction(ConnectService.LOGIN_SERVER_DISCONNECTED);
 		connFilter.addAction(ConnectService.LOGIN_SERVER_RECONNECT);
-		registerReceiver(connReceiver, connFilter);
+		registerReceiver(mConnectReceiver, connFilter);
 
-		msgReceiver = new MessageReceiver();
+		mMessageReceiver = new MessageReceiver();
 		IntentFilter msgFilter = new IntentFilter();
 		msgFilter.addAction(ChatService.MESSAGE_DATA_CHANGED);
 		msgFilter.addAction(ChatService.USER_DATA_CHANGED);
-		registerReceiver(msgReceiver, msgFilter);
+		registerReceiver(mMessageReceiver, msgFilter);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 
-		unregisterReceiver(connReceiver);
-		unregisterReceiver(msgReceiver);
+		unregisterReceiver(mConnectReceiver);
+		unregisterReceiver(mMessageReceiver);
 	}
 
 }
