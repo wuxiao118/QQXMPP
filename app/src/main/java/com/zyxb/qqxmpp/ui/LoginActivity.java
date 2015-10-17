@@ -33,6 +33,13 @@ import com.zyxb.qqxmpp.util.ToastUtil;
 import com.zyxb.qqxmpp.view.LoadingDialog;
 import com.zyxb.qqxmpp.view.TextURLView;
 
+/**
+ * @author 吴小雄
+ *
+ * 如果是本地测试数据，直接登陆
+ * 如果是网络数据，检测本地是否登陆过，登陆过，直接使用本地登陆，后台连接服务器，更新数据
+ * 								未登陆过，等待登陆，成功进入Main，失败，提示错误
+ */
 public class LoginActivity extends Activity {
 	private Context mContext;
 	private RelativeLayout rlUser;
@@ -131,6 +138,11 @@ public class LoginActivity extends Activity {
 		}
 	};
 
+	/**
+	 * 根据用户输入类型
+	 * 		用户名中没有@,为本地测试数据，直接登陆
+	 * 		用户名中包含@,为网络数据，连接服务器
+	 */
 	private void doLogin() {
 
 		username = etAccount.getText().toString();
@@ -220,7 +232,7 @@ public class LoginActivity extends Activity {
 				etPwd.setText("");
 				etAccount.requestFocus();
 			} else {
-				// 等待服务器回应
+				// 本地未登陆过，没有存储数据，等待服务器回应
 			}
 		}
 	}
@@ -277,8 +289,13 @@ public class LoginActivity extends Activity {
 			if (action.equals(ConnectService.LOGIN_SERVER_CONNECTED)) {
 				// 登陆
 				// chatService.login(username.split("@")[0], pwd, "qqxmpp");
-
 				// return;
+
+				// 登陆
+				Intent autoLoginIntent = new Intent(ChatService.AUTO_LOGIN);
+				sendBroadcast(autoLoginIntent);
+
+				return;
 			} else if (action.equals(ConnectService.LOGIN_SERVER_RECONNECT)) {
 				ldLoading.dismiss();
 				// 服务器连接失败
@@ -307,6 +324,7 @@ public class LoginActivity extends Activity {
 				}
 				// 设置user信息,进入main
 				// 查找本地用户是否存在,不存在添加
+				// 新用户添加移到login中,读取即可
 				DataEngine engine = new DataEngine(LoginActivity.this);
 				XMPPUser ur = new XMPPUser();
 				ur.setJid(username);

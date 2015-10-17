@@ -30,7 +30,6 @@ import com.zyxb.qqxmpp.bean.PinyinComparator;
 import com.zyxb.qqxmpp.bean.SortModel;
 import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.util.CharacterParser;
-import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.PopupUtils;
 import com.zyxb.qqxmpp.util.PopupUtils.OnPopupLayoutView;
 import com.zyxb.qqxmpp.view.ReboundScrollView;
@@ -452,7 +451,7 @@ public class GroupMembersActivity extends BaseActivity implements
 				// vBg.setVisibility(View.GONE);
 				hideSearch();
 				hideSoftInputView();
-				Logger.d(TAG, "CLICKED:");
+				//Logger.d(TAG, "CLICKED:");
 				break;
 			case R.id.btGroupMembersSearchClear:
 				etSearch.setText("");

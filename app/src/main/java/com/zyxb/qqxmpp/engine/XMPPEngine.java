@@ -9,7 +9,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.zyxb.qqxmpp.bean.XMPPMessage;
-import com.zyxb.qqxmpp.bean.XMPPMessageQueueInfo;
+import com.zyxb.qqxmpp.bean.XMPPUser;
 import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.util.Const;
 import com.zyxb.qqxmpp.util.Logger;
@@ -85,6 +85,12 @@ import java.util.Map;
  * smack xmpp功能
  *
  * @author 吴小雄
+ *
+ * 使用MessageQueen进行用户合消息的CRUD操作
+ *
+ * 更改:
+ * MessageQueen大材小用，没必要，去掉
+ * 再需要对数据库操作的地方，直接增加数据操作
  *
  */
 @SuppressLint("DefaultLocale")
@@ -168,48 +174,48 @@ public class XMPPEngine {
 //	private BlockingQueue<XMPPMessageQueueInfo> queue = new ArrayBlockingQueue<XMPPMessageQueueInfo>(
 //			50);
 //	private Thread queueThread;
-	private DataEngine dataEngine;
+	private DataEngine mDataEngine;
 //	private boolean isQueueThreadStarted = false;
-	private static final int QUEUE_TYPE_USER_ADD = 0;
-	private static final int QUEUE_TYPE_USER_UPDATE = 1;
-	private static final int QUEUE_TYPE_USER_DELETE = 2;
-	private static final int QUEUE_TYPE_USER_PRESENCE_CHANGED = 3;
-	private static final int QUEUE_TYPE_MESSAGE_RECEIVED = 4;
-	private static final int QUEUE_TYPE_MESSAGE_SEND_FAIL = 5;
-	private static final int QUEUE_TYPE_MESSAGE_SEND_RECEIVED = 6;
-	private static final int QUEUE_TYPE_MESSAGE_SEND = 7;
-	//
-	private static final int QUEUE_CLASS_TYPE_ROSTERS = 0;
-	private static final int QUEUE_CLASS_TYPE_PRESENCE = 1;
-	private static final int QUEUE_CLASS_TYPE_MESSAGE = 2;
-	private static final int QUEUE_CLASS_TYPE_ACCOUNT = 3;
+//	private static final int QUEUE_TYPE_USER_ADD = 0;
+//	private static final int QUEUE_TYPE_USER_UPDATE = 1;
+//	private static final int QUEUE_TYPE_USER_DELETE = 2;
+//	private static final int QUEUE_TYPE_USER_PRESENCE_CHANGED = 3;
+//	private static final int QUEUE_TYPE_MESSAGE_RECEIVED = 4;
+//	private static final int QUEUE_TYPE_MESSAGE_SEND_FAIL = 5;
+//	private static final int QUEUE_TYPE_MESSAGE_SEND_RECEIVED = 6;
+//	private static final int QUEUE_TYPE_MESSAGE_SEND = 7;
+//	//
+//	private static final int QUEUE_CLASS_TYPE_ROSTERS = 0;
+//	private static final int QUEUE_CLASS_TYPE_PRESENCE = 1;
+//	private static final int QUEUE_CLASS_TYPE_MESSAGE = 2;
+//	private static final int QUEUE_CLASS_TYPE_ACCOUNT = 3;
 
 	private ConnectionConfiguration mXMPPConf;
 
 	//
 	private Context mContext;
-	private static XMPPEngine engine;
+	private static XMPPEngine mEngine;
 	private XMPPConnection mXMPPConnection;
 	private Object obj = new Object();
 
-	public static XMPPEngine getEngine() {
-		return engine;
+	public static XMPPEngine getmEngine() {
+		return mEngine;
 	}
 
-	public static void setEngine(XMPPEngine engine) {
-		XMPPEngine.engine = engine;
+	public static void setmEngine(XMPPEngine mEngine) {
+		XMPPEngine.mEngine = mEngine;
 	}
 
 	public XMPPEngine getInstance(Context context) {
-		if (engine == null) {
+		if (mEngine == null) {
 			synchronized (obj) {
-				if (engine == null) {
-					engine = new XMPPEngine(context);
+				if (mEngine == null) {
+					mEngine = new XMPPEngine(context);
 				}
 			}
 		}
 
-		return engine;
+		return mEngine;
 	}
 
 	public XMPPConnection getConn() {
@@ -250,7 +256,7 @@ public class XMPPEngine {
 		mXMPPConnection = new XMPPConnection(mXMPPConf);
 	}
 
-	public XMPPEngine(Context context, String host, boolean smackdebug,
+	public XMPPEngine(Context context, String host, boolean smackDebug,
 					  boolean requireSsl) {
 		mContext = context;
 		this.mXMPPConf = new ConnectionConfiguration(host); // use SRV
@@ -258,7 +264,7 @@ public class XMPPEngine {
 		this.mXMPPConf.setReconnectionAllowed(false);
 		this.mXMPPConf.setSendPresence(false);
 		this.mXMPPConf.setCompressionEnabled(false);
-		this.mXMPPConf.setDebuggerEnabled(smackdebug);
+		this.mXMPPConf.setDebuggerEnabled(smackDebug);
 		if (requireSsl)
 			this.mXMPPConf
 					.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
@@ -278,6 +284,14 @@ public class XMPPEngine {
 			// SMACK auto-logins if we were authenticated before
 			if (!mXMPPConnection.isAuthenticated()) {
 				mXMPPConnection.login(account, pwd, ressource);
+
+				//TODO 未抛出异常，登陆成功，在数据库中添加登陆用户
+				mDataEngine = new DataEngine(mContext);
+				XMPPUser ur = new XMPPUser();
+				ur.setJid(account + "@" + SharedPreferencesUtils.getString(mContext, Const.XMPP_HOST, ""));
+				ur.setNickname(account);
+				ur.setStatusMessage(pwd);
+				mDataEngine.setmUser(mDataEngine.getXMPPUser(ur));
 			}
 
 			// 更新在线状态
@@ -303,13 +317,13 @@ public class XMPPEngine {
 
 	// 开启消息队列
 //	public void startMessageQueue() {
-//		dataEngine = new DataEngine(mContext);
+//		mDataEngine = new DataEngine(mContext);
 //		String username = SharedPreferencesUtils.getString(mContext,
 //				Const.SP_USERNAME, "");
-//		dataEngine.setmUser(dataEngine.findXMPPUserByName(username));
+//		mDataEngine.setmUser(mDataEngine.findXMPPUserByName(username));
 //		isQueueThreadStarted = true;
 //
-//		queueThread = new QueueThread(dataEngine);
+//		queueThread = new QueueThread(mDataEngine);
 //		queueThread.start();
 //	}
 //
@@ -332,15 +346,21 @@ public class XMPPEngine {
 						+ presence);
 
 				// TODO 更新联系人状态
-				XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
-				info.setType(QUEUE_TYPE_USER_PRESENCE_CHANGED);
-				info.setClassType(QUEUE_CLASS_TYPE_PRESENCE);
-				info.setPresence(presence);
+				//XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
+				//info.setType(QUEUE_TYPE_USER_PRESENCE_CHANGED);
+				//info.setClassType(QUEUE_CLASS_TYPE_PRESENCE);
+				//info.setPresence(presence);
 //				try {
 //					queue.put(info);
 //				} catch (InterruptedException e) {
 //					e.printStackTrace();
 //				}
+
+				String jabberID = getJabberID(presence.getFrom());
+				RosterEntry rosterEntry = mRoster.getEntry(jabberID);
+				//updateRosterEntryInDB(rosterEntry);// 更新联系人数据库
+				//mService.rosterChanged();// 回调通知服务，主要是用来判断一下是否掉线
+
 			}
 
 			@Override
@@ -348,15 +368,21 @@ public class XMPPEngine {
 				Logger.i(TAG, "entriesUpdated(" + entries + ")");
 
 				// TODO 更新联系人
-				XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
-				info.setType(QUEUE_TYPE_USER_UPDATE);
-				info.setClassType(QUEUE_CLASS_TYPE_ROSTERS);
-				info.setRosters(entries);
+				//XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
+				//info.setType(QUEUE_TYPE_USER_UPDATE);
+				//info.setClassType(QUEUE_CLASS_TYPE_ROSTERS);
+				//info.setRosters(entries);
 //				try {
 //					queue.put(info);
 //				} catch (InterruptedException e) {
 //					e.printStackTrace();
 //				}
+
+				for(String entry:entries){
+					RosterEntry rosterEntry = mRoster.getEntry(entry);
+					Logger.i(TAG,rosterEntry.getUser() + "," + rosterEntry.getName() + "," +rosterEntry.getGroups() + ","
+					+ rosterEntry.getStatus() + "," + rosterEntry.getType());
+				}
 			}
 
 			@Override
@@ -364,15 +390,21 @@ public class XMPPEngine {
 				Logger.i(TAG, "entriesDeleted(" + entries + ")");
 
 				// TODO 删除联系人
-				XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
-				info.setType(QUEUE_TYPE_USER_DELETE);
-				info.setClassType(QUEUE_CLASS_TYPE_ROSTERS);
-				info.setRosters(entries);
+				//XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
+				//info.setType(QUEUE_TYPE_USER_DELETE);
+				//info.setClassType(QUEUE_CLASS_TYPE_ROSTERS);
+				//info.setRosters(entries);
 //				try {
 //					queue.put(info);
 //				} catch (InterruptedException e) {
 //					e.printStackTrace();
 //				}
+
+				for(String entry:entries){
+					RosterEntry rosterEntry = mRoster.getEntry(entry);
+					Logger.i(TAG,rosterEntry.getUser() + "," + rosterEntry.getName() + "," +rosterEntry.getGroups() + ","
+							+ rosterEntry.getStatus() + "," + rosterEntry.getType());
+				}
 			}
 
 			@Override
@@ -380,19 +412,49 @@ public class XMPPEngine {
 				Logger.i(TAG, "entriesAdded(" + entries + ")");
 
 				// TODO 添加联系人
-				XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
-				info.setType(QUEUE_TYPE_USER_ADD);
-				info.setClassType(QUEUE_CLASS_TYPE_ROSTERS);
-				info.setRosters(entries);
+				//XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
+				//info.setType(QUEUE_TYPE_USER_ADD);
+				//info.setClassType(QUEUE_CLASS_TYPE_ROSTERS);
+				//info.setRosters(entries);
 //				try {
 //					queue.put(info);
 //				} catch (InterruptedException e) {
 //					e.printStackTrace();
 //				}
+
+				for(String entry:entries){
+					RosterEntry rosterEntry = mRoster.getEntry(entry);
+//					Logger.i(TAG,rosterEntry.getUser() + "," + rosterEntry.getName() + "," +rosterEntry.getGroups() + ","
+//							+ rosterEntry.getStatus() + "," + rosterEntry.getType());
+
+					//xmppUser.setGroup();
+					//mDataEngine.addXMPPUser(getXMPPUser(rosterEntry));
+					getXMPPUser(rosterEntry);
+				}
 			}
 
 		};
 		mRoster.addRosterListener(mRosterListener);
+	}
+
+	private XMPPUser getXMPPUser(RosterEntry rs){
+		XMPPUser xmppUser = new XMPPUser();
+		String jid = rs.getUser();
+		xmppUser.setJid(jid);
+		String nickname = rs.getName();
+		xmppUser.setNickname(nickname);
+
+		Logger.d(TAG,"jid:" + jid + ",nickname:" + nickname);
+		Collection<RosterGroup> groups = rs.getGroups();
+		for(RosterGroup group:groups){
+			Logger.d(TAG,group.getName() + "");
+		}
+
+		String status = rs.getStatus().toString();
+		String type = rs.getType().toString();
+		Logger.d(TAG,"status:" + status + ",type:" + type);
+
+		return xmppUser;
 	}
 
 	/**
@@ -421,10 +483,10 @@ public class XMPPEngine {
 				Logger.d(TAG, "got delivery receipt for " + receiptId);
 
 				// TODO 修改消息状态为发送成功
-				XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
-				info.setType(QUEUE_TYPE_MESSAGE_SEND_RECEIVED);
-				info.setClassType(QUEUE_CLASS_TYPE_ACCOUNT);
-				info.setAccount(receiptId);
+				//XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
+				//info.setType(QUEUE_TYPE_MESSAGE_SEND_RECEIVED);
+				//info.setClassType(QUEUE_CLASS_TYPE_ACCOUNT);
+				//info.setAccount(receiptId);
 //				try {
 //					queue.put(info);
 //				} catch (InterruptedException e) {
@@ -470,7 +532,7 @@ public class XMPPEngine {
 			sendOfflineMessages();
 			if (mContext == null) {
 				mXMPPConnection.disconnect();
-				return;
+				//return;
 			}
 		}
 	}
@@ -506,10 +568,10 @@ public class XMPPEngine {
 							Logger.d(TAG, "carbon: " + cc.toXML());
 
 							// TODO 发送新的消息处理(加入数据库,发送消息改变receiver)
-							XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
-							info.setType(QUEUE_TYPE_MESSAGE_SEND);
-							info.setClassType(QUEUE_CLASS_TYPE_ACCOUNT);
-							info.setAccount(msg.getPacketID());
+							//XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
+							//info.setType(QUEUE_TYPE_MESSAGE_SEND);
+							//info.setClassType(QUEUE_CLASS_TYPE_ACCOUNT);
+							//info.setAccount(msg.getPacketID());
 //							try {
 //								queue.put(info);
 //							} catch (InterruptedException e) {
@@ -550,10 +612,10 @@ public class XMPPEngine {
 						xmppMsg.setMsg(chatMessage);
 						xmppMsg.setMsgType(DBColumns.MESSAGE_TYPE_CONTACT);
 						xmppMsg.setState(DBColumns.MESSAGE_STATE_RECEIVED);
-						XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
-						info.setType(QUEUE_TYPE_MESSAGE_RECEIVED);
-						info.setClassType(QUEUE_CLASS_TYPE_MESSAGE);
-						info.setMessage(xmppMsg);
+						//XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
+						//info.setType(QUEUE_TYPE_MESSAGE_RECEIVED);
+						//info.setClassType(QUEUE_CLASS_TYPE_MESSAGE);
+						//info.setMessage(xmppMsg);
 //						try {
 //							queue.put(info);
 //						} catch (InterruptedException e) {
@@ -595,10 +657,10 @@ public class XMPPEngine {
 										+ (msg.getPacketID() == null ? "null"
 										: msg.getPacketID()) + ")");
 						// TODO 消息发送失败
-						XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
-						info.setType(QUEUE_TYPE_MESSAGE_SEND_FAIL);
-						info.setClassType(QUEUE_CLASS_TYPE_ACCOUNT);
-						info.setAccount(msg.getPacketID());
+						//XMPPMessageQueueInfo info = new XMPPMessageQueueInfo();
+						//info.setType(QUEUE_TYPE_MESSAGE_SEND_FAIL);
+						//info.setClassType(QUEUE_CLASS_TYPE_ACCOUNT);
+						//info.setAccount(msg.getPacketID());
 //						try {
 //							queue.put(info);
 //						} catch (InterruptedException e) {
@@ -867,15 +929,15 @@ public class XMPPEngine {
 		if (mXMPPConnection == null)
 
 			return null;
-		List<RosterEntry> Entrieslist = new ArrayList<RosterEntry>();
+		List<RosterEntry> entriesList = new ArrayList<RosterEntry>();
 		RosterGroup rosterGroup = mXMPPConnection.getRoster().getGroup(
 				groupName);
 		Collection<RosterEntry> rosterEntry = rosterGroup.getEntries();
 		Iterator<RosterEntry> i = rosterEntry.iterator();
 		while (i.hasNext()) {
-			Entrieslist.add(i.next());
+			entriesList.add(i.next());
 		}
-		return Entrieslist;
+		return entriesList;
 	}
 
 	/**
@@ -886,14 +948,14 @@ public class XMPPEngine {
 	public List<RosterEntry> getAllEntries() {
 		if (mXMPPConnection == null)
 			return null;
-		List<RosterEntry> Entrieslist = new ArrayList<RosterEntry>();
+		List<RosterEntry> entriesList = new ArrayList<RosterEntry>();
 		Collection<RosterEntry> rosterEntry = mXMPPConnection.getRoster()
 				.getEntries();
 		Iterator<RosterEntry> i = rosterEntry.iterator();
 		while (i.hasNext()) {
-			Entrieslist.add(i.next());
+			entriesList.add(i.next());
 		}
-		return Entrieslist;
+		return entriesList;
 	}
 
 	/**
@@ -1197,22 +1259,22 @@ public class XMPPEngine {
 	public List<HostedRoom> getHostRooms() {
 		if (mXMPPConnection == null)
 			return null;
-		Collection<HostedRoom> hostrooms = null;
-		List<HostedRoom> roominfos = new ArrayList<HostedRoom>();
+		Collection<HostedRoom> hostRooms = null;
+		List<HostedRoom> roomInfos = new ArrayList<HostedRoom>();
 		try {
 			new ServiceDiscoveryManager(mXMPPConnection);
-			hostrooms = MultiUserChat.getHostedRooms(mXMPPConnection,
+			hostRooms = MultiUserChat.getHostedRooms(mXMPPConnection,
 					mXMPPConnection.getServiceName());
-			for (HostedRoom entry : hostrooms) {
-				roominfos.add(entry);
+			for (HostedRoom entry : hostRooms) {
+				roomInfos.add(entry);
 				Log.i("room",
 						"名字：" + entry.getName() + " - ID:" + entry.getJid());
 			}
-			Log.i("room", "服务会议数量:" + roominfos.size());
+			Log.i("room", "服务会议数量:" + roomInfos.size());
 		} catch (XMPPException e) {
 			e.printStackTrace();
 		}
-		return roominfos;
+		return roomInfos;
 	}
 
 	/**
@@ -1482,13 +1544,13 @@ public class XMPPEngine {
 					String strFlag = oIn.readLine();
 					oIn.close();
 					System.out.println("strFlag" + strFlag);
-					if (strFlag.indexOf("type=\"unavailable\"") >= 0) {
+					if (strFlag.contains("type=\"unavailable\"")) {
 						shOnLineState = 2;
 					}
-					if (strFlag.indexOf("type=\"error\"") >= 0) {
+					if (strFlag.contains("type=\"error\"")) {
 						shOnLineState = 0;
-					} else if (strFlag.indexOf("priority") >= 0
-							|| strFlag.indexOf("id=\"") >= 0) {
+					} else if (strFlag.contains("priority")
+							|| strFlag.contains("id=\"") ) {
 						shOnLineState = 1;
 					}
 				}

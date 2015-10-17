@@ -1,22 +1,5 @@
 package com.zyxb.qqxmpp.service;
 
-import org.jivesoftware.smack.ConnectionListener;
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.SmackConfiguration;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.filter.PacketTypeFilter;
-import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.packet.IQ.Type;
-import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smackx.ping.packet.Ping;
-
-import com.zyxb.qqxmpp.engine.XMPPEngine;
-import com.zyxb.qqxmpp.util.Const;
-import com.zyxb.qqxmpp.util.Logger;
-import com.zyxb.qqxmpp.util.NetUtil;
-import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
-
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -27,6 +10,23 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.zyxb.qqxmpp.engine.XMPPEngine;
+import com.zyxb.qqxmpp.util.Const;
+import com.zyxb.qqxmpp.util.Logger;
+import com.zyxb.qqxmpp.util.NetUtil;
+import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
+
+import org.jivesoftware.smack.ConnectionListener;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.SmackConfiguration;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.filter.PacketTypeFilter;
+import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.packet.IQ.Type;
+import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smackx.ping.packet.Ping;
 
 /**
  * 负责服务器连接,断线重连
@@ -263,7 +263,7 @@ public class ConnectService extends Service {
 				if (mEngine == null) {
 					// mEngine = XMPPEngine.getInstance(mService);
 					mEngine = new XMPPEngine(mService);
-					XMPPEngine.setEngine(mEngine);
+					XMPPEngine.setmEngine(mEngine);
 					mXMPPConnection = mEngine.getConn();
 				}
 
@@ -517,7 +517,6 @@ public class ConnectService extends Service {
 	/**
 	 * 发送连接成功receiver
 	 *
-	 * @param type
 	 */
 	private void connectedReceiver() {
 		Intent intent = new Intent();
@@ -664,7 +663,7 @@ public class ConnectService extends Service {
 				.cancel(mPAlarmIntent);// 取消重连闹钟
 		unregisterReceiver(mAlarmReceiver);// 注销广播监听
 
-		((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE))
+		((AlarmManager) getSystemService(Context.ALARM_SERVICE))
 				.cancel(mPingAlarmPendIntent);
 		((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE))
 				.cancel(mPongTimeoutAlarmPendIntent);

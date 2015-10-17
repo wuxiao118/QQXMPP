@@ -20,11 +20,6 @@ public class App extends Application {
     private DBUser mUser = null;
     private String userType;
 
-    // //ping service
-    // private Intent pingService;
-    // //连接服务器广播
-    // private PingReceiver pingReceiver;
-
     // 连接服务器
     private boolean isConnected = false;
     private boolean isXmppLogin = false;
@@ -36,25 +31,12 @@ public class App extends Application {
         mActivities = new ArrayList<Activity>();
         mInstance = this;
 
-        // 开启ping service
-        // Intent pingService = new Intent(this, PingService.class);
-        // startService(pingService);
-
-        // 注册receiver
-        // pingReceiver = new PingReceiver();
-        // registerReceiver(pingReceiver,
-        // new IntentFilter(PingService.PING_ACTION));
-
         // 注册screen_on/screen_off receiver,这两个receiver只能动态注册才能获得
         NetChangedReceiver3 receiver = new NetChangedReceiver3();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_SCREEN_ON);
         registerReceiver(receiver, filter);
-        // registerReceiver(receiver, new
-        // IntentFilter(Intent.ACTION_SCREEN_ON));
-        // registerReceiver(receiver, new
-        // IntentFilter(Intent.ACTION_SCREEN_OFF));
     }
 
     public static App getInstance() {
@@ -91,7 +73,6 @@ public class App extends Application {
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         res.startActivity(intent);
-        System.out.println("start activity:" + res.getClass().getSimpleName());
 
         res.finish();
     }
@@ -150,20 +131,4 @@ public class App extends Application {
     public void setUserType(String userType) {
         this.userType = userType;
     }
-
-    // private class PingReceiver extends BroadcastReceiver {
-    //
-    // @Override
-    // public void onReceive(Context context, Intent intent) {
-    // boolean canConnected = intent.getBooleanExtra(
-    // "isConnectedToServer", false);
-    // if (canConnected) {
-    // // 服务器连接上,自动登录
-    // } else {
-    // // 服务器未连接上
-    // }
-    // }
-    //
-    // }
-
 }

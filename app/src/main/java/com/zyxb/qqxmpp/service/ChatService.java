@@ -22,6 +22,7 @@ public class ChatService extends Service {
 	public static final String LOGIN = "com.zyxb.qqxmpp.SERVER_LOGIN";
 	public static final String LOGOUT = "com.zyxb.qqxmpp.SERVER_LOGOUT";
 	public static final String CHAT_SERVICE_CLOSE = "com.zyxb.qqxmpp.CHAT_SERVICE_CLOSE";
+	public static final String AUTO_LOGIN = "com.zyxb.qqxmpp.AUTO_LOGIN";
 
 	//数据改变
 	public static final String USER_DATA_CHANGED = "com.zyxb.qqxmpp.USER_DATA_CHANGED";
@@ -40,6 +41,9 @@ public class ChatService extends Service {
 
 	// 关闭自己
 	private CloseReceiver mCloseReceiver;
+
+	//自动登陆
+	private AutoLoginReceiver mAutoLoginReceiver;
 
 	@Override
 	public void onCreate() {
@@ -68,6 +72,9 @@ public class ChatService extends Service {
 		IntentFilter closeFilter = new IntentFilter();
 		closeFilter.addAction(CHAT_SERVICE_CLOSE);
 		registerReceiver(mCloseReceiver, closeFilter);
+
+		//自动登陆
+		mAutoLoginReceiver = new AutoLoginReceiver();
 	}
 
 	@Override
@@ -104,7 +111,7 @@ public class ChatService extends Service {
 
 	public XMPPEngine getmEngine() {
 		if (mEngine == null) {
-			mEngine = XMPPEngine.getEngine();
+			mEngine = XMPPEngine.getmEngine();
 		}
 
 		return mEngine;
@@ -214,11 +221,27 @@ public class ChatService extends Service {
 
 	}
 
+	/**
+	 * 关闭服务
+	 */
 	private class CloseReceiver extends BroadcastReceiver{
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			mService.stopSelf();
+		}
+	}
+
+	/**
+	 * 自动登陆
+	 */
+	private class AutoLoginReceiver extends BroadcastReceiver{
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			// 获取用户信息,自动登陆
+			String username = SharedPreferencesUtils.getString(mService, Const.SP_USERNAME,"").split("@")[0];
+			String pwd = SharedPreferencesUtils.getString(mService, Const.SP_PWD, "");
+			login(username.split("@")[0],pwd,"qqxmpp");
 		}
 	}
 }

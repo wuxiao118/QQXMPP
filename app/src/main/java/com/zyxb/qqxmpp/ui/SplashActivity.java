@@ -1,11 +1,14 @@
 package com.zyxb.qqxmpp.ui;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -13,6 +16,7 @@ import android.widget.Toast;
 
 import com.zyxb.qqxmpp.App;
 import com.zyxb.qqxmpp.MainActivity;
+import com.zyxb.qqxmpp.R;
 import com.zyxb.qqxmpp.bean.XMPPUser;
 import com.zyxb.qqxmpp.bean.po.DBUser;
 import com.zyxb.qqxmpp.db.DBInit;
@@ -23,13 +27,16 @@ import com.zyxb.qqxmpp.util.Const;
 import com.zyxb.qqxmpp.util.MD5Encoder;
 import com.zyxb.qqxmpp.util.NetUtil;
 import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
-import com.zyxb.qqxmpp.R;
 
 /*
  * 检查网络状况,后台用户登陆,产品更新
  * 不继承baseactivity:BaseActivity会自动检测用户是否登陆,之后自动切换到登陆界面
  * 					  而splash界面需控制切换
  * 不需要绑定chat service, chatservice中监听connected,连接后自动完  成登录
+ *
+ * 下一步：当前流程太复杂，需简化登陆流程
+ * splash界面完成最初数据初始化,根据本地保存数据登陆或跳转到login界面
+ * 不再处理服务器连接与登陆
  */
 public class SplashActivity extends Activity {
 	private ImageView ivSplash;
@@ -48,6 +55,25 @@ public class SplashActivity extends Activity {
 	// 绑定服务
 	// private ChatServiceConnection chatConn;
 	// private ChatService chatService;
+
+	//线程同步,会导致draw不能及时绘制(draw还未及时绘制图像已经暂停执行main线程)
+	//private CountDownLatch mCountDownLatch;
+
+	//使用handler处理
+	private Handler mHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+			switch(msg.what){
+				case INIT_PROGRESS_DISMISS:
+					mProgressDialog.dismiss();
+					startLogin();
+					break;
+			}
+		}
+	};
+
+	private static final int INIT_PROGRESS_DISMISS = 0;
+	private ProgressDialog mProgressDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,15 +103,96 @@ public class SplashActivity extends Activity {
 			registerReceiver(mConnectReceiver, connectFilter);
 		}
 
+		//mCountDownLatch = new CountDownLatch(1);
+
+		//init(); //显示不出来
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
 		init();
 	}
 
 	private void init() {
-		// 检查数据库,导入数据
-		if (DBInit.isEmpty(this)) {
-			DBInit.create(this);
-		}
+		// 使用ProgressDialog
+//		ProgressDialog pd = new ProgressDialog(this);
+//		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//		pd.setCancelable(false);
+//		pd.setTitle("初始化数据中...");
+//		pd.show();
 
+//		new Thread(){
+//			@Override
+//			public void run() {
+//				// 检查数据库,导入数据
+//				if (DBInit.isEmpty(SplashActivity.this)) {
+//					DBInit.create(SplashActivity.this);
+//				}
+//				mCountDownLatch.countDown();
+//			}
+//		}.start();
+//
+//		try {
+//			// draw未绘制
+//			mCountDownLatch.await();
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+
+//		Logger.d("SplashActivity","Data create finished!");
+//		pd.dismiss();
+
+		mProgressDialog = new ProgressDialog(this);
+		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		mProgressDialog.setCancelable(false);
+		mProgressDialog.setTitle("数据初始化...");
+		mProgressDialog.show();
+
+		new Thread(){
+			@Override
+			public void run() {
+				// 检查数据库,导入数据
+				if (DBInit.isEmpty(SplashActivity.this)) {
+					DBInit.create(SplashActivity.this);
+				}
+
+				Message msg = Message.obtain();
+				msg.what = INIT_PROGRESS_DISMISS;
+				mHandler.sendMessage(msg);
+			}
+		}.start();
+
+//		// 开启服务
+//		Intent service = new Intent(this, ConnectService.class);
+//		startService(service);
+//
+//		Intent chatService = new Intent(this, ChatService.class);
+//		startService(chatService);
+//
+//		// 过于复杂,没必要
+//		// Intent messageService = new Intent(this,MessageQueueService.class);
+//		// startService(messageService);
+//
+//		if (userType.equals(Const.USER_TYPE_LOCAL)) {
+//			SharedPreferencesUtils.setString(mContext, Const.SP_USER_TYPE,
+//					Const.USER_TYPE_LOCAL);
+//			testLogin();
+//
+//			return;
+//		}
+//
+//		// 检查网络连接
+//		boolean isNetConnected = NetUtil.checkNet(this);
+//		if (!isNetConnected) {
+//			noNet();
+//		} else {
+//			connectXMPPServer();
+//		}
+	}
+
+	private void startLogin(){
 		// 开启服务
 		Intent service = new Intent(this, ConnectService.class);
 		startService(service);
@@ -133,7 +240,7 @@ public class SplashActivity extends Activity {
 	}
 
 	private void localLogin(String msg) {
-		Intent intent = null;
+		Intent intent;
 
 		// 检测sp查询数据库user是否存在
 		String username = SharedPreferencesUtils.getString(mContext,

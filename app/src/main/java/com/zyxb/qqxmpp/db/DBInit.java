@@ -22,8 +22,8 @@ import com.zyxb.qqxmpp.db.dao.DBGroupMappingDAO;
 import com.zyxb.qqxmpp.db.dao.DBMessageDAO;
 import com.zyxb.qqxmpp.db.dao.DBSystemGroupDAO;
 import com.zyxb.qqxmpp.db.dao.DBUserDAO;
-import com.zyxb.qqxmpp.engine.DB3FriendGroupEngine;
-import com.zyxb.qqxmpp.engine.DB3MessageEngine;
+import com.zyxb.qqxmpp.engine.DBFriendGroupEngine;
+import com.zyxb.qqxmpp.engine.DBMessageEngine;
 import com.zyxb.qqxmpp.util.MD5Encoder;
 
 public class DBInit {
@@ -1118,12 +1118,12 @@ public class DBInit {
     }
 
     public static List<FriendGroupInfo> getFriendGroups(Context context) {
-        DB3FriendGroupEngine engine = new DB3FriendGroupEngine(context);
+        DBFriendGroupEngine engine = new DBFriendGroupEngine(context);
         return engine.getFriends(users[0]);
     }
 
     public static List<MessageInfo> getMessageInfos(Context context) {
-        DB3MessageEngine engine = new DB3MessageEngine(context);
+        DBMessageEngine engine = new DBMessageEngine(context);
         return engine.getNewest(users[0]);
     }
 
