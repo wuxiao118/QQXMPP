@@ -798,19 +798,105 @@ public class DBMessageDAOImpl extends DBMessageDAO {
 
 		db = getTransactionDB();
 
-		// 获取msg from
-		DBUser contact = userDao.findByName(message.getFrom());
-		if (contact == null) {
-			// 好友不存在,添加
-			contact = new DBUser();
-			String acc = userDao.getMaxAccount();
-			contact.setAccount(Integer.parseInt(acc) + 1 + "");
-			contact.setNickname(message.getFrom());
-			contact.setRegisterTime(new Date().getTime());
-			userDao.add(contact);
+		// 分类判断:contact send/receive,group send/receive,sys send/receive
+        String from="",to="";
+		switch (message.getMsgType()) {
+			case DBColumns.MESSAGE_TYPE_CONTACT:
+                DBUser contact;
+                //发送消息
+                if(message.getState() == DBColumns.MESSAGE_STATE_SENDING){
+                    //contact = userDao.findByName(message.getTo());
+					contact = userDao.findByAccount(message.getTo());
+                }else{
+                    //contact = userDao.findByName(message.getFrom());
+					contact = userDao.findByAccount(message.getFrom());
+                }
 
-			// 添加好友对应的好友分组??
+                if (contact == null) {
+                    // 好友不存在,添加
+                    contact = new DBUser();
+                    String acc = userDao.getMaxAccount();
+                    contact.setAccount(Integer.parseInt(acc) + 1 + "");
+                    contact.setNickname(message.getFrom());
+                    contact.setRegisterTime(new Date().getTime());
+                    userDao.add(contact);
+
+                    // 添加好友对应的好友分组??
+                }
+
+                if(message.getState() == DBColumns.MESSAGE_STATE_SENDING){
+                    from = message.getFrom();
+                    to = contact.getAccount();
+                }else{
+                    from = contact.getAccount();
+                    to = message.getTo();
+                }
+				break;
+			case DBColumns.MESSAGE_TYPE_GROUP:
+				//群消息
+				if(message.getState() == DBColumns.MESSAGE_STATE_SENDING){
+					//发送消息
+					from = message.getFrom();
+					to = message.getTo();
+				}else{
+					to = message.getTo();
+
+					DBUser cu = userDao.findByAccount(message.getFrom());
+					if (cu == null) {
+						// 好友不存在,添加
+						cu = new DBUser();
+						String acc = userDao.getMaxAccount();
+						cu.setAccount(Integer.parseInt(acc) + 1 + "");
+						cu.setNickname(message.getFrom());
+						cu.setRegisterTime(new Date().getTime());
+						userDao.add(cu);
+
+						// 添加好友对应的好友分组??
+					}
+
+					from = cu.getAccount();
+				}
+
+				break;
+			case DBColumns.MESSAGE_TYPE_SYS:
+				//系统消息
+				if(message.getState() == DBColumns.MESSAGE_STATE_SENDING){
+					//发送消息
+					from = message.getFrom();
+					to = message.getTo();
+				}else{
+					to = message.getTo();
+
+					DBSystemGroup sg = sysDao.findByAccount(message.getFrom());
+					if(sg == null){
+						//插入
+						sg = new DBSystemGroup();
+						String acc = sysDao.getMaxAccount();
+						sg.setAccount(Integer.parseInt(acc) + 1 + "");
+						sg.setName(message.getFrom());
+						sg.setType(1);
+						sysDao.add(sg);
+					}
+
+					from = sg.getAccount();
+				}
+
+				break;
 		}
+
+		// 获取msg from
+//		DBUser contact = userDao.findByName(message.getFrom());
+//		if (contact == null) {
+//			// 好友不存在,添加
+//			contact = new DBUser();
+//			String acc = userDao.getMaxAccount();
+//			contact.setAccount(Integer.parseInt(acc) + 1 + "");
+//			contact.setNickname(message.getFrom());
+//			contact.setRegisterTime(new Date().getTime());
+//			userDao.add(contact);
+//
+//			// 添加好友对应的好友分组??
+//		}
 
 		db.execSQL(
 				"INSERT INTO " + DBColumns.MESSAGE_TABLE_NAME + "("
@@ -820,7 +906,8 @@ public class DBMessageDAOImpl extends DBMessageDAO {
 						+ DBColumns.MESSAGE_CREATE_TIME + ","
 						+ DBColumns.MESSAGE_TYPE + ","
 						+ DBColumns.MESSAGE_STATE + ") VALUES(?,?,?,?,?,?,?)",
-				new Object[] { account, contact.getAccount(), message.getTo(),
+				//new Object[] { account, contact.getAccount(), message.getTo(),
+                new Object[] { account, from, to,
 						message.getMsg(), message.getCreateTime(),
 						message.getMsgType(), message.getState() });
 

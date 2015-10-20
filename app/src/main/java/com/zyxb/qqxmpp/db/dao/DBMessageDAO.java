@@ -1,10 +1,5 @@
 package com.zyxb.qqxmpp.db.dao;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.content.Context;
 
 import com.zyxb.qqxmpp.bean.XMPPMessage;
@@ -13,6 +8,11 @@ import com.zyxb.qqxmpp.bean.po.DBMessage;
 import com.zyxb.qqxmpp.bean.po.DBSystemGroup;
 import com.zyxb.qqxmpp.bean.po.DBUser;
 import com.zyxb.qqxmpp.db.dao.impl.AbstractDBBaseDao;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class DBMessageDAO extends AbstractDBBaseDao<DBMessage> {
 	protected List<OnMessageChangeListener> listeners;

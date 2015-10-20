@@ -470,6 +470,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int btFriendMoreDelete=0x7f08006e;
         public static final int btGroupFriendAdd=0x7f080077;
         public static final int btGroupMembersSearchClear=0x7f0800b5;
+        public static final int btRegister=0x7f08010f;
         public static final int buttom_bar_group=0x7f080012;
         public static final int buttom_constact=0x7f080015;
         public static final int buttom_msg=0x7f080013;
@@ -488,6 +489,10 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int elContactList=0x7f080039;
         public static final int etGroupMembersSearch=0x7f0800b4;
         public static final int etMsgInput=0x7f0800ec;
+        public static final int etRegisterAccount=0x7f08010c;
+        public static final int etRegisterConfirmPassword=0x7f08010e;
+        public static final int etRegisterHost=0x7f08010b;
+        public static final int etRegisterPassword=0x7f08010d;
         public static final int exit=0x7f0800c4;
         public static final int face_dot=0x7f08004f;
         public static final int face_img=0x7f080053;
@@ -546,18 +551,18 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int ivMsgTitleRight=0x7f0800e6;
         public static final int ivMsgTitleSecond=0x7f0800e5;
         public static final int ivPhone=0x7f0800de;
-        public static final int ivSettingUserIcon=0x7f08010b;
-        public static final int ivSplash=0x7f080110;
+        public static final int ivSettingUserIcon=0x7f080111;
+        public static final int ivSplash=0x7f080116;
         public static final int ivUserIcon=0x7f0800ca;
         public static final int iv_icon=0x7f080003;
-        public static final int iv_load=0x7f080113;
+        public static final int iv_load=0x7f080119;
         public static final int iv_route=0x7f080005;
         public static final int level=0x7f0800c3;
         public static final int line=0x7f080011;
         public static final int llChatLeft=0x7f08001f;
         public static final int llChatRight=0x7f080028;
         public static final int llChatRightName=0x7f08002a;
-        public static final int llCurrentExit=0x7f08010f;
+        public static final int llCurrentExit=0x7f080115;
         public static final int llDisconncted=0x7f0800f7;
         public static final int llDiscussion=0x7f0800a1;
         public static final int llDiscussionContainer=0x7f0800a6;
@@ -591,10 +596,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int llMsgFaceContainer=0x7f0800ee;
         public static final int llMsgFaceDotContainer=0x7f08001d;
         public static final int llMyGroup=0x7f08009d;
-        public static final int llSearch=0x7f08010a;
+        public static final int llRegisterBack=0x7f08010a;
+        public static final int llSearch=0x7f080110;
         public static final int llSettings=0x7f0800d1;
         public static final int llSettingsAccountManager=0x7f080056;
-        public static final int llSettingsDataManager=0x7f08010c;
+        public static final int llSettingsDataManager=0x7f080112;
         public static final int llSettingsDataManagerClearData=0x7f080043;
         public static final int llSettingsDataManagerCreateData=0x7f080042;
         public static final int llSettingsDataManagerReCreateData=0x7f080044;
@@ -641,8 +647,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int svg=0x7f080002;
         public static final int tracks=0x7f080101;
         public static final int tv=0x7f080006;
-        public static final int tvAccountManagerBack=0x7f08010d;
-        public static final int tvAccountManagerEdit=0x7f08010e;
+        public static final int tvAccountManagerBack=0x7f080113;
+        public static final int tvAccountManagerEdit=0x7f080114;
         public static final int tvChatLeftContent=0x7f080023;
         public static final int tvChatLeftGroupTitle=0x7f080021;
         public static final int tvChatLeftName=0x7f080022;
@@ -737,13 +743,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int vMyGroupLine=0x7f08009f;
         public static final int vMyGroupLineGray=0x7f0800a0;
         public static final int vpMsgFaceContainer=0x7f08001c;
-        public static final int xlistview_footer_content=0x7f080111;
-        public static final int xlistview_footer_hint_textview=0x7f080112;
-        public static final int xlistview_header_arrow=0x7f080118;
-        public static final int xlistview_header_content=0x7f080114;
-        public static final int xlistview_header_hint_textview=0x7f080116;
-        public static final int xlistview_header_text=0x7f080115;
-        public static final int xlistview_header_time=0x7f080117;
+        public static final int xlistview_footer_content=0x7f080117;
+        public static final int xlistview_footer_hint_textview=0x7f080118;
+        public static final int xlistview_header_arrow=0x7f08011e;
+        public static final int xlistview_header_content=0x7f08011a;
+        public static final int xlistview_header_hint_textview=0x7f08011c;
+        public static final int xlistview_header_text=0x7f08011b;
+        public static final int xlistview_header_time=0x7f08011d;
     }
     public static final class layout {
         public static final int action_item_horizontal=0x7f030000;

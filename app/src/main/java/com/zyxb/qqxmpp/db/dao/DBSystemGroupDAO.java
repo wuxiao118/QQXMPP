@@ -11,4 +11,6 @@ public abstract class DBSystemGroupDAO extends AbstractDBBaseDao<DBSystemGroup> 
 		super(context);
 	}
 
+	public abstract String getMaxAccount();
+
 }

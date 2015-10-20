@@ -84,6 +84,12 @@ public class Const {
 	public static final String USER_TYPE_XMPP = "xmpp";
 	public static final String SP_USER_TYPE = "user_type";
 
+	//注册信息
+	public static final String SP_REGISTER_USERNAME = "register_username";
+	public static final String SP_REGISTER_PWD = "register_pwd";
+	public static final String XMPP_REGISTER_HOST = "register_xmpp";
+	public static final String SP_REGISTER_USER_TYPE = "register_user_type";
+
 	// 好友登陆状态
 	public static final String[] LOGIN_STATES = { "离线", "离线请留言", "离开", "隐身",
 			"繁忙", "在线" };

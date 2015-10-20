@@ -35,6 +35,7 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Registration;
+import org.jivesoftware.smack.packet.RosterPacket;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.Form;
@@ -80,6 +81,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * smack xmpp功能
@@ -198,6 +200,9 @@ public class XMPPEngine {
 	private XMPPConnection mXMPPConnection;
 	private Object obj = new Object();
 
+	//
+	private CountDownLatch mCountDownLatch = new CountDownLatch(1);
+
 	public static XMPPEngine getmEngine() {
 		return mEngine;
 	}
@@ -292,6 +297,10 @@ public class XMPPEngine {
 				ur.setNickname(account);
 				ur.setStatusMessage(pwd);
 				mDataEngine.setmUser(mDataEngine.getXMPPUser(ur));
+
+				//Logger.d(TAG, "login success");
+				//必须先要添加当前登陆用户，之后更新登陆用户的好友及相关信息
+				mCountDownLatch.countDown();
 			}
 
 			// 更新在线状态
@@ -342,6 +351,12 @@ public class XMPPEngine {
 
 			@Override
 			public void presenceChanged(final Presence presence) {
+				try {
+					mCountDownLatch.await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
 				Logger.i(TAG, "presenceChanged(" + presence.getFrom() + "): "
 						+ presence);
 
@@ -365,6 +380,12 @@ public class XMPPEngine {
 
 			@Override
 			public void entriesUpdated(final Collection<String> entries) {
+				try {
+					mCountDownLatch.await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
 				Logger.i(TAG, "entriesUpdated(" + entries + ")");
 
 				// TODO 更新联系人
@@ -387,6 +408,12 @@ public class XMPPEngine {
 
 			@Override
 			public void entriesDeleted(final Collection<String> entries) {
+				try {
+					mCountDownLatch.await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
 				Logger.i(TAG, "entriesDeleted(" + entries + ")");
 
 				// TODO 删除联系人
@@ -409,6 +436,12 @@ public class XMPPEngine {
 
 			@Override
 			public void entriesAdded(final Collection<String> entries) {
+				try {
+					mCountDownLatch.await();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
 				Logger.i(TAG, "entriesAdded(" + entries + ")");
 
 				// TODO 添加联系人
@@ -428,8 +461,9 @@ public class XMPPEngine {
 //							+ rosterEntry.getStatus() + "," + rosterEntry.getType());
 
 					//xmppUser.setGroup();
-					//mDataEngine.addXMPPUser(getXMPPUser(rosterEntry));
-					getXMPPUser(rosterEntry);
+					mDataEngine.addXMPPUser(getXMPPUser(rosterEntry));
+					//getXMPPUser(rosterEntry);
+
 				}
 			}
 
@@ -444,15 +478,21 @@ public class XMPPEngine {
 		String nickname = rs.getName();
 		xmppUser.setNickname(nickname);
 
-		Logger.d(TAG,"jid:" + jid + ",nickname:" + nickname);
+		//Logger.d(TAG,"jid:" + jid + ",nickname:" + nickname);
 		Collection<RosterGroup> groups = rs.getGroups();
 		for(RosterGroup group:groups){
-			Logger.d(TAG,group.getName() + "");
+			//Logger.d(TAG,group.getName() + "");
+			xmppUser.setGroup(group.getName());
+			break;
 		}
 
-		String status = rs.getStatus().toString();
-		String type = rs.getType().toString();
-		Logger.d(TAG,"status:" + status + ",type:" + type);
+		//String status = rs.getStatus().toString();
+		//String type = rs.getType().toString();
+		//Logger.d(TAG,"status:" + status + ",type:" + type);
+
+		RosterPacket.ItemStatus itemStatus = rs.getStatus();
+		RosterPacket.ItemType itemType = rs.getType();
+		Logger.d(TAG,"status:" + itemStatus + ",type:" + itemType);
 
 		return xmppUser;
 	}

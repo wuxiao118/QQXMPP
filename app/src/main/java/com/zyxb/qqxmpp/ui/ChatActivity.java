@@ -148,7 +148,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 		// System.out.println(DBColumns.MESSAGE_TYPES[messageType] + ":" +
 		// fromAccount + "--->" +toAccount);
 		Logger.d(TAG, DBColumns.MESSAGE_TYPES[messageType] + ":" + fromAccount
-				+ "--->" + toAccount);
+				+ "--->" + toAccount + ",current user:" + user.getAccount());
 
 		switch (messageType) {
 			case DBColumns.MESSAGE_TYPE_CONTACT:

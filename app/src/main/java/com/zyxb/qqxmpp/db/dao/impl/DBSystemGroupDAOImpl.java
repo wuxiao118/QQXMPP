@@ -132,4 +132,22 @@ public class DBSystemGroupDAOImpl extends DBSystemGroupDAO {
 		return DBColumns.RESULT_OK;
 	}
 
+	@Override
+	public String getMaxAccount() {
+		String acc = "";
+
+		db = getTransactionDB();
+
+		Cursor cursor = db.rawQuery("SELECT " + DBColumns.SYSTEM_GROUP_ACCOUNT
+				+ " FROM " + DBColumns.SYSTEM_GROUP_TABLE_NAME + " WHERE "
+				+ DBColumns.SYSTEM_GROUP_ID + "=(SELECT max(" + DBColumns.SYSTEM_GROUP_ID
+				+ ") FROM " + DBColumns.SYSTEM_GROUP_TABLE_NAME + ")", null);
+		if (cursor.moveToFirst()) {
+			acc = cursor.getString(0);
+		}
+		cursor.close();
+
+		return acc;
+	}
+
 }
