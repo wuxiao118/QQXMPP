@@ -58,6 +58,15 @@ public class ChatService extends Service {
     //注册
     private RegisterReceiver mRegisterReceiver;
 
+    //发送消息
+    private MessageReceiver mMessageReceiver;
+    public static final String XMPP_MESSAGE = "com.zyxb.qqxmpp.XMPP_MESSAGE";
+    public static final int MESSAGE_TYPE_TXT = 0;//文本消息
+    public static final int MESSAGE_TYPE_FILE = 1;//普通文件
+    public static final int MESSAGE_TYPE_VOICE = 2;//语音文件
+    public static final int MESSAGE_TYPE_VIDEO = 3;//视频文件
+    public static final int MESSAGE_TYPE_REALTIME_VIDEO = 4;//实时视频
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -97,10 +106,17 @@ public class ChatService extends Service {
         IntentFilter registerFilter = new IntentFilter();
         registerFilter.addAction(ChatService.REGISTER);
         registerReceiver(mRegisterReceiver, registerFilter);
+
+        mMessageReceiver = new MessageReceiver();
+        IntentFilter messageFilter = new IntentFilter();
+        messageFilter.addAction(XMPP_MESSAGE);
+        registerReceiver(mMessageReceiver,messageFilter);
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        //TODO 网络开启情况下，查询表示为sending的message(文本/文件),发送
 
         return START_NOT_STICKY;
     }
@@ -114,6 +130,7 @@ public class ChatService extends Service {
         unregisterReceiver(mCloseReceiver);
         unregisterReceiver(mAutoLoginReceiver);
         unregisterReceiver(mRegisterReceiver);
+        unregisterReceiver(mMessageReceiver);
     }
 
     @Override
@@ -306,6 +323,26 @@ public class ChatService extends Service {
                     break;
             }
             sendBroadcast(resultIntent);
+        }
+    }
+
+    /**
+     * 发送消息
+     */
+    private class MessageReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int type = intent.getIntExtra("xmpp_message_type",-1);
+            switch(type){
+                case MESSAGE_TYPE_TXT:
+                    //文本消息，直接发送
+                    //收到回执中携带此id
+                    String id = intent.getStringExtra("id");
+                    String toJid = intent.getStringExtra("toJid");
+                    String message = intent.getStringExtra("message");
+                    mEngine.sendMessage(id,toJid,message);
+                    break;
+            }
         }
     }
 }

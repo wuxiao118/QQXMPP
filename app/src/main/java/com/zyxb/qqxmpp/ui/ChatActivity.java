@@ -89,7 +89,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 	private DBUser user;
 	private int messageType;
 	private String account;
-	private String toJid;
+	//private String toJid;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -164,11 +164,11 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 					if (info.getFrom().getAccount().equals(user.getAccount())) {
 						remark = info.getTo().getComments() == null ? info.getTo()
 								.getName() : info.getTo().getComments();
-						toJid = info.getTo().getName();
+						//toJid = info.getTo().getName();
 					} else {
 						remark = info.getFrom().getComments() == null ? info
 								.getFrom().getName() : info.getFrom().getComments();
-						toJid = info.getFrom().getName();
+						//toJid = info.getFrom().getName();
 					}
 					tvTitleName.setText(remark);
 				} else {
@@ -397,6 +397,8 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 
 					// 如果网络连通,并登陆,通过smack发送
 					if (mApp.isConnected()) {
+						//绑定service发送or使用sendBroadcast发送
+						//暂定使用sendBroadcast发送
 
 					}
 				}
