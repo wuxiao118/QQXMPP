@@ -58,6 +58,9 @@ public class ChatService extends Service {
     //注册
     private RegisterReceiver mRegisterReceiver;
 
+    //服务器改变
+   // private ServerChangedReceiver mServerChangedReceiver;
+
     //发送消息
     private MessageReceiver mMessageReceiver;
     public static final String XMPP_MESSAGE = "com.zyxb.qqxmpp.XMPP_MESSAGE";
@@ -112,6 +115,9 @@ public class ChatService extends Service {
         messageFilter.addAction(XMPP_MESSAGE);
         registerReceiver(mMessageReceiver,messageFilter);
 
+        //服务器改变
+
+
     }
 
     @Override
@@ -151,11 +157,17 @@ public class ChatService extends Service {
     }
 
     public XMPPEngine getmEngine() {
+        Logger.d(TAG,"ChatService Engine:" + mEngine);
+
         if (mEngine == null) {
             mEngine = XMPPEngine.getmEngine();
         }
 
         return mEngine;
+    }
+
+    public void resetEngine(){
+        mEngine = XMPPEngine.getmEngine();
     }
 
     /**
@@ -236,6 +248,8 @@ public class ChatService extends Service {
                     return;
                 }
 
+                //重新获取Engine,服务器更换时，需要重新获取Engine
+                resetEngine();
                 login(username.split("@")[0], pwd, ressource);
                 isLogin = true;
             } else if (action.equals(ConnectService.LOGIN_SERVER_DISCONNECTED)) {
@@ -302,7 +316,8 @@ public class ChatService extends Service {
             String pwd = SharedPreferencesUtils.getString(mService,
                     Const.SP_REGISTER_PWD, "");
             getmEngine();
-            int type = mEngine.regist(username.split("@")[0], pwd);
+            //int type = mEngine.regist(username.split("@")[0], pwd);
+            int type = register(username.split("@")[0], pwd);
 
             Intent resultIntent;
             switch (type) {
@@ -340,9 +355,17 @@ public class ChatService extends Service {
                     String id = intent.getStringExtra("id");
                     String toJid = intent.getStringExtra("toJid");
                     String message = intent.getStringExtra("message");
-                    mEngine.sendMessage(id,toJid,message);
+                    //mEngine.sendMessage(id,toJid,message);
+                    sendMessage(id,toJid,message);
                     break;
             }
         }
     }
+
+//    private class ServerChangedReceiver extends BroadcastReceiver{
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            mEngine = null;
+//        }
+//    }
 }

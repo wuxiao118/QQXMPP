@@ -31,6 +31,7 @@ import com.zyxb.qqxmpp.bean.po.DBGroup;
 import com.zyxb.qqxmpp.bean.po.DBUser;
 import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.db.dao.DBMessageDAO.OnMessageChangeListener;
+import com.zyxb.qqxmpp.service.ChatService;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.MyExpressionUtil;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
@@ -89,7 +90,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 	private DBUser user;
 	private int messageType;
 	private String account;
-	//private String toJid;
+	private String toJid;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -164,11 +165,11 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 					if (info.getFrom().getAccount().equals(user.getAccount())) {
 						remark = info.getTo().getComments() == null ? info.getTo()
 								.getName() : info.getTo().getComments();
-						//toJid = info.getTo().getName();
+						toJid = info.getTo().getName();
 					} else {
 						remark = info.getFrom().getComments() == null ? info
 								.getFrom().getName() : info.getFrom().getComments();
-						//toJid = info.getFrom().getName();
+						toJid = info.getFrom().getName();
 					}
 					tvTitleName.setText(remark);
 				} else {
@@ -370,8 +371,9 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 					message.setState(DBColumns.MESSAGE_STATE_SENDING);
 					// 数据库中添加数据 ,先由engine写入数据库
 					// 连接服务器service完成后由service负责写入数据
-					mEngine.addMessage(message);
-					message = null;
+					//mEngine.addMessage(message);
+					String id = mEngine.addMessage(message);
+					//message = null;
 
 					// 更新数据,service完成后,由service广播,在receiver中更新
 					switch (messageType) {
@@ -395,11 +397,19 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 
 					// 关闭键盘
 
+					//Logger.d(TAG,"Login in：" + mApp.isConnected());
 					// 如果网络连通,并登陆,通过smack发送
 					if (mApp.isConnected()) {
 						//绑定service发送or使用sendBroadcast发送
 						//暂定使用sendBroadcast发送
-
+						Intent msgIntent = new Intent();
+						msgIntent.setAction(ChatService.XMPP_MESSAGE);
+						msgIntent.putExtra("xmpp_message_type",ChatService.MESSAGE_TYPE_TXT);
+						msgIntent.putExtra("id",id);
+						//msgIntent.putExtra("toJid",account + "@" + Const.XMPP_HOST);
+						msgIntent.putExtra("toJid",toJid);
+						msgIntent.putExtra("message",text);
+						sendBroadcast(msgIntent);
 					}
 				}
 

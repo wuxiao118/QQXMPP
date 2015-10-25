@@ -283,11 +283,12 @@ public class DBMessageEngine {
 		return count;
 	}
 
-	public void add(XMPPMessage message) {
+	public String add(XMPPMessage message) {
 		// message.setMsgType(DBColumns.MESSAGE_TYPE_CONTACT);
 		// message.setState(DBColumns.MESSAGE_STATE_RECEIVED);
-		dao.add(message);
+		String id = dao.add(message);
 		dao.close();
+		return id;
 	}
 
 	public void addNewXMPPMessage(XMPPMessage message) {

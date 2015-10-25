@@ -28,6 +28,8 @@ import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smackx.ping.packet.Ping;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * 负责服务器连接,断线重连
  *
@@ -36,6 +38,13 @@ import org.jivesoftware.smackx.ping.packet.Ping;
  *         太复杂，逻辑不清晰,重新整理
  *         1.连接及重连还有服务器连接改变，在service内部判断
  *         2.service正确响应开启和关闭服务
+ *
+ *   要解决问题:
+ *   如何确保关闭之后在重新开启连接
+ *   思路一:xmppconnection为静态,
+ *   不确保的话,会导致新开启后，如果关闭线程还在运行，NullPointerException
+ *   思路二:xmppconnection普通成员变量,不好，
+ *   xmppconnection初始化较复杂,占用资源多,不适合多个
  */
 @SuppressLint("DefaultLocale")
 public class ConnectService extends Service {
@@ -116,6 +125,9 @@ public class ConnectService extends Service {
     private static boolean isPingRunning = false;
     //Pong time out
     private static boolean isPongRunning = false;
+
+    //确保关闭
+    private CountDownLatch mCloseLatch;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -286,11 +298,15 @@ public class ConnectService extends Service {
 
         Logger.d(TAG, "mXMPPConnection=" + mXMPPConnection);
         if (mXMPPConnection != null && mXMPPConnection.isConnected()) {
+            mCloseLatch = new CountDownLatch(1);
+
             new Thread() {
                 public void run() {
                     Logger.d(TAG, "shutDown thread started");
                     mXMPPConnection.disconnect();
                     Logger.d(TAG, "shutDown thread finished");
+
+                    mCloseLatch.countDown();
                 }
             }.start();
         }
@@ -653,11 +669,22 @@ public class ConnectService extends Service {
 
             if (isRunning || isConnected) {
                 disconnect();
+
+                if(mCloseLatch != null){
+                    try {
+                        mCloseLatch.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
+            mCloseLatch = null;
             isRunning = false;
             isConnected = false;
             mXMPPConnection = null;
+            //清空后,chat service中任然有值，why?????
+            mEngine.clear();
             mEngine = null;
             RECONNECT_TIMES = 1;
             connect();

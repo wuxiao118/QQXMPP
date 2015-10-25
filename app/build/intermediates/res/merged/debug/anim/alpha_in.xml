@@ -4,6 +4,4 @@
     android:toAlpha="1.0"
     android:duration="1000"
     >
-    
-
 </alpha><!-- From: file:/G:/android/androidstudioprojects/QQXMPP/app/src/main/res/anim/alpha_in.xml -->

@@ -290,10 +290,11 @@ public class DataEngine {
 	 * 添加消息
 	 *
 	 * @param message
+	 * @return 添加message的id
 	 */
-	public void addMessage(XMPPMessage message) {
+	public String addMessage(XMPPMessage message) {
 		// message.setTo(mUser.getAccount());
-		DBEngineFactory.getDB3MessageEngine(mContext).add(message);
+		return DBEngineFactory.getDB3MessageEngine(mContext).add(message);
 	}
 
 	/**

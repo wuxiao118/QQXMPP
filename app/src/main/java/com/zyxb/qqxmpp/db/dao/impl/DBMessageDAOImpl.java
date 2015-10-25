@@ -780,7 +780,8 @@ public class DBMessageDAOImpl extends DBMessageDAO {
 	}
 
 	@Override
-	public void add(XMPPMessage message) {
+	//public void add(XMPPMessage message) {
+	public String add(XMPPMessage message) {
 		// 查找当前最大的account
 		String account = getMaxAccount();
 		int num = Integer.parseInt(account.split("-")[1]) + 1;
@@ -910,6 +911,8 @@ public class DBMessageDAOImpl extends DBMessageDAO {
                 new Object[] { account, from, to,
 						message.getMsg(), message.getCreateTime(),
 						message.getMsgType(), message.getState() });
+
+		return account;
 
 	}
 

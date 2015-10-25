@@ -227,6 +227,12 @@ public class XMPPEngine {
 		return mXMPPConnection;
 	}
 
+	//清空本身
+	public void clear(){
+		mEngine = null;
+		//mXMPPConnection = null;
+	}
+
 	/**
 	 * 连接配置
 	 *
@@ -498,14 +504,14 @@ public class XMPPEngine {
 	}
 
 	/**
-	 * 与服务器交互消息监听,发送消息需要回执，判断是否发送成功
+	 * 与服务器交互消息监听,发送消息需要回执，判断是否成功接收
 	 */
 	private void initServiceDiscovery() {
 		// register connection features
 		ServiceDiscoveryManager sdm = ServiceDiscoveryManager
 				.getInstanceFor(mXMPPConnection);
 		if (sdm == null)
-			sdm = new ServiceDiscoveryManager(mXMPPConnection);
+  			sdm = new ServiceDiscoveryManager(mXMPPConnection);
 
 		sdm.addFeature("http://jabber.org/protocol/disco#info");
 
@@ -859,6 +865,14 @@ public class XMPPEngine {
 	 *
 	 * @param toJID
 	 * @param message
+	 *
+	 * 判断消息发送成功与否
+	 * 这里的“成功”有两个概念，一个是数据是否成功到达服务器，一个是服务器是否成功接收。
+
+	一般如果消息没有到达服务器，android-xmpp的sendMessage会返回error。
+	另一个服务器是否发送成功，则需要回执处理了，比如发送了消息<message id="a-xxx" /> ，服务器给个回执告诉客户端a-xxx已经成功接收了，
+	这时候才是成功，如果超时未接收到回执，那就是失败了。
+
 	 */
 	public void sendMessage(String account, String toJID, String message) {
 		final Message newMessage = new Message(toJID, Message.Type.chat);
@@ -872,7 +886,7 @@ public class XMPPEngine {
 			Logger.d(TAG, "send message to:" + toJID + ",msg:" + message);
 			mXMPPConnection.sendPacket(newMessage);
 		} else {
-
+			Logger.d(TAG,"send message failed,authenticate failed");
 		}
 	}
 

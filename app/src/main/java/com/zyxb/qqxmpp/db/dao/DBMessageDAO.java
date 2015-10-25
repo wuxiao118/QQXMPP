@@ -99,7 +99,7 @@ public abstract class DBMessageDAO extends AbstractDBBaseDao<DBMessage> {
 	public abstract void updateReadedMessage(String fromAccount,
 			String toAccount, int type);
 
-	public abstract void add(XMPPMessage message);
+	public abstract String add(XMPPMessage message);
 
 	public abstract List<XMPPMessage> findOffLineMessages(String userAccount);
 
