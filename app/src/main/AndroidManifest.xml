@@ -55,7 +55,7 @@
         <activity android:name=".ui.GroupFriendCardActivity" />
         <activity android:name=".ui.LoginUserDetail" />
 
-        <receiver android:name=".receiver.NetChangedReceiver3" >
+        <receiver android:name=".receiver.NetChangedReceiver" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
                 <action android:name="android.intent.action.SCREEN_ON" />

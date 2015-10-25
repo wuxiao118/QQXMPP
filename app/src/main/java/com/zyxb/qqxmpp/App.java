@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 import com.zyxb.qqxmpp.bean.po.DBUser;
-import com.zyxb.qqxmpp.receiver.NetChangedReceiver3;
+import com.zyxb.qqxmpp.receiver.NetChangedReceiver;
 import com.zyxb.qqxmpp.ui.LoginActivity;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
 
@@ -32,7 +32,7 @@ public class App extends Application {
         mInstance = this;
 
         // 注册screen_on/screen_off receiver,这两个receiver只能动态注册才能获得
-        NetChangedReceiver3 receiver = new NetChangedReceiver3();
+        NetChangedReceiver receiver = new NetChangedReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_SCREEN_ON);

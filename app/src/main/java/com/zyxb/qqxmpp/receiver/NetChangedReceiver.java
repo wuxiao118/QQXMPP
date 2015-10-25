@@ -14,8 +14,8 @@ import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.NetUtil;
 import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
 
-public class NetChangedReceiver3 extends BroadcastReceiver {
-	private static final String TAG = "NetChangedReceiver3";
+public class NetChangedReceiver extends BroadcastReceiver {
+	private static final String TAG = "NetChangedReceiver";
 	//public static final String STOP_LOGIN_SERVICE = "com.zyxb.qqxmpp.STOP_LOGIN_SERVICE";
 	//public static final String STOP_XMPP_SERVICE = "com.zyxb.qqxmpp.STOP_XMPP_SERVICE";
 	private Context mContext;
