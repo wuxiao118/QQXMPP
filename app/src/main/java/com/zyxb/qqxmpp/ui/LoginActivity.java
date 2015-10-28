@@ -312,14 +312,6 @@ public class LoginActivity extends Activity {
             String action = intent.getAction();
 
             if (action.equals(ConnectService.LOGIN_SERVER_CONNECTED)) {
-                // 登陆
-                // chatService.login(username.split("@")[0], pwd, "qqxmpp");
-                // return;
-
-                // 登陆
-                //chatservice中会自动登陆
-//				Intent autoLoginIntent = new Intent(ChatService.AUTO_LOGIN);
-//				sendBroadcast(autoLoginIntent);
 
                 return;
             } else if (action.equals(ConnectService.LOGIN_SERVER_RECONNECT)) {

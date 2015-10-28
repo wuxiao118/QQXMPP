@@ -38,13 +38,13 @@ import java.util.concurrent.CountDownLatch;
  *         太复杂，逻辑不清晰,重新整理
  *         1.连接及重连还有服务器连接改变，在service内部判断
  *         2.service正确响应开启和关闭服务
- *
- *   要解决问题:
- *   如何确保关闭之后在重新开启连接
- *   思路一:xmppconnection为静态,
- *   不确保的话,会导致新开启后，如果关闭线程还在运行，NullPointerException
- *   思路二:xmppconnection普通成员变量,不好，
- *   xmppconnection初始化较复杂,占用资源多,不适合多个
+ *         <p/>
+ *         要解决问题:
+ *         如何确保关闭之后在重新开启连接
+ *         思路一:xmppconnection为静态,
+ *         不确保的话,会导致新开启后，如果关闭线程还在运行，NullPointerException
+ *         思路二:xmppconnection普通成员变量,不好，
+ *         xmppconnection初始化较复杂,占用资源多,不适合多个
  */
 @SuppressLint("DefaultLocale")
 public class ConnectService extends Service {
@@ -223,50 +223,6 @@ public class ConnectService extends Service {
             }
         }
 
-//        try {
-//            if (mXMPPConnection != null) {
-//                if (mPacketListener != null) {
-//                    mXMPPConnection.removePacketListener(mPacketListener);
-//                    mPacketListener = null;
-//                }
-//
-//                if (mPongListener != null) {
-//                    mXMPPConnection.removePacketListener(mPongListener);
-//                    mPongListener = null;
-//                }
-//            }
-//            //mXMPPConnection.removePacketListener(mPacketListener);
-//            //mXMPPConnection.removePacketListener(mPongListener);
-//            if (mPingAlarmPendIntent != null) {
-//                ((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE))
-//                        .cancel(mPingAlarmPendIntent);
-//                mPingAlarmPendIntent = null;
-//            }
-//
-//            if (mPongTimeoutAlarmPendIntent != null) {
-//                ((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE))
-//                        .cancel(mPongTimeoutAlarmPendIntent);
-//                mPongTimeoutAlarmPendIntent = null;
-//            }
-//
-//            if (mPingAlarmReceiver != null) {
-//                mService.unregisterReceiver(mPingAlarmReceiver);
-//                mPingAlarmReceiver = null;
-//            }
-//
-//            if (mPongTimeoutAlarmReceiver != null) {
-//                mService.unregisterReceiver(mPongTimeoutAlarmReceiver);
-//                mPongTimeoutAlarmReceiver = null;
-//            }
-//        } catch (Exception e) {
-//            Logger.d(TAG, "disconnect error:" + e);
-//            e.printStackTrace();
-//
-//            return false;
-//        }
-
-//        boolean isExpt = false;
-
         //将异常分开，否则出现异常，后面的不会执行
 
         //取消连接成功后注册的listener,receiver
@@ -293,10 +249,6 @@ public class ConnectService extends Service {
                     .cancel(mPongTimeoutAlarmPendIntent);
             isPongRunning = false;
         }
-
-//        if (isExpt) {
-//            return false;
-//        }
 
         Logger.d(TAG, "mXMPPConnection=" + mXMPPConnection);
         if (mXMPPConnection != null && mXMPPConnection.isConnected()) {
@@ -423,7 +375,6 @@ public class ConnectService extends Service {
         RECONNECT_TIMES = 1;
 
         // 连接成功,开启Chat Service
-
         connectedReceiver();
     }
 
@@ -465,11 +416,6 @@ public class ConnectService extends Service {
             isRunning = true;
             isReconnectRunning = true;
         } else {
-            // 关闭重连,不需要取消,已经收到重连
-//            ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
-//                    .cancel(mPAlarmIntent);// 取消重连闹钟
-            //isReconnectRunning = false;
-
             // 关闭连接
             disconnect();
 
@@ -642,7 +588,7 @@ public class ConnectService extends Service {
                     disconnect();
 
                     //必须,否则mXMPPConnection先设置为空了,导致mXMPPConnection.disconnect()空指针
-                    if(mCloseLatch != null){
+                    if (mCloseLatch != null) {
                         try {
                             mCloseLatch.await();
                         } catch (InterruptedException e) {
@@ -656,6 +602,7 @@ public class ConnectService extends Service {
                 isConnected = false;
                 mXMPPConnection = null;
                 //清空后,chat service中任然有值，why?????
+                //chat中仅仅清空了本身的引用,并不是对象本身被清空了
                 mEngine.clear();
                 mEngine = null;
                 RECONNECT_TIMES = 1;
@@ -688,7 +635,7 @@ public class ConnectService extends Service {
             if (isRunning || isConnected) {
                 disconnect();
 
-                if(mCloseLatch != null){
+                if (mCloseLatch != null) {
                     try {
                         mCloseLatch.await();
                     } catch (InterruptedException e) {
@@ -702,7 +649,7 @@ public class ConnectService extends Service {
             isConnected = false;
             mXMPPConnection = null;
             //清空后,chat service中任然有值，why?????
-            if(mEngine != null) {
+            if (mEngine != null) {
                 mEngine.clear();
                 mEngine = null;
             }
@@ -742,36 +689,21 @@ public class ConnectService extends Service {
         unregisterReceiver(mServerChangedReceiver);
         unregisterReceiver(mAlarmReceiver);// 注销广播监听
 
-        if(isReconnectRunning) {
-//            if (mPAlarmIntent != null) {
-//                ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
-//                        .cancel(mPAlarmIntent);// 取消重连闹钟
-//                mPAlarmIntent = null;
-//            }
+        if (isReconnectRunning) {
             ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
-                        .cancel(mPAlarmIntent);// 取消重连闹钟
+                    .cancel(mPAlarmIntent);// 取消重连闹钟
         }
 
-        if(isPingRunning){
+        if (isPingRunning) {
             ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
                     .cancel(mPingAlarmPendIntent);
         }
 
-        if(isPongRunning){
+        if (isPongRunning) {
             ((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE))
                     .cancel(mPongTimeoutAlarmPendIntent);
         }
 
-//        if (mPingAlarmPendIntent != null) {
-//            ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
-//                    .cancel(mPingAlarmPendIntent);
-//            mPingAlarmPendIntent = null;
-//        }
-//        if (mPongTimeoutAlarmPendIntent != null) {
-//            ((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE))
-//                    .cancel(mPongTimeoutAlarmPendIntent);
-//            mPongTimeoutAlarmPendIntent = null;
-//        }
         if (mPongTimeoutAlarmReceiver != null && isPingPingRegistered) {
             unregisterReceiver(mPongTimeoutAlarmReceiver);
         }

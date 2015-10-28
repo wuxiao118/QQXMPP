@@ -368,7 +368,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 	protected void onDestroy() {
 		super.onDestroy();
 
-		// SharedPreferencesUtils.setInt(this, Const.SP_MAIN_FRAGMENT, state);
 		mApp.remove(this);
 
 	}
@@ -455,12 +454,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		connFilter.addAction(ConnectService.LOGIN_SERVER_RECONNECT);
 		connFilter.addAction(ChatService.LOGIN);
 		registerReceiver(mConnectReceiver, connFilter);
-
-//		mMessageReceiver = new MessageReceiver();
-//		IntentFilter msgFilter = new IntentFilter();
-//		msgFilter.addAction(ChatService.MESSAGE_DATA_CHANGED);
-//		msgFilter.addAction(ChatService.USER_DATA_CHANGED);
-//		registerReceiver(mMessageReceiver, msgFilter);
 	}
 
 	@Override
@@ -468,7 +461,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		super.onPause();
 
 		unregisterReceiver(mConnectReceiver);
-		//unregisterReceiver(mMessageReceiver);
 	}
 
 }

@@ -364,11 +364,4 @@ public class ChatService extends Service {
             }
         }
     }
-
-//    private class ServerChangedReceiver extends BroadcastReceiver{
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            mEngine = null;
-//        }
-//    }
 }

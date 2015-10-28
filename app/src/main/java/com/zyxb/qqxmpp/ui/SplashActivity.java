@@ -103,16 +103,7 @@ public class SplashActivity extends Activity {
             connectFilter.addAction(ConnectService.LOGIN_SERVER_DISCONNECTED);
             connectFilter.addAction(ChatService.LOGIN);
             registerReceiver(mConnectReceiver, connectFilter);
-
-            //mLoginReceiver = new LoginReceiver();
-            //IntentFilter loginFilter = new IntentFilter();
-            //loginFilter.addAction(ChatService.LOGIN);
-            //registerReceiver(mLoginReceiver,loginFilter);
         }
-
-        //mCountDownLatch = new CountDownLatch(1);
-
-        //init(); //显示不出来
     }
 
     @Override
@@ -123,34 +114,6 @@ public class SplashActivity extends Activity {
     }
 
     private void init() {
-        // 使用ProgressDialog
-//		ProgressDialog pd = new ProgressDialog(this);
-//		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//		pd.setCancelable(false);
-//		pd.setTitle("初始化数据中...");
-//		pd.show();
-
-//		new Thread(){
-//			@Override
-//			public void run() {
-//				// 检查数据库,导入数据
-//				if (DBInit.isEmpty(SplashActivity.this)) {
-//					DBInit.create(SplashActivity.this);
-//				}
-//				mCountDownLatch.countDown();
-//			}
-//		}.start();
-//
-//		try {
-//			// draw未绘制
-//			mCountDownLatch.await();
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-
-//		Logger.d("SplashActivity","Data create finished!");
-//		pd.dismiss();
-
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setCancelable(false);
@@ -170,33 +133,6 @@ public class SplashActivity extends Activity {
                 mHandler.sendMessage(msg);
             }
         }.start();
-
-//		// 开启服务
-//		Intent service = new Intent(this, ConnectService.class);
-//		startService(service);
-//
-//		Intent chatService = new Intent(this, ChatService.class);
-//		startService(chatService);
-//
-//		// 过于复杂,没必要
-//		// Intent messageService = new Intent(this,MessageQueueService.class);
-//		// startService(messageService);
-//
-//		if (userType.equals(Const.USER_TYPE_LOCAL)) {
-//			SharedPreferencesUtils.setString(mContext, Const.SP_USER_TYPE,
-//					Const.USER_TYPE_LOCAL);
-//			testLogin();
-//
-//			return;
-//		}
-//
-//		// 检查网络连接
-//		boolean isNetConnected = NetUtil.checkNet(this);
-//		if (!isNetConnected) {
-//			noNet();
-//		} else {
-//			connectXMPPServer();
-//		}
     }
 
     private void startLogin() {
@@ -373,62 +309,6 @@ public class SplashActivity extends Activity {
 
     }
 
-    //抽取出chat receiver测试是否ANR,没有用，仍然ANR
-    //后台service导致ANR Timeout of broadcast BroadcastRecord{460a5ac8 com.zyxb.qqxmpp.PING_ALARM}
-//	private class LoginReceiver extends BroadcastReceiver{
-//		@Override
-//		public void onReceive(Context context, Intent intent) {
-//			int reason = intent.getIntExtra("reason", -1);
-//			//String action = intent.getAction();
-//			Logger.d("Splash","login reason:" + reason);
-//
-//			if (reason == ChatService.SERVER_CONNECTED_USER_LOGIN) {
-//				isLogin = true;
-//
-//				// 设置user信息,进入main
-//				// 查找本地用户是否存在,不存在添加
-//				DataEngine engine = new DataEngine(SplashActivity.this);
-//				XMPPUser ur = new XMPPUser();
-//				ur.setJid(username);
-//				ur.setNickname(username.split("@")[0]);
-//				ur.setStatusMessage(pwd);
-//				DBUser u = engine.getXMPPUser(ur);
-//				mApp.setmUser(u);
-//				mApp.setConnected(true);
-//
-//				// 发送用户消息保存完成广播
-//				Intent userAddIntent = new Intent(
-//						ChatService.USER_LOCAL_ADD_COMPLETE);
-//				sendBroadcast(userAddIntent);
-//
-//				// 进入主界面
-//				Intent main = new Intent(context, MainActivity.class);
-//				startActivity(main);
-//				SplashActivity.this.finish();
-//
-//			} else if (reason == ChatService.SERVER_CONNECTED_USER_REJECTED) {
-//				Toast.makeText(mContext, "用户名或密码错误,请重新登录", Toast.LENGTH_SHORT)
-//						.show();
-//				isLogin = false;
-//				// 进入登陆界面
-//				Intent lt = new Intent(mContext, LoginActivity.class);
-//				startActivity(lt);
-//				SplashActivity.this.finish();
-//
-//			} else {
-//				Toast.makeText(mContext, "网络连接错误", Toast.LENGTH_SHORT).show();
-//				isLogin = false;
-//				// 进入登陆界面
-//				Intent lt = new Intent(mContext, LoginActivity.class);
-//				startActivity(lt);
-//				SplashActivity.this.finish();
-//			}
-//
-//			Logger.d("Splash","login OK:");
-//		}
-//	}
-
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -447,12 +327,6 @@ public class SplashActivity extends Activity {
             unregisterReceiver(mConnectReceiver);
             mConnectReceiver = null;
         }
-
-//		if(mLoginReceiver != null){
-//			unregisterReceiver(mLoginReceiver);
-//			mLoginReceiver = null;
-//		}
-
     }
 
 }
