@@ -167,10 +167,10 @@ activity#com.zyxb.qqxmpp.ui.LoginUserDetail
 ADDED from G:\android\androidstudioprojects\QQXMPP\app\src\main\AndroidManifest.xml:56:9-56
 	android:name
 		ADDED from G:\android\androidstudioprojects\QQXMPP\app\src\main\AndroidManifest.xml:56:19-53
-receiver#com.zyxb.qqxmpp.receiver.NetChangedReceiver3
+receiver#com.zyxb.qqxmpp.receiver.NetChangedReceiver
 ADDED from G:\android\androidstudioprojects\QQXMPP\app\src\main\AndroidManifest.xml:58:9-65:20
 	android:name
-		ADDED from G:\android\androidstudioprojects\QQXMPP\app\src\main\AndroidManifest.xml:58:19-63
+		ADDED from G:\android\androidstudioprojects\QQXMPP\app\src\main\AndroidManifest.xml:58:19-62
 intent-filter#android.intent.action.BOOT_COMPLETED+android.intent.action.SCREEN_OFF+android.intent.action.SCREEN_ON+android.net.conn.CONNECTIVITY_CHANGE
 ADDED from G:\android\androidstudioprojects\QQXMPP\app\src\main\AndroidManifest.xml:59:13-64:29
 action#android.net.conn.CONNECTIVITY_CHANGE

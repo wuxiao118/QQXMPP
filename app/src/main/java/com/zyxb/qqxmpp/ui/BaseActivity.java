@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
@@ -32,6 +33,10 @@ public class BaseActivity extends Activity {
 	// 连接服务器广播
 	// private LoginReceiver loginReceiver;
 
+	//登陆及连接广播
+	private ConnectReceiver mConnectReceiver;
+	private IntentFilter mConnectFilter;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,6 +59,14 @@ public class BaseActivity extends Activity {
 		// filter.addAction(LoginService.LOGIN_SERVER_DISCONNECTED);
 		// filter.addAction(LoginService.LOGIN_SERVER_RECONNECT);
 		// registerReceiver(loginReceiver, filter);
+
+		//连接及登陆
+		mConnectReceiver = new ConnectReceiver();
+		mConnectFilter = new IntentFilter();
+		mConnectFilter.addAction(ConnectService.LOGIN_SERVER_CONNECTED);
+		mConnectFilter.addAction(ConnectService.LOGIN_SERVER_DISCONNECTED);
+		mConnectFilter.addAction(ChatService.LOGIN);
+		//registerReceiver(mConnectReceiver,mConnectFilter);
 	}
 
 	protected boolean checkUser() {
@@ -101,12 +114,14 @@ public class BaseActivity extends Activity {
 		// filter.addAction(LoginService.LOGIN_SERVER_DISCONNECTED);
 		// filter.addAction(LoginService.LOGIN_SERVER_RECONNECT);
 		// registerReceiver(loginReceiver, filter);
+		registerReceiver(mConnectReceiver,mConnectFilter);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		//unregisterReceiver(loginReceiver);
+		unregisterReceiver(mConnectReceiver);
 	}
 
 	@Override
@@ -170,20 +185,24 @@ public class BaseActivity extends Activity {
 	 * @author 吴小雄
 	 *
 	 */
-	@SuppressWarnings("unused")
-	private class LoginReceiver extends BroadcastReceiver {
+	//@SuppressWarnings("unused")
+	//private class LoginReceiver extends BroadcastReceiver {
+	private class ConnectReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// String action = intent.getAction();
 			String action = intent.getAction();
 			int reason = intent.getIntExtra("reason", -1);
-			Logger.d(TAG, "action:" + action);
+			Logger.d(TAG, "base action:" + action + ",reason:" + reason);
 
 			if (action.equals(ConnectService.LOGIN_SERVER_CONNECTED)) {
-				mApp.setConnected(true);
+				//mApp.setConnected(true);
 			} else if (action.equals(ConnectService.LOGIN_SERVER_DISCONNECTED)) {
 				mApp.setConnected(false);
+				Toast.makeText(mContext,"服务器连接断开",Toast.LENGTH_SHORT).show();
+
+				return;
 			} else if (action.equals(ConnectService.LOGIN_SERVER_RECONNECT)) {
 				mApp.setConnected(false);
 

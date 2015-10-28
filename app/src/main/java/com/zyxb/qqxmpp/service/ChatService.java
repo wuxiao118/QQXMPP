@@ -249,7 +249,10 @@ public class ChatService extends Service {
                 }
 
                 //重新获取Engine,服务器更换时，需要重新获取Engine
+                //connect service中清除XMPPEngine中engine值时,chat service中获取不为空,why
+                //理解 a = new XMPPEngine(...);b=a; a=null; b不等于null
                 resetEngine();
+                //getmEngine();//不行,理由同上
                 login(username.split("@")[0], pwd, ressource);
                 isLogin = true;
             } else if (action.equals(ConnectService.LOGIN_SERVER_DISCONNECTED)) {

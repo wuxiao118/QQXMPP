@@ -191,6 +191,8 @@ public class ConnectService extends Service {
      * @return 是否断开连接成功
      */
     public boolean disconnect() {
+        //如果登陆，登出
+
         Logger.d(TAG, "关闭连接");
         isConnected = false;
 
@@ -638,12 +640,28 @@ public class ConnectService extends Service {
             if (action.equals(CONNECT_CLOSE)) {
                 if (isRunning || isConnected) {
                     disconnect();
+
+                    //必须,否则mXMPPConnection先设置为空了,导致mXMPPConnection.disconnect()空指针
+                    if(mCloseLatch != null){
+                        try {
+                            mCloseLatch.await();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
+
+                mCloseLatch = null;
+                isRunning = false;
+                isConnected = false;
+                mXMPPConnection = null;
+                //清空后,chat service中任然有值，why?????
+                mEngine.clear();
+                mEngine = null;
+                RECONNECT_TIMES = 1;
 
                 // 发送广播
                 disconnectedReceiver(SERVER_DISCONNECTED_CONNECTION_CLOSED);
-                isConnected = false;
-                isRunning = false;
             } else if (!isRunning && !isConnected) {
                 connect();
             }
@@ -684,9 +702,12 @@ public class ConnectService extends Service {
             isConnected = false;
             mXMPPConnection = null;
             //清空后,chat service中任然有值，why?????
-            mEngine.clear();
-            mEngine = null;
+            if(mEngine != null) {
+                mEngine.clear();
+                mEngine = null;
+            }
             RECONNECT_TIMES = 1;
+
             connect();
         }
 

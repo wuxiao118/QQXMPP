@@ -77,7 +77,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 	// connect receiver处理连接,登陆消息
 	private ConnectReceiver mConnectReceiver;
 	// message receiver处理联系人,消息变化
-	private MessageReceiver mMessageReceiver;
+	//private MessageReceiver mMessageReceiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -407,6 +407,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 					break;
 				case ChatService.SERVER_CONNECTED_USER_LOGIN:
 					Toast.makeText(mContext, "登陆服务器成功", Toast.LENGTH_SHORT).show();
+					mApp.setConnected(true);
 					break;
 				case ChatService.SERVER_CONNECTED_USER_LOGOUT:
 					Toast.makeText(mContext, "退出登录", Toast.LENGTH_SHORT).show();
@@ -452,13 +453,14 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		connFilter.addAction(ConnectService.LOGIN_SERVER_CONNECTED);
 		connFilter.addAction(ConnectService.LOGIN_SERVER_DISCONNECTED);
 		connFilter.addAction(ConnectService.LOGIN_SERVER_RECONNECT);
+		connFilter.addAction(ChatService.LOGIN);
 		registerReceiver(mConnectReceiver, connFilter);
 
-		mMessageReceiver = new MessageReceiver();
-		IntentFilter msgFilter = new IntentFilter();
-		msgFilter.addAction(ChatService.MESSAGE_DATA_CHANGED);
-		msgFilter.addAction(ChatService.USER_DATA_CHANGED);
-		registerReceiver(mMessageReceiver, msgFilter);
+//		mMessageReceiver = new MessageReceiver();
+//		IntentFilter msgFilter = new IntentFilter();
+//		msgFilter.addAction(ChatService.MESSAGE_DATA_CHANGED);
+//		msgFilter.addAction(ChatService.USER_DATA_CHANGED);
+//		registerReceiver(mMessageReceiver, msgFilter);
 	}
 
 	@Override
@@ -466,7 +468,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		super.onPause();
 
 		unregisterReceiver(mConnectReceiver);
-		unregisterReceiver(mMessageReceiver);
+		//unregisterReceiver(mMessageReceiver);
 	}
 
 }

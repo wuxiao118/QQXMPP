@@ -94,6 +94,11 @@ import java.util.concurrent.CountDownLatch;
  * MessageQueen大材小用，没必要，去掉
  * 再需要对数据库操作的地方，直接增加数据操作
  *
+ * 发送消息不正确原因:
+ * 添加测试好友,jid name@domain
+ * ip貌似不行,因为ip只是内网ip且没有配置映射
+ * 手机登陆需使用ip,domain不能正确解析
+ *
  */
 @SuppressLint("DefaultLocale")
 public class XMPPEngine {
@@ -381,6 +386,7 @@ public class XMPPEngine {
 				RosterEntry rosterEntry = mRoster.getEntry(jabberID);
 				//updateRosterEntryInDB(rosterEntry);// 更新联系人数据库
 				//mService.rosterChanged();// 回调通知服务，主要是用来判断一下是否掉线
+				//TODO 仅更新用户对应好友的状态
 
 			}
 
@@ -409,6 +415,7 @@ public class XMPPEngine {
 					RosterEntry rosterEntry = mRoster.getEntry(entry);
 					Logger.i(TAG,rosterEntry.getUser() + "," + rosterEntry.getName() + "," +rosterEntry.getGroups() + ","
 					+ rosterEntry.getStatus() + "," + rosterEntry.getType());
+					//TODO 仅修改用户与好友的对应关系
 				}
 			}
 
@@ -437,6 +444,8 @@ public class XMPPEngine {
 					RosterEntry rosterEntry = mRoster.getEntry(entry);
 					Logger.i(TAG,rosterEntry.getUser() + "," + rosterEntry.getName() + "," +rosterEntry.getGroups() + ","
 							+ rosterEntry.getStatus() + "," + rosterEntry.getType());
+					//TODO 仅删除用户与好友的对应关系
+
 				}
 			}
 
@@ -546,6 +555,8 @@ public class XMPPEngine {
 	 * 更新在线状态
 	 */
 	private void setStatusFromConfig() {
+		Logger.d(TAG,"Set status available");
+
 		boolean messageCarbons = SharedPreferencesUtils.getBoolean(mContext,
 				Const.XMPP_MESSAGE_CARBONS, true);
 		String statusMode = SharedPreferencesUtils.getString(mContext,
@@ -593,12 +604,16 @@ public class XMPPEngine {
 
 		PacketTypeFilter filter = new PacketTypeFilter(Message.class);
 
+		Logger.d(TAG,"register message listener");
+
 		mPacketListener = new PacketListener() {
 			public void processPacket(Packet packet) {
 				try {
 					if (packet instanceof Message) {
 						Message msg = (Message) packet;
 						String chatMessage = msg.getBody();
+
+						Logger.d(TAG,"message body:" + chatMessage);
 
 						// try to extract a carbon
 						Carbon cc = CarbonManager.getCarbon(msg);
@@ -883,7 +898,7 @@ public class XMPPEngine {
 		// DeliveryReceiptRequest request = new DeliveryReceiptRequest();
 		newMessage.addExtension(new DeliveryReceiptRequest());
 		if (isAuthenticated()) {
-			Logger.d(TAG, "send message to:" + toJID + ",msg:" + message);
+			Logger.d(TAG, "account" + account + ",send message to:" + toJID + ",msg:" + message);
 			mXMPPConnection.sendPacket(newMessage);
 		} else {
 			Logger.d(TAG,"send message failed,authenticate failed");
