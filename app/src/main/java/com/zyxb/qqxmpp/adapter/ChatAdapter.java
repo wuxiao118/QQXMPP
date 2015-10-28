@@ -102,6 +102,7 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 			holder.ivRightLoc = findView(convertView, R.id.ivChatRightLoc);
 			// holder.ivRightLoading = findView(convertView,
 			// R.id.ivChatRightLoading);
+			holder.ivRightMessageState = findView(convertView,R.id.ivChatRightMessageState);
 			holder.tvRightGroupTitle = findView(convertView,
 					R.id.tvChatRightGroupTitle);
 			holder.pbRightLoading = findView(convertView,
@@ -149,9 +150,14 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 			holder.tvRightGroupTitle.setVisibility(View.GONE);
 			// holder.pbLeftLoading.setVisibility(View.GONE);
 			if (message.getState() == DBColumns.MESSAGE_STATE_SENDING) {
+				holder.ivRightMessageState.setVisibility(View.GONE);
 				holder.pbRightLoading.setVisibility(View.VISIBLE);
-			} else {
+			} else if(message.getState()==DBColumns.MESSAGE_STATE_FAIL){
 				holder.pbRightLoading.setVisibility(View.GONE);
+				holder.ivRightMessageState.setVisibility(View.VISIBLE);
+			}else{
+				holder.pbRightLoading.setVisibility(View.GONE);
+				holder.ivRightMessageState.setVisibility(View.GONE);
 			}
 
 		} else {
@@ -241,7 +247,7 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 		public LinearLayout llLeft;
 		public RelativeLayout llRight;
 		public CircleImageView2 ivLeftIcon, ivRightIcon;
-		public ImageView ivLeftImage, ivRightImage, ivLeftLoc, ivRightLoc;
+		public ImageView ivLeftImage, ivRightImage, ivLeftLoc, ivRightLoc,ivRightMessageState;
 		// ivLeftLoading, ivRightLoading;
 		public ProgressBar pbLeftLoading, pbRightLoading;
 	}

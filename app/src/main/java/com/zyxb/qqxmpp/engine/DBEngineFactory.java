@@ -7,19 +7,19 @@ public class DBEngineFactory {
 		
 	}
 	
-	public static DBFriendGroupEngine getDB3FriendGroupEngine(Context context){
+	public static DBFriendGroupEngine getDBFriendGroupEngine(Context context){
 		return new DBFriendGroupEngine(context);
 	}
 	
-	public static DBMessageEngine getDB3MessageEngine(Context context){
+	public static DBMessageEngine getDBMessageEngine(Context context){
 		return new DBMessageEngine(context);
 	}
 	
-	public static DBGroupEngine getDB3GroupEngine(Context context){
+	public static DBGroupEngine getDBGroupEngine(Context context){
 		return new DBGroupEngine(context);
 	}
 	
-	public static DBUserEngine getDB3UserEngine(Context context){
+	public static DBUserEngine getDBUserEngine(Context context){
 		return new DBUserEngine(context);
 	}
 }

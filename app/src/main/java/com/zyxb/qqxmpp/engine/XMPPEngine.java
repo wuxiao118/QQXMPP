@@ -572,7 +572,11 @@ public class XMPPEngine {
                         xmppMsg.setMsg(chatMessage);
                         xmppMsg.setMsgType(DBColumns.MESSAGE_TYPE_CONTACT);
                         xmppMsg.setState(DBColumns.MESSAGE_STATE_RECEIVED);
+                        mDataEngine.addNewXMPPMessge(xmppMsg);
 
+                        //发送收到新消息广播
+                        //Intent newMsgIntent = new Intent();
+                        //newMsgIntent.setAction(ChatService.NEW_MESSAGE);
                     }
                 } catch (Exception e) {
                     Logger.e(TAG, "failed to process packet:");
@@ -608,8 +612,10 @@ public class XMPPEngine {
                                         + " could not be sent (ID:"
                                         + (msg.getPacketID() == null ? "null"
                                         : msg.getPacketID()) + ")");
-                        // TODO 消息发送失败
-
+                        //消息发送失败
+                        //修改消息状态
+                        //mDataEngine.changeXMPPMessageState(msg.getPacketID(), DBColumns.MESSAGE_STATE_FAIL);
+                        mDataEngine.updateXMPPMessageState(msg.getPacketID(),DBColumns.MESSAGE_STATE_FAIL);
                     }
                 } catch (Exception e) {
                     Logger.e(TAG, "failed to process packet:");
@@ -777,6 +783,10 @@ public class XMPPEngine {
         if (isAuthenticated()) {
             Logger.d(TAG, "account" + account + ",send message to:" + toJID + ",msg:" + message);
             mXMPPConnection.sendPacket(newMessage);
+
+            //修改消息状态
+            //mDataEngine.changeXMPPMessageState(account, DBColumns.MESSAGE_STATE_SENDED);
+            mDataEngine.updateXMPPMessageState(account, DBColumns.MESSAGE_STATE_SENDED);
         } else {
             Logger.d(TAG, "send message failed,authenticate failed");
         }

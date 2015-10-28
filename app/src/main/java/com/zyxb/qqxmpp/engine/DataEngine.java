@@ -56,7 +56,7 @@ public class DataEngine {
 	 */
 	public List<MessageInfo> getNewest(OnMessageChangeListener listener) {
 
-		return DBEngineFactory.getDB3MessageEngine(mContext).getNewest(mUser);
+		return DBEngineFactory.getDBMessageEngine(mContext).getNewest(mUser);
 	}
 
 	/**
@@ -66,7 +66,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public List<FriendGroupInfo> getFriends(OnUserChangeListener listener) {
-		return DBEngineFactory.getDB3FriendGroupEngine(mContext).getFriends(
+		return DBEngineFactory.getDBFriendGroupEngine(mContext).getFriends(
 				mUser);
 	}
 
@@ -80,7 +80,7 @@ public class DataEngine {
 	public List<MessageInfo> getGroupMessages(String groupAccount,
 											  OnMessageChangeListener listener) {
 
-		return DBEngineFactory.getDB3MessageEngine(mContext).getGroupMessage(
+		return DBEngineFactory.getDBMessageEngine(mContext).getGroupMessage(
 				mUser.getAccount(), groupAccount, listener);
 	}
 
@@ -93,7 +93,7 @@ public class DataEngine {
 	 */
 	public List<MessageInfo> getContactMessages(String contactAccount,
 												OnMessageChangeListener listener) {
-		DBMessageEngine engine = DBEngineFactory.getDB3MessageEngine(mContext);
+		DBMessageEngine engine = DBEngineFactory.getDBMessageEngine(mContext);
 		return engine.getContactMessage(mUser.getAccount(), contactAccount,
 				listener);
 	}
@@ -108,7 +108,7 @@ public class DataEngine {
 	public List<MessageInfo> getSystemMessages(String sysAccount,
 											   OnMessageChangeListener listener) {
 
-		return DBEngineFactory.getDB3MessageEngine(mContext).getSystemMessage(
+		return DBEngineFactory.getDBMessageEngine(mContext).getSystemMessage(
 				mUser.getAccount(), sysAccount, listener);
 	}
 
@@ -119,7 +119,7 @@ public class DataEngine {
 	 */
 	public List<GroupInfo> getGroups() {
 
-		return DBEngineFactory.getDB3GroupEngine(mContext).getGroups(mUser);
+		return DBEngineFactory.getDBGroupEngine(mContext).getGroups(mUser);
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class DataEngine {
 	 */
 	public List<Information> getGroupFriends(String groupAccount) {
 
-		return DBEngineFactory.getDB3GroupEngine(mContext).getFriends(
+		return DBEngineFactory.getDBGroupEngine(mContext).getFriends(
 				groupAccount);
 	}
 
@@ -140,7 +140,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public DBUser getUserInfo(String account) {
-		return DBEngineFactory.getDB3UserEngine(mContext).getUser(account);
+		return DBEngineFactory.getDBUserEngine(mContext).getUser(account);
 
 	}
 
@@ -152,7 +152,7 @@ public class DataEngine {
 	 */
 	public DBGroup getGroupInfo(String account) {
 
-		return DBEngineFactory.getDB3GroupEngine(mContext).getGroup(account);
+		return DBEngineFactory.getDBGroupEngine(mContext).getGroup(account);
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class DataEngine {
 	 * @param toAccount
 	 */
 	public void setReadedMessage(String fromAccount, String toAccount, int type) {
-		DBMessageEngine engine = DBEngineFactory.getDB3MessageEngine(mContext);
+		DBMessageEngine engine = DBEngineFactory.getDBMessageEngine(mContext);
 		engine.updateReadedMessage(fromAccount, toAccount, type);
 	}
 
@@ -200,7 +200,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public int getUnReadedMessage(String userAccount) {
-		return DBEngineFactory.getDB3MessageEngine(mContext)
+		return DBEngineFactory.getDBMessageEngine(mContext)
 				.getUnReadedMessages(userAccount);
 	}
 
@@ -212,7 +212,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public int getUnReadedMessage(String attr, String value) {
-		return DBEngineFactory.getDB3MessageEngine(mContext)
+		return DBEngineFactory.getDBMessageEngine(mContext)
 				.getUnReadedMessages(attr, value);
 	}
 
@@ -225,7 +225,7 @@ public class DataEngine {
 	 */
 	public String getGroupRemark(String groupAccount, String userAccount) {
 
-		return DBEngineFactory.getDB3GroupEngine(mContext).getGroupRemark(
+		return DBEngineFactory.getDBGroupEngine(mContext).getGroupRemark(
 				groupAccount, userAccount);
 	}
 
@@ -237,7 +237,7 @@ public class DataEngine {
 	 */
 	public int getGroupNum(String groupAccount) {
 
-		return DBEngineFactory.getDB3GroupEngine(mContext).getGroupNum(
+		return DBEngineFactory.getDBGroupEngine(mContext).getGroupNum(
 				groupAccount);
 	}
 
@@ -248,7 +248,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public Contact getUserFriend(String contactAccount) {
-		return DBEngineFactory.getDB3FriendGroupEngine(mContext).getFriend(
+		return DBEngineFactory.getDBFriendGroupEngine(mContext).getFriend(
 				mUser.getAccount(), contactAccount);
 	}
 
@@ -259,7 +259,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public Contact getGroupFriend(String groupAccount, String contactAccount) {
-		return DBEngineFactory.getDB3GroupEngine(mContext).getFriend(
+		return DBEngineFactory.getDBGroupEngine(mContext).getFriend(
 				groupAccount, contactAccount);
 	}
 
@@ -271,7 +271,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public String getRemark(String userAccount, String contactAccount) {
-		return DBEngineFactory.getDB3FriendGroupEngine(mContext).getRemark(
+		return DBEngineFactory.getDBFriendGroupEngine(mContext).getRemark(
 				userAccount, contactAccount);
 	}
 
@@ -282,7 +282,7 @@ public class DataEngine {
 	 * @return
 	 */
 	public boolean isMyFriend(String contactAccount) {
-		return DBEngineFactory.getDB3FriendGroupEngine(mContext).checkFriend(
+		return DBEngineFactory.getDBFriendGroupEngine(mContext).checkFriend(
 				mUser.getAccount(), contactAccount);
 	}
 
@@ -294,7 +294,7 @@ public class DataEngine {
 	 */
 	public String addMessage(XMPPMessage message) {
 		// message.setTo(mUser.getAccount());
-		return DBEngineFactory.getDB3MessageEngine(mContext).add(message);
+		return DBEngineFactory.getDBMessageEngine(mContext).add(message);
 	}
 
 	/**
@@ -304,7 +304,7 @@ public class DataEngine {
 	 */
 	public void addNewXMPPMessge(XMPPMessage message) {
 		message.setTo(mUser.getAccount());
-		DBEngineFactory.getDB3MessageEngine(mContext)
+		DBEngineFactory.getDBMessageEngine(mContext)
 				.addNewXMPPMessage(message);
 	}
 
@@ -314,7 +314,7 @@ public class DataEngine {
 	 * @param jid
 	 */
 	public void deleteXMPPUser(String jid) {
-		DBEngineFactory.getDB3FriendGroupEngine(mContext).delete(
+		DBEngineFactory.getDBFriendGroupEngine(mContext).delete(
 				mUser.getAccount(), jid);
 	}
 
@@ -330,7 +330,7 @@ public class DataEngine {
 						+ contact.getJid() + "," + contact.getGroup() + ","
 						+ contact.getStatusMode() + ","
 						+ contact.getStatusMessage());
-		DBEngineFactory.getDB3FriendGroupEngine(mContext).add(
+		DBEngineFactory.getDBFriendGroupEngine(mContext).add(
 				mUser.getAccount(), contact);
 	}
 
@@ -340,7 +340,7 @@ public class DataEngine {
 	 * @param contact
 	 */
 	public void updateXMPPUser(XMPPUser contact) {
-		DBEngineFactory.getDB3FriendGroupEngine(mContext).update(
+		DBEngineFactory.getDBFriendGroupEngine(mContext).update(
 				mUser.getAccount(), contact);
 	}
 
@@ -350,21 +350,25 @@ public class DataEngine {
 	 * @param ur
 	 */
 	public DBUser getXMPPUser(XMPPUser ur) {
-		// return DBEngineFactory.getDB3UserEngine(mContext).find(ur);
-		return DBEngineFactory.getDB3FriendGroupEngine(mContext).find(ur);
+		// return DBEngineFactory.getDBUserEngine(mContext).find(ur);
+		return DBEngineFactory.getDBFriendGroupEngine(mContext).find(ur);
 	}
 
 	public DBUser findXMPPUserByName(String loginJid) {
-		return DBEngineFactory.getDB3UserEngine(mContext).find(loginJid);
+		return DBEngineFactory.getDBUserEngine(mContext).find(loginJid);
 	}
 
 	public List<XMPPMessage> getOffLineMessages() {
-		return DBEngineFactory.getDB3MessageEngine(mContext)
+		return DBEngineFactory.getDBMessageEngine(mContext)
 				.getOffLineMessages(mUser.getAccount());
 	}
 
 	public void updateXMPPMessageState(String messageAccount, int messageState) {
-		DBEngineFactory.getDB3MessageEngine(mContext)
+		DBEngineFactory.getDBMessageEngine(mContext)
 				.updateXMPPMessageState(messageAccount, messageState);
 	}
+
+//	public void changeXMPPMessageState(String account,int messageState){
+//		//DBEngineFactory.getDBMessageEngine(mContext).changeXMPPMessageState(account, messageState);
+//	}
 }

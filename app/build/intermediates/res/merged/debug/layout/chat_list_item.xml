@@ -189,6 +189,15 @@
                 android:paddingRight="2dp"
                 android:visibility="gone" />
 
+            <ImageView
+                android:id="@+id/ivChatRightMessageState"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/login_error"
+                android:paddingRight="2dp"
+                android:visibility="gone" />
+
             <ProgressBar
                 android:id="@+id/pbChatRightLoading"
                 android:layout_width="24dp"

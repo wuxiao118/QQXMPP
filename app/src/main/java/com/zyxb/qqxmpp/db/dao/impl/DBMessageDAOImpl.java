@@ -808,9 +808,14 @@ public class DBMessageDAOImpl extends DBMessageDAO {
                 if(message.getState() == DBColumns.MESSAGE_STATE_SENDING){
                     //contact = userDao.findByName(message.getTo());
 					contact = userDao.findByAccount(message.getTo());
+
+					if(contact == null)
+						contact = userDao.findByName(message.getTo());
                 }else{
                     //contact = userDao.findByName(message.getFrom());
 					contact = userDao.findByAccount(message.getFrom());
+					if(contact == null)
+						contact = userDao.findByName(message.getFrom());
                 }
 
                 if (contact == null) {

@@ -106,4 +106,6 @@ public abstract class DBMessageDAO extends AbstractDBBaseDao<DBMessage> {
 	public abstract void updateXMPPMessageState(String messageAccount,
 			int messageState);
 
+	//public abstract void changeXMPPMessageState(String account,int messageState);
+
 }

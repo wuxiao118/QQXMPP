@@ -41,6 +41,12 @@ import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
  *
  * 后台使用openfire作为服务器
  *
+ * 下一步:
+ * 抽取broadcast部分,形成抽象公共基类,  MainActivity怎么处理?
+ * 改造connectservice,chatservice通用化(接口回调/broadcast receiver)?
+ * 发送文件功能
+ * 使用注解改造dao,通用化
+ *
  * @author 吴小雄
  */
 public class MainActivity extends FragmentActivity implements OnClickListener {
