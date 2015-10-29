@@ -11,6 +11,7 @@ import android.util.Log;
 import com.zyxb.qqxmpp.bean.XMPPMessage;
 import com.zyxb.qqxmpp.bean.XMPPUser;
 import com.zyxb.qqxmpp.db.DBColumns;
+import com.zyxb.qqxmpp.service.ChatService;
 import com.zyxb.qqxmpp.util.Const;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
@@ -96,8 +97,15 @@ import java.util.concurrent.CountDownLatch;
  *         <p/>
  *         发送消息不正确原因:
  *         添加测试好友,jid name@domain
- *         ip貌似不行,因为ip只是内网ip且没有配置映射
- *         手机登陆需使用ip,domain不能正确解析
+ *         ip貌似不行,因为ip只是内网ip且没有配置映射??
+ *         手机登陆需使用ip,domain不能正确解析??
+ *         <p/>
+ *         功能基本正确,存在问题,setPresence因为使用ip,本地服务器domain为电脑名,状态不能正确转换
+ *         ip--->domain,能否自动转换??
+ *         <p/>
+ *         要解决问题:
+ *         信息更新(用户、消息)  只完成新消息的添加和消息状态的改变,删除未做  OK 1/2
+ *         好友状态不能更新(在线显示但是没有收到在线presence)
  */
 @SuppressLint("DefaultLocale")
 public class XMPPEngine {
@@ -114,7 +122,7 @@ public class XMPPEngine {
     // 用户名或密码错误
     public static final String XMPP_USER_REJECT = "com.zyxb.qqxmpp.USER_REJECT";
     // 注销成功
-    public static final String XMPP_USER_LOGOUT = "com.zyxb.qqxmpp.USER_LOGOUT";
+    //public static final String XMPP_USER_LOGOUT = "com.zyxb.qqxmpp.USER_LOGOUT";
 
     // register
     public static final int REGISTER_NO_RESULT = 0;
@@ -174,9 +182,7 @@ public class XMPPEngine {
     }
 
     private DataEngine mDataEngine;
-
-
-    private ConnectionConfiguration mXMPPConf;
+    //private ConnectionConfiguration mXMPPConf;
 
     //
     private Context mContext;
@@ -195,6 +201,7 @@ public class XMPPEngine {
         XMPPEngine.mEngine = mEngine;
     }
 
+    //单例,当更换服务器时,需要重新初始化mEngine
     public XMPPEngine getInstance(Context context) {
         if (mEngine == null) {
             synchronized (obj) {
@@ -220,7 +227,7 @@ public class XMPPEngine {
     /**
      * 连接配置
      *
-     * @param context
+     * @param context 上下文
      */
     public XMPPEngine(Context context) {
         mContext = context;
@@ -234,38 +241,56 @@ public class XMPPEngine {
                 Const.XMPP_SMACKDEBUG, false);
         boolean requireSsl = SharedPreferencesUtils.getBoolean(context,
                 Const.XMPP_REQUIRE_TLS, false);
+
+//        if (customServer.length() > 0 || pt != Const.XMPP_PORT_DEFAULT)
+//            this.mXMPPConf = new ConnectionConfiguration(customServer, pt,
+//                    server);
+//        else
+//            this.mXMPPConf = new ConnectionConfiguration(server); // use SRV
+//
+//        this.mXMPPConf.setReconnectionAllowed(false);
+//        this.mXMPPConf.setSendPresence(false);
+//        this.mXMPPConf.setCompressionEnabled(false); // disable for now
+//        this.mXMPPConf.setDebuggerEnabled(smackdebug);
+//        if (requireSsl)
+//            this.mXMPPConf
+//                    .setSecurityMode(ConnectionConfiguration.SecurityMode.required);
+//
+//        mXMPPConnection = new XMPPConnection(mXMPPConf);
+
+        ConnectionConfiguration xmppConf;
         if (customServer.length() > 0 || pt != Const.XMPP_PORT_DEFAULT)
-            this.mXMPPConf = new ConnectionConfiguration(customServer, pt,
+            xmppConf = new ConnectionConfiguration(customServer, pt,
                     server);
         else
-            this.mXMPPConf = new ConnectionConfiguration(server); // use SRV
+            xmppConf = new ConnectionConfiguration(server); // use SRV
 
-        this.mXMPPConf.setReconnectionAllowed(false);
-        this.mXMPPConf.setSendPresence(false);
-        this.mXMPPConf.setCompressionEnabled(false); // disable for now
-        this.mXMPPConf.setDebuggerEnabled(smackdebug);
+        xmppConf.setReconnectionAllowed(false);
+        xmppConf.setSendPresence(false);
+        xmppConf.setCompressionEnabled(false); // disable for now
+        xmppConf.setDebuggerEnabled(smackdebug);
         if (requireSsl)
-            this.mXMPPConf
+            xmppConf
                     .setSecurityMode(ConnectionConfiguration.SecurityMode.required);
 
-        mXMPPConnection = new XMPPConnection(mXMPPConf);
+        mXMPPConnection = new XMPPConnection(xmppConf);
     }
 
-    public XMPPEngine(Context context, String host, boolean smackDebug,
-                      boolean requireSsl) {
-        mContext = context;
-        this.mXMPPConf = new ConnectionConfiguration(host); // use SRV
-
-        this.mXMPPConf.setReconnectionAllowed(false);
-        this.mXMPPConf.setSendPresence(false);
-        this.mXMPPConf.setCompressionEnabled(false);
-        this.mXMPPConf.setDebuggerEnabled(smackDebug);
-        if (requireSsl)
-            this.mXMPPConf
-                    .setSecurityMode(ConnectionConfiguration.SecurityMode.required);
-
-        mXMPPConnection = new XMPPConnection(mXMPPConf);
-    }
+//    public XMPPEngine(Context context, String host, boolean smackDebug,
+//                      boolean requireSsl) {
+//        mContext = context;
+//        this.mXMPPConf = new ConnectionConfiguration(host); // use SRV
+//
+//        this.mXMPPConf.setReconnectionAllowed(false);
+//        this.mXMPPConf.setSendPresence(false);
+//        this.mXMPPConf.setCompressionEnabled(false);
+//        this.mXMPPConf.setDebuggerEnabled(smackDebug);
+//        if (requireSsl)
+//            this.mXMPPConf
+//                    .setSecurityMode(ConnectionConfiguration.SecurityMode.required);
+//
+//        mXMPPConnection = new XMPPConnection(mXMPPConf);
+//    }
 
     public boolean login(String account, String pwd, String ressource) {
         try {
@@ -333,7 +358,7 @@ public class XMPPEngine {
                 Logger.i(TAG, "presenceChanged(" + presence.getFrom() + "): "
                         + presence);
 
-                // TODO 更新联系人状态
+                // 更新联系人状态
                 String jabberID = getJabberID(presence.getFrom());
                 RosterEntry rosterEntry = mRoster.getEntry(jabberID);
 
@@ -351,7 +376,7 @@ public class XMPPEngine {
 
                 Logger.i(TAG, "entriesUpdated(" + entries + ")");
 
-                // TODO 更新联系人
+                // 更新联系人
                 for (String entry : entries) {
                     RosterEntry rosterEntry = mRoster.getEntry(entry);
                     Logger.i(TAG, rosterEntry.getUser() + "," + rosterEntry.getName() + "," + rosterEntry.getGroups() + ","
@@ -370,7 +395,7 @@ public class XMPPEngine {
 
                 Logger.i(TAG, "entriesDeleted(" + entries + ")");
 
-                // TODO 删除联系人
+                // 删除联系人
                 for (String entry : entries) {
                     RosterEntry rosterEntry = mRoster.getEntry(entry);
                     Logger.i(TAG, rosterEntry.getUser() + "," + rosterEntry.getName() + "," + rosterEntry.getGroups() + ","
@@ -390,11 +415,16 @@ public class XMPPEngine {
 
                 Logger.i(TAG, "entriesAdded(" + entries + ")");
 
-                // TODO 添加联系人
+                //添加联系人
                 for (String entry : entries) {
                     RosterEntry rosterEntry = mRoster.getEntry(entry);
                     mDataEngine.addXMPPUser(getXMPPUser(rosterEntry));
 
+                    //用户消息改变broadcast
+//                    Intent userChangedIntent = new Intent();
+//                    userChangedIntent.setAction(ChatService.USER_DATA_CHANGED);
+//                    mContext.sendBroadcast(userChangedIntent);
+                    sendUserChangedIntent(ChatService.USER_ADD);
                 }
             }
 
@@ -428,6 +458,24 @@ public class XMPPEngine {
         return xmppUser;
     }
 
+    //private void sendUserChangedIntent(){
+    private void sendUserChangedIntent(int reason) {
+        //用户信息改变broadcast
+        Intent userChangedIntent = new Intent();
+        userChangedIntent.putExtra("reason", reason);
+        userChangedIntent.setAction(ChatService.USER_DATA_CHANGED);
+        mContext.sendBroadcast(userChangedIntent);
+    }
+
+    //private void sendMessageChangedIntent(){
+    private void sendMessageChangedIntent(int reason) {
+        //消息改变
+        Intent messageChangedIntent = new Intent();
+        messageChangedIntent.putExtra("reason", reason);
+        messageChangedIntent.setAction(ChatService.MESSAGE_DATA_CHANGED);
+        mContext.sendBroadcast(messageChangedIntent);
+    }
+
     /**
      * 与服务器交互消息监听,发送消息需要回执，判断是否成功接收
      */
@@ -454,7 +502,8 @@ public class XMPPEngine {
                 Logger.d(TAG, "got delivery receipt for " + receiptId);
 
                 // TODO 修改消息状态为对方已经收到
-
+                mDataEngine.updateXMPPMessageState(receiptId, DBColumns.MESSAGE_STATE_RECEIVED);
+                sendMessageChangedIntent(ChatService.MESSAGE_UPDATE);
             }
         });
     }
@@ -536,7 +585,7 @@ public class XMPPEngine {
                                 && cc.getDirection() == Carbon.Direction.sent) {
                             Logger.d(TAG, "carbon: " + cc.toXML());
 
-                            // TODO 发送新的消息处理(加入数据库,发送消息改变receiver)
+                            // 发送新的消息处理(加入数据库,发送消息改变receiver),不用,发送时已经存入数据库
 
                             return;
                         }
@@ -565,7 +614,7 @@ public class XMPPEngine {
                         Logger.d(TAG, "receive new msg: time:" + ts + ",msg:"
                                 + chatMessage + ",from:" + fromJID);
 
-                        // TODO 接收到新的消息处理(加入数据库,发送消息改变receiver)
+                        // 接收到新的消息处理(加入数据库,发送消息改变receiver)
                         XMPPMessage xmppMsg = new XMPPMessage();
                         xmppMsg.setCreateTime(ts);
                         xmppMsg.setFrom(fromJID);
@@ -573,6 +622,7 @@ public class XMPPEngine {
                         xmppMsg.setMsgType(DBColumns.MESSAGE_TYPE_CONTACT);
                         xmppMsg.setState(DBColumns.MESSAGE_STATE_RECEIVED);
                         mDataEngine.addNewXMPPMessge(xmppMsg);
+                        sendMessageChangedIntent(ChatService.MESSAGE_ADD);
 
                         //发送收到新消息广播
                         //Intent newMsgIntent = new Intent();
@@ -615,7 +665,8 @@ public class XMPPEngine {
                         //消息发送失败
                         //修改消息状态
                         //mDataEngine.changeXMPPMessageState(msg.getPacketID(), DBColumns.MESSAGE_STATE_FAIL);
-                        mDataEngine.updateXMPPMessageState(msg.getPacketID(),DBColumns.MESSAGE_STATE_FAIL);
+                        mDataEngine.updateXMPPMessageState(msg.getPacketID(), DBColumns.MESSAGE_STATE_FAIL);
+                        sendMessageChangedIntent(ChatService.MESSAGE_UPDATE);
                     }
                 } catch (Exception e) {
                     Logger.e(TAG, "failed to process packet:");
@@ -654,21 +705,26 @@ public class XMPPEngine {
     /**
      * 是否登陆成功
      *
-     * @return
+     * @return 是否连接成功
      */
     public boolean isAuthenticated() {
-        if (mXMPPConnection != null) {
-            return (mXMPPConnection.isConnected() && mXMPPConnection
-                    .isAuthenticated());
-        }
-        return false;
+//        if (mXMPPConnection != null) {
+//            return (mXMPPConnection.isConnected() && mXMPPConnection
+//                    .isAuthenticated());
+//        }
+//        return false;
+
+//        return mXMPPConnection == null ? false : (mXMPPConnection.isConnected() && mXMPPConnection
+//                .isAuthenticated());
+
+        return mXMPPConnection != null && mXMPPConnection.isConnected() && mXMPPConnection.isAuthenticated();
     }
 
     /**
      * 获取jid
      *
-     * @param from
-     * @return
+     * @param from JID字符串
+     * @return JID ID
      */
     private String getJabberID(String from) {
         String[] res = from.split("/");
@@ -680,7 +736,7 @@ public class XMPPEngine {
     /**
      * 注销
      *
-     * @return
+     * @return 是否成功登出
      */
     public boolean logout() {
         Logger.d(TAG, "unRegisterCallback()");
@@ -764,7 +820,7 @@ public class XMPPEngine {
     /**
      * 发送消息
      *
-     * @param toJID
+     * @param toJID   消息发送对象
      * @param message 判断消息发送成功与否
      *                这里的“成功”有两个概念，一个是数据是否成功到达服务器，一个是服务器是否成功接收。
      *                <p/>
@@ -787,6 +843,7 @@ public class XMPPEngine {
             //修改消息状态
             //mDataEngine.changeXMPPMessageState(account, DBColumns.MESSAGE_STATE_SENDED);
             mDataEngine.updateXMPPMessageState(account, DBColumns.MESSAGE_STATE_SENDED);
+            sendMessageChangedIntent(ChatService.MESSAGE_UPDATE);
         } else {
             Logger.d(TAG, "send message failed,authenticate failed");
         }
@@ -795,7 +852,7 @@ public class XMPPEngine {
     /**
      * 更改用户状态
      *
-     * @param code
+     * @param code 状态
      */
     public void setPresence(int code) {
         if (mXMPPConnection == null)
@@ -863,21 +920,25 @@ public class XMPPEngine {
     public List<RosterGroup> getGroups() {
         if (mXMPPConnection == null)
             return null;
-        List<RosterGroup> grouplist = new ArrayList<RosterGroup>();
+        List<RosterGroup> groupList = new ArrayList<RosterGroup>();
         Collection<RosterGroup> rosterGroup = mXMPPConnection.getRoster()
                 .getGroups();
-        Iterator<RosterGroup> i = rosterGroup.iterator();
-        while (i.hasNext()) {
-            grouplist.add(i.next());
+//        Iterator<RosterGroup> i = rosterGroup.iterator();
+//        while (i.hasNext()) {
+//            groupList.add(i.next());
+//        }
+        for (RosterGroup i : rosterGroup) {
+            groupList.add(i);
         }
-        return grouplist;
+
+        return groupList;
     }
 
     /**
      * 获取某个组里面的所有好友
      *
      * @param groupName 组名
-     * @return
+     * @return 组名对应的所有好友
      */
 
     public List<RosterEntry> getEntriesByGroup(String groupName) {
@@ -888,17 +949,21 @@ public class XMPPEngine {
         RosterGroup rosterGroup = mXMPPConnection.getRoster().getGroup(
                 groupName);
         Collection<RosterEntry> rosterEntry = rosterGroup.getEntries();
-        Iterator<RosterEntry> i = rosterEntry.iterator();
-        while (i.hasNext()) {
-            entriesList.add(i.next());
+//        Iterator<RosterEntry> i = rosterEntry.iterator();
+//        while (i.hasNext()) {
+//            entriesList.add(i.next());
+//        }
+        for (RosterEntry i : rosterEntry) {
+            entriesList.add(i);
         }
+
         return entriesList;
     }
 
     /**
      * 获取所有好友信息
      *
-     * @return
+     * @return 所有好友
      */
     public List<RosterEntry> getAllEntries() {
         if (mXMPPConnection == null)
@@ -906,18 +971,22 @@ public class XMPPEngine {
         List<RosterEntry> entriesList = new ArrayList<RosterEntry>();
         Collection<RosterEntry> rosterEntry = mXMPPConnection.getRoster()
                 .getEntries();
-        Iterator<RosterEntry> i = rosterEntry.iterator();
-        while (i.hasNext()) {
-            entriesList.add(i.next());
+//        Iterator<RosterEntry> i = rosterEntry.iterator();
+//        while (i.hasNext()) {
+//            entriesList.add(i.next());
+//        }
+        for (RosterEntry i : rosterEntry) {
+            entriesList.add(i);
         }
+
         return entriesList;
     }
 
     /**
      * 获取用户VCard信息
      *
-     * @param user
-     * @return
+     * @param user 用户
+     * @return 用户VCard
      */
     public VCard getUserVCard(String user) {
         if (mXMPPConnection == null)
@@ -934,42 +1003,45 @@ public class XMPPEngine {
     /**
      * 获取用户头像信息
      *
-     * @param user
-     * @return
+     * @param user 用户
+     * @return 头像drawable
      */
     public Drawable getUserImage(String user) {
         if (mXMPPConnection == null)
             return null;
-        ByteArrayInputStream bais = null;
+        ByteArrayInputStream byteArrayInputStream;
         try {
             VCard vcard = new VCard();
             // 加入这句代码，解决No VCard for
             ProviderManager.getInstance().addIQProvider("vCard", "vcard-temp",
                     new org.jivesoftware.smackx.provider.VCardProvider());
-            if (user == "" || user == null || user.trim().length() <= 0) {
+            //if (user == "" || user == null || user.trim().length() <= 0) {
+            if (user == null || user.equals("") || user.trim().length() <= 0) {
                 return null;
             }
             vcard.load(mXMPPConnection,
                     user + "@" + mXMPPConnection.getServiceName());
-            if (vcard == null || vcard.getAvatar() == null)
+//            if (vcard == null || vcard.getAvatar() == null)
+            if (vcard.getAvatar() == null)
                 return null;
-            bais = new ByteArrayInputStream(vcard.getAvatar());
+            byteArrayInputStream = new ByteArrayInputStream(vcard.getAvatar());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
 
         // input stream to drawable
-        BitmapDrawable drawable = new BitmapDrawable(bais);
+        //BitmapDrawable drawable = new BitmapDrawable(byteArrayInputStream);
 
-        return drawable;
+        //return drawable;
+        return new BitmapDrawable(byteArrayInputStream);
     }
 
     /**
      * 添加一个分组
      *
-     * @param groupName
-     * @return
+     * @param groupName 分组名称
+     * @return 是否添加成功
      */
     public boolean addGroup(String groupName) {
         if (mXMPPConnection == null)
@@ -987,8 +1059,8 @@ public class XMPPEngine {
     /**
      * 删除分组
      *
-     * @param groupName
-     * @return
+     * @param groupName 分组名称
+     * @return 是否删除分组成功
      */
     public boolean removeGroup(String groupName) {
         return true;
@@ -997,9 +1069,9 @@ public class XMPPEngine {
     /**
      * 添加好友 无分组
      *
-     * @param userName
-     * @param name
-     * @return
+     * @param userName 好友名称
+     * @param name     备注名称
+     * @return 是否添加成功
      */
     public boolean addUser(String userName, String name) {
         if (mXMPPConnection == null)
@@ -1016,10 +1088,10 @@ public class XMPPEngine {
     /**
      * 添加好友 有分组
      *
-     * @param userName
-     * @param name
-     * @param groupName
-     * @return
+     * @param userName  好友名称
+     * @param name      备注
+     * @param groupName 分组名称
+     * @return 是否添加成功
      */
     public boolean addUser(String userName, String name, String groupName) {
         if (mXMPPConnection == null)
@@ -1041,14 +1113,14 @@ public class XMPPEngine {
     /**
      * 删除好友
      *
-     * @param userName
-     * @return
+     * @param userName 好友名称
+     * @return 是否删除成功
      */
     public boolean removeUser(String userName) {
         if (mXMPPConnection == null)
             return false;
         try {
-            RosterEntry entry = null;
+            RosterEntry entry;
             if (userName.contains("@"))
                 entry = mXMPPConnection.getRoster().getEntry(userName);
             else
@@ -1067,13 +1139,13 @@ public class XMPPEngine {
     /**
      * 查询用户
      *
-     * @param userName
-     * @return
+     * @param userName 用户名称
+     * @return 是否存在
      */
     public List<HashMap<String, String>> searchUsers(String userName) {
         if (mXMPPConnection == null)
             return null;
-        HashMap<String, String> user = null;
+        HashMap<String, String> user;
         List<HashMap<String, String>> results = new ArrayList<HashMap<String, String>>();
         try {
             new ServiceDiscoveryManager(mXMPPConnection);
@@ -1086,7 +1158,7 @@ public class XMPPEngine {
             ReportedData data = usm.getSearchResults(answerForm, "search"
                     + mXMPPConnection.getServiceName());
             Iterator<Row> it = data.getRows();
-            Row row = null;
+            Row row;
             while (it.hasNext()) {
                 user = new HashMap<String, String>();
                 row = it.next();
@@ -1106,7 +1178,7 @@ public class XMPPEngine {
     /**
      * 修改心情
      *
-     * @param status
+     * @param status 更改后的状态
      */
     public void changeStateMessage(String status) {
         if (mXMPPConnection == null)
@@ -1119,8 +1191,8 @@ public class XMPPEngine {
     /**
      * 修改用户头像
      *
-     * @param file
-     * @return
+     * @param file 图像文件
+     * @return 是否更改成功
      */
     public boolean changeImage(File file) {
         if (mXMPPConnection == null)
@@ -1151,9 +1223,9 @@ public class XMPPEngine {
     /**
      * 文件转字节
      *
-     * @param file
-     * @return
-     * @throws IOException
+     * @param file 文件
+     * @return 转换后的字节
+     * @throws IOException IO异常
      */
     private byte[] getFileBytes(File file) throws IOException {
         BufferedInputStream bis = null;
@@ -1176,7 +1248,7 @@ public class XMPPEngine {
     /**
      * 删除当前用户
      *
-     * @return
+     * @return 是否删除成功
      */
     public boolean deleteAccount() {
         if (mXMPPConnection == null)
@@ -1192,8 +1264,8 @@ public class XMPPEngine {
     /**
      * 修改密码
      *
-     * @param pwd
-     * @return
+     * @param pwd 修改后的密码
+     * @return 是否修改成功
      */
     public boolean changePassword(String pwd) {
         if (mXMPPConnection == null)
@@ -1209,42 +1281,42 @@ public class XMPPEngine {
     /**
      * 初始化会议室列表
      *
-     * @return
+     * @return 会议室列表
      */
     public List<HostedRoom> getHostRooms() {
         if (mXMPPConnection == null)
             return null;
-        Collection<HostedRoom> hostRooms = null;
-        List<HostedRoom> roomInfos = new ArrayList<HostedRoom>();
+        Collection<HostedRoom> hostRooms;
+        List<HostedRoom> rooms = new ArrayList<HostedRoom>();
         try {
             new ServiceDiscoveryManager(mXMPPConnection);
             hostRooms = MultiUserChat.getHostedRooms(mXMPPConnection,
                     mXMPPConnection.getServiceName());
             for (HostedRoom entry : hostRooms) {
-                roomInfos.add(entry);
+                rooms.add(entry);
                 Log.i("room",
                         "名字：" + entry.getName() + " - ID:" + entry.getJid());
             }
-            Log.i("room", "服务会议数量:" + roomInfos.size());
+            Log.i("room", "服务会议数量:" + rooms.size());
         } catch (XMPPException e) {
             e.printStackTrace();
         }
-        return roomInfos;
+        return rooms;
     }
 
     /**
      * 创建房间
      *
-     * @param user
-     * @param roomName
-     * @param password
-     * @return
+     * @param user     创建者
+     * @param roomName 房间名称
+     * @param password 房间密码
+     * @return 创建的多人聊天实例
      */
     public MultiUserChat createRoom(String user, String roomName,
                                     String password) {
         if (mXMPPConnection == null)
             return null;
-        MultiUserChat muc = null;
+        MultiUserChat muc;
         try {
             // 创建一个MultiUserChat
             muc = new MultiUserChat(mXMPPConnection, roomName + "@conference."
@@ -1258,7 +1330,8 @@ public class XMPPEngine {
             // 向要提交的表单添加默认答复
             for (Iterator<FormField> fields = form.getFields(); fields
                     .hasNext(); ) {
-                FormField field = (FormField) fields.next();
+                //FormField field = (FormField) fields.next();
+                FormField field = fields.next();
                 if (!FormField.TYPE_HIDDEN.equals(field.getType())
                         && field.getVariable() != null) {
                     // 设置默认值作为答复
@@ -1336,8 +1409,8 @@ public class XMPPEngine {
     /**
      * 查询会议室成员名字
      *
-     * @param muc
-     * @return
+     * @param muc 多人会议实例
+     * @return 会议室成员列表
      */
     public List<String> findMulitUser(MultiUserChat muc) {
         if (mXMPPConnection == null)
@@ -1356,8 +1429,8 @@ public class XMPPEngine {
     /**
      * 发送文件
      *
-     * @param user
-     * @param filePath
+     * @param user     文件发送对象
+     * @param filePath 文件路径
      */
     public void sendFile(String user, String filePath) {
         if (mXMPPConnection == null)
@@ -1429,7 +1502,7 @@ public class XMPPEngine {
     public Map<String, List<HashMap<String, String>>> getHisMessage() {
         if (mXMPPConnection == null)
             return null;
-        Map<String, List<HashMap<String, String>>> offlineMsgs = null;
+        Map<String, List<HashMap<String, String>>> offlineMessages = null;
         try {
             OfflineMessageManager offlineManager = new OfflineMessageManager(
                     mXMPPConnection);
@@ -1437,7 +1510,7 @@ public class XMPPEngine {
             int count = offlineManager.getMessageCount();
             if (count <= 0)
                 return null;
-            offlineMsgs = new HashMap<String, List<HashMap<String, String>>>();
+            offlineMessages = new HashMap<String, List<HashMap<String, String>>>();
             while (it.hasNext()) {
                 Message message = it.next();
                 String fromUser = StringUtils.parseName(message.getFrom());
@@ -1447,19 +1520,19 @@ public class XMPPEngine {
                 histrory.put("friendaccount", fromUser);
                 histrory.put("info", message.getBody());
                 histrory.put("type", "left");
-                if (offlineMsgs.containsKey(fromUser)) {
-                    offlineMsgs.get(fromUser).add(histrory);
+                if (offlineMessages.containsKey(fromUser)) {
+                    offlineMessages.get(fromUser).add(histrory);
                 } else {
                     List<HashMap<String, String>> temp = new ArrayList<HashMap<String, String>>();
                     temp.add(histrory);
-                    offlineMsgs.put(fromUser, temp);
+                    offlineMessages.put(fromUser, temp);
                 }
             }
             offlineManager.deleteMessages();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return offlineMsgs;
+        return offlineMessages;
     }
 
     /**

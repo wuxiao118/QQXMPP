@@ -9,18 +9,18 @@
         <dex dex="G:\android\androidstudioprojects\QQXMPP\app\build\intermediates\pre-dexed\debug\nineoldandroids-2.4.0-a9dc425f5d8f9f67cf7a0b809dfd3ab1a9c2c371.jar" />
     </item>
     <item
-        jar="G:\android\androidstudioprojects\QQXMPP\app\libs\asmack-android-6.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="3d0153304081a3a9ddb15c93082e2664b94746e9">
-        <dex dex="G:\android\androidstudioprojects\QQXMPP\app\build\intermediates\pre-dexed\debug\asmack-android-6-8c8b4ff1873352006aea6c57a400ff0aed2a30f5.jar" />
-    </item>
-    <item
         jar="G:\android\install\android\extras\android\m2repository\com\android\support\support-v4\18.0.0\support-v4-18.0.0.jar"
         jumboMode="false"
         revision="23.0.1"
         sha1="44ec51e9d395a47aab135e5e1b556c0007442156">
         <dex dex="G:\android\androidstudioprojects\QQXMPP\app\build\intermediates\pre-dexed\debug\support-v4-18.0.0-a3177d3cddd583afd3cd82d1edcdb47b6612de7c.jar" />
+    </item>
+    <item
+        jar="G:\android\androidstudioprojects\QQXMPP\app\libs\asmack-android-6.jar"
+        jumboMode="false"
+        revision="23.0.1"
+        sha1="3d0153304081a3a9ddb15c93082e2664b94746e9">
+        <dex dex="G:\android\androidstudioprojects\QQXMPP\app\build\intermediates\pre-dexed\debug\asmack-android-6-8c8b4ff1873352006aea6c57a400ff0aed2a30f5.jar" />
     </item>
 
 </items>

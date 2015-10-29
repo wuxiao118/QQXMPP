@@ -154,6 +154,13 @@ public class MassegeFragment extends Fragment implements OnClickListener,
 		return (T) v.findViewById(id);
 	}
 
+	//更新最新消息
+	public void updateNewMessage(){
+		messages = mEngine.getNewest(this);
+		mAdapter.setMessages(messages);
+		mAdapter.notifyDataSetChanged();
+	}
+
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {

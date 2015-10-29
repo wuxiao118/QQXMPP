@@ -41,11 +41,18 @@ import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
  *
  * 后台使用openfire作为服务器
  *
+ * 待研究问题:大量使用braodcast是否对性能影响大?使用接口回调如何?
+ *
  * 下一步:
+ * 发送文件功能
+ * 聊天室
+ * 删除多余的代码及注释
  * 抽取broadcast部分,形成抽象公共基类,  MainActivity怎么处理?
  * 改造connectservice,chatservice通用化(接口回调/broadcast receiver)?
- * 发送文件功能
  * 使用注解改造dao,通用化
+ *
+ * 最后尝试:
+ * 实时视频
  *
  * @author 吴小雄
  */
@@ -85,6 +92,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 	// message receiver处理联系人,消息变化
 	//private MessageReceiver mMessageReceiver;
 
+	//处理联系人及消息变化
+	private ContactMessageChangedReceiver mContactMessageChangedReceiver;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -104,7 +114,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 			initView();
 			initEvents();
 			// 初始化newmessage数据,并保存到app,MessageFragment不必再查询
-			initUnReadMessage();
+			//initUnReadMessage();
 		}
 
 		// 初始化 表情名称与图片文件名对应关系
@@ -452,6 +462,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 	protected void onResume() {
 		super.onResume();
 
+		initUnReadMessage();
+
 		// 注册receiver
 		mConnectReceiver = new ConnectReceiver();
 		IntentFilter connFilter = new IntentFilter();
@@ -460,6 +472,13 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		connFilter.addAction(ConnectService.LOGIN_SERVER_RECONNECT);
 		connFilter.addAction(ChatService.LOGIN);
 		registerReceiver(mConnectReceiver, connFilter);
+
+		//消息联系人变化
+		mContactMessageChangedReceiver = new ContactMessageChangedReceiver();
+		IntentFilter cmFilter = new IntentFilter();
+		cmFilter.addAction(ChatService.MESSAGE_DATA_CHANGED);
+		cmFilter.addAction(ChatService.USER_DATA_CHANGED);
+		registerReceiver(mContactMessageChangedReceiver,cmFilter);
 	}
 
 	@Override
@@ -467,6 +486,47 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		super.onPause();
 
 		unregisterReceiver(mConnectReceiver);
+		unregisterReceiver(mContactMessageChangedReceiver);
+	}
+
+	private class ContactMessageChangedReceiver extends BroadcastReceiver{
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			int reason = intent.getIntExtra("reason",-1);
+			Logger.d(TAG,"MainActivity:contact or message changed:action=" + action + ",reason=" + reason);
+
+			switch(reason){
+				case ChatService.USER_ADD:
+					break;
+				case ChatService.USER_DELETE:
+					break;
+				case ChatService.USER_UPDATE:
+					break;
+				case ChatService.MESSAGE_ADD:
+					//更新未读消息数
+					initUnReadMessage();
+
+					//如果在消息界面，更新消息
+					if(state == Const.FRAGMENT_STATE_MESSAGE){
+						mMessageFragment.updateNewMessage();
+					}
+
+					break;
+				case ChatService.MESSAGE_DELETE:
+					break;
+				case ChatService.MESSAGE_UPDATE:
+					break;
+			}
+
+//			if(action.equals(ChatService.MESSAGE_DATA_CHANGED)){
+//				//消息改变
+//				switch
+//			}else{
+//				//联系人改变
+//
+//			}
+		}
 	}
 
 }

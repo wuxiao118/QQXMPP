@@ -7,9 +7,11 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="8" />
 
+    <!-- android studio中舍弃了这个节点?
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="com.zyxb.qqxmpp" />
+        android:targetPackage="com.zyxb.qqxmpptest" />
+        -->
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

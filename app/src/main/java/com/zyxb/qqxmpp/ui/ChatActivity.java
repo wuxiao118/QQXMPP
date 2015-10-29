@@ -1,7 +1,10 @@
 package com.zyxb.qqxmpp.ui;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
@@ -92,6 +95,9 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 	private String account;
 	private String toJid;
 
+	//监听新消息
+	private NewMessageReceiver mNewMessageReceiver;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -178,6 +184,8 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 							contactAccount));
 				}
 
+				mEngine.setReadedMessage(account,mUser.getAccount(),messageType);
+
 				break;
 			case DBColumns.MESSAGE_TYPE_GROUP:
 				account = toAccount;
@@ -189,6 +197,9 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 					DBGroup groupInfo = mEngine.getGroupInfo(toAccount);
 					tvTitleName.setText(groupInfo.getName());
 				}
+
+				mEngine.setReadedMessage(null,account,messageType);
+
 				break;
 			case DBColumns.MESSAGE_TYPE_SYS:
 				account = fromAccount;
@@ -197,6 +208,9 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 					MessageInfo info = messages.get(0);
 					tvTitleName.setText(info.getFrom().getName());
 				}
+
+				mEngine.setReadedMessage(account,mUser.getAccount(),messageType);
+
 				break;
 		}
 
@@ -439,6 +453,19 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 				etInput.requestFocus();
 			}
 		}, 100);
+
+		//启动消息监听
+		mNewMessageReceiver = new NewMessageReceiver();
+		IntentFilter newMsgFilter = new IntentFilter();
+		newMsgFilter.addAction(ChatService.MESSAGE_DATA_CHANGED);
+		registerReceiver(mNewMessageReceiver,newMsgFilter);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		unregisterReceiver(mNewMessageReceiver);
 	}
 
 	/**
@@ -503,6 +530,39 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 	@Override
 	public void onError(int type) {
 
+	}
+
+	/**
+	 * 监听新消息
+	 */
+	private class NewMessageReceiver extends BroadcastReceiver{
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			//消息状态改变,刷新
+			switch (messageType) {
+				case DBColumns.MESSAGE_TYPE_CONTACT:
+					messages = mEngine.getContactMessages(account, ChatActivity.this);
+					//修改消息状态为已读
+					mEngine.setReadedMessage(account,mUser.getAccount(),messageType);
+
+					break;
+				case DBColumns.MESSAGE_TYPE_GROUP:
+					messages = mEngine.getGroupMessages(account, ChatActivity.this);
+					//修改消息状态为已读
+					mEngine.setReadedMessage(null,account,messageType);
+
+					break;
+				case DBColumns.MESSAGE_TYPE_SYS:
+					messages = mEngine.getSystemMessages(account, ChatActivity.this);
+					//修改消息状态为已读
+					mEngine.setReadedMessage(account,mUser.getAccount(),messageType);
+
+					break;
+			}
+
+			mChatAdapter.setMessages(messages);
+			mChatAdapter.notifyDataSetChanged();
+		}
 	}
 
 }

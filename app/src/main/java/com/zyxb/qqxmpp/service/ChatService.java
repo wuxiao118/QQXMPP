@@ -37,6 +37,12 @@ public class ChatService extends Service {
     //数据改变
     public static final String USER_DATA_CHANGED = "com.zyxb.qqxmpp.USER_DATA_CHANGED";
     public static final String MESSAGE_DATA_CHANGED = "com.zyxb.qqxmpp.MESSAGE_DATA_CHANGED";
+    public static final int USER_ADD = 1;
+    public static final int USER_DELETE = 2;
+    public static final int USER_UPDATE = 3;
+    public static final int MESSAGE_ADD = 10;
+    public static final int MESSAGE_DELETE = 11;
+    public static final int MESSAGE_UPDATE =12;
 
     public static final int SERVER_CONNECTED_USER_LOGIN = 1;
     public static final int SERVER_CONNECTED_USER_REJECTED = 2;
