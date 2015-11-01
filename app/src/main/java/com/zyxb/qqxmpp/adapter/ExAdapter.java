@@ -36,6 +36,10 @@ public class ExAdapter extends BaseExpandableListAdapter implements
 		this.groups = groups;
 	}
 
+	public void setGroups(List<FriendGroupInfo> groups){
+		this.groups = groups;
+	}
+
 	@Override
 	public Object getChild(int groupPosition, int childPosition) {
 		if (groupPosition == 0) {

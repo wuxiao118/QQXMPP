@@ -5,12 +5,13 @@ public class Const {
 	// connect
 	public static final String XMPP_HOST = "xmpp_host";
 	public static final String XMPP_PORT = "xmpp_port";
-	public static final String XMPP_HOST_DEFAULT = "192.168.1.100";
+	public static final String XMPP_HOST_DEFAULT = "192.168.1.101";
 	public static final int XMPP_PORT_DEFAULT = 5222;
 	public static final String XMPP_SMACKDEBUG = "xmpp_smackdebug";
 	public static final String XMPP_REQUIRE_TLS = "xmpp_require_tls";
 	public static final String XMPP_CUSTOM_SERVER = "xmpp_custom_server";
 	public static final String XMPP_RESSOURCE = "xmpp_ressource";
+	public static final String XMPP_DOMAIN = "xmpp_domain";
 
 	// message
 	public static final String XMPP_MESSAGE_CARBONS = "xmpp_message_carbons";

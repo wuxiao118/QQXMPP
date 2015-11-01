@@ -1,7 +1,5 @@
 package com.zyxb.qqxmpp.db.dao;
 
-import java.util.List;
-
 import android.content.Context;
 
 import com.zyxb.qqxmpp.bean.XMPPUser;
@@ -9,6 +7,8 @@ import com.zyxb.qqxmpp.bean.po.DBFriendGroup;
 import com.zyxb.qqxmpp.bean.po.DBFriendGroupMapping;
 import com.zyxb.qqxmpp.bean.po.DBUser;
 import com.zyxb.qqxmpp.db.dao.impl.AbstractDBBaseDao;
+
+import java.util.List;
 
 public abstract class DBFriendGroupMappingDAO extends
 		AbstractDBBaseDao<DBFriendGroupMapping> {
@@ -45,6 +45,9 @@ public abstract class DBFriendGroupMappingDAO extends
 	public abstract String getMaxAccount();
 
 	public abstract void update(String userAccount, XMPPUser contact);
+
+	public abstract void updateXMPPFriendState(String userAccount,String jid,int status);
+	//public abstract void updateXMPPFriendState(String jid,int status);
 
 	public abstract DBUser find(XMPPUser ur) ;
 	// public abstract List<DBFriendGroupMapping> findMappingByUser(DBUser

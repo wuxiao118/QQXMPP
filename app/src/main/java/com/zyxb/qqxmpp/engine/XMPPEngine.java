@@ -37,14 +37,18 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Registration;
 import org.jivesoftware.smack.packet.RosterPacket;
+import org.jivesoftware.smack.provider.PrivacyProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.FormField;
+import org.jivesoftware.smackx.GroupChatInvitation;
 import org.jivesoftware.smackx.OfflineMessageManager;
+import org.jivesoftware.smackx.PrivateDataManager;
 import org.jivesoftware.smackx.ReportedData;
 import org.jivesoftware.smackx.ReportedData.Row;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.bytestreams.socks5.provider.BytestreamsProvider;
 import org.jivesoftware.smackx.carbons.Carbon;
 import org.jivesoftware.smackx.carbons.CarbonManager;
 import org.jivesoftware.smackx.filetransfer.FileTransferListener;
@@ -52,19 +56,34 @@ import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
 import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
-import org.jivesoftware.smackx.forward.Forwarded;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.HostedRoom;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.packet.ChatStateExtension;
 import org.jivesoftware.smackx.packet.DelayInfo;
+import org.jivesoftware.smackx.packet.LastActivity;
+import org.jivesoftware.smackx.packet.OfflineMessageInfo;
+import org.jivesoftware.smackx.packet.OfflineMessageRequest;
+import org.jivesoftware.smackx.packet.SharedGroupsInfo;
 import org.jivesoftware.smackx.packet.VCard;
 import org.jivesoftware.smackx.ping.PingManager;
-import org.jivesoftware.smackx.ping.provider.PingProvider;
-import org.jivesoftware.smackx.provider.DelayInfoProvider;
+import org.jivesoftware.smackx.provider.AdHocCommandDataProvider;
+import org.jivesoftware.smackx.provider.DataFormProvider;
+import org.jivesoftware.smackx.provider.DelayInformationProvider;
 import org.jivesoftware.smackx.provider.DiscoverInfoProvider;
-import org.jivesoftware.smackx.receipts.DeliveryReceipt;
+import org.jivesoftware.smackx.provider.DiscoverItemsProvider;
+import org.jivesoftware.smackx.provider.MUCAdminProvider;
+import org.jivesoftware.smackx.provider.MUCOwnerProvider;
+import org.jivesoftware.smackx.provider.MUCUserProvider;
+import org.jivesoftware.smackx.provider.MessageEventProvider;
+import org.jivesoftware.smackx.provider.MultipleAddressesProvider;
+import org.jivesoftware.smackx.provider.RosterExchangeProvider;
+import org.jivesoftware.smackx.provider.StreamInitiationProvider;
+import org.jivesoftware.smackx.provider.VCardProvider;
+import org.jivesoftware.smackx.provider.XHTMLExtensionProvider;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
+import org.jivesoftware.smackx.search.UserSearch;
 import org.jivesoftware.smackx.search.UserSearchManager;
 
 import java.io.BufferedInputStream;
@@ -105,7 +124,12 @@ import java.util.concurrent.CountDownLatch;
  *         <p/>
  *         要解决问题:
  *         信息更新(用户、消息)  只完成新消息的添加和消息状态的改变,删除未做  OK 1/2
- *         好友状态不能更新(在线显示但是没有收到在线presence)
+ *         <p/>
+ *         好友状态不能更新(在线显示但是没有收到在线presence)  OK
+ *         将openfire中的当前user的每一个roster的subcribtion属性改为both。
+ *         其含义是：好友双方可以互相订阅对方的状态，这样当好友的一方上线之后，就会通知好友的另一方，也就可以获取到其在线状态了
+ *         <p/>
+ *         将耗时或者可能导致ANR的代码改为线程
  */
 @SuppressLint("DefaultLocale")
 public class XMPPEngine {
@@ -155,27 +179,166 @@ public class XMPPEngine {
 
     static void registerSmackProviders() {
         ProviderManager pm = ProviderManager.getInstance();
-        // add IQ handling
+//        // add IQ handling
+//        pm.addIQProvider("query", "http://jabber.org/protocol/disco#info",
+//                new DiscoverInfoProvider());
+//        // add delayed delivery notifications
+//        pm.addExtensionProvider("delay", "urn:xmpp:delay",
+//                new DelayInfoProvider());
+//        pm.addExtensionProvider("x", "jabber:x:delay", new DelayInfoProvider());
+//        // add carbons and forwarding
+//        pm.addExtensionProvider("forwarded", Forwarded.NAMESPACE,
+//                new Forwarded.Provider());
+//        pm.addExtensionProvider("sent", Carbon.NAMESPACE, new Carbon.Provider());
+//        pm.addExtensionProvider("received", Carbon.NAMESPACE,
+//                new Carbon.Provider());
+//        // User Search
+//        pm.addIQProvider("query", "jabber:iq:search", new UserSearch.Provider());
+//        // add delivery receipts
+//        pm.addExtensionProvider(DeliveryReceipt.ELEMENT,
+//                DeliveryReceipt.NAMESPACE, new DeliveryReceipt.Provider());
+//        pm.addExtensionProvider(DeliveryReceiptRequest.ELEMENT,
+//                DeliveryReceipt.NAMESPACE,
+//                new DeliveryReceiptRequest.Provider());
+//        // add XMPP Ping (XEP-0199)
+//        pm.addIQProvider("ping", "urn:xmpp:ping", new PingProvider());
+
+        // Private Data Storage
+        pm.addIQProvider("query", "jabber:iq:private",
+                new PrivateDataManager.PrivateDataIQProvider());
+
+        // Time
+        try {
+            pm.addIQProvider("query", "jabber:iq:time",
+                    Class.forName("org.jivesoftware.smackx.packet.Time"));
+        } catch (ClassNotFoundException e) {
+            Log.w("TestClient",
+                    "Can't load class for org.jivesoftware.smackx.packet.Time");
+        }
+
+        // Roster Exchange
+        pm.addExtensionProvider("x", "jabber:x:roster",
+                new RosterExchangeProvider());
+
+        // Message Events
+        pm.addExtensionProvider("x", "jabber:x:event",
+                new MessageEventProvider());
+
+        // Chat State
+        pm.addExtensionProvider("active",
+                "http://jabber.org/protocol/chatstates",
+                new ChatStateExtension.Provider());
+        pm.addExtensionProvider("composing",
+                "http://jabber.org/protocol/chatstates",
+                new ChatStateExtension.Provider());
+        pm.addExtensionProvider("paused",
+                "http://jabber.org/protocol/chatstates",
+                new ChatStateExtension.Provider());
+        pm.addExtensionProvider("inactive",
+                "http://jabber.org/protocol/chatstates",
+                new ChatStateExtension.Provider());
+        pm.addExtensionProvider("gone",
+                "http://jabber.org/protocol/chatstates",
+                new ChatStateExtension.Provider());
+
+        // XHTML
+        pm.addExtensionProvider("html", "http://jabber.org/protocol/xhtml-im",
+                new XHTMLExtensionProvider());
+
+        // Group Chat Invitations
+        pm.addExtensionProvider("x", "jabber:x:conference",
+                new GroupChatInvitation.Provider());
+
+        // Service Discovery # Items
+        pm.addIQProvider("query", "http://jabber.org/protocol/disco#items",
+                new DiscoverItemsProvider());
+
+        // Service Discovery # Info
         pm.addIQProvider("query", "http://jabber.org/protocol/disco#info",
                 new DiscoverInfoProvider());
-        // add delayed delivery notifications
-        pm.addExtensionProvider("delay", "urn:xmpp:delay",
-                new DelayInfoProvider());
-        pm.addExtensionProvider("x", "jabber:x:delay", new DelayInfoProvider());
-        // add carbons and forwarding
-        pm.addExtensionProvider("forwarded", Forwarded.NAMESPACE,
-                new Forwarded.Provider());
-        pm.addExtensionProvider("sent", Carbon.NAMESPACE, new Carbon.Provider());
-        pm.addExtensionProvider("received", Carbon.NAMESPACE,
-                new Carbon.Provider());
-        // add delivery receipts
-        pm.addExtensionProvider(DeliveryReceipt.ELEMENT,
-                DeliveryReceipt.NAMESPACE, new DeliveryReceipt.Provider());
-        pm.addExtensionProvider(DeliveryReceiptRequest.ELEMENT,
-                DeliveryReceipt.NAMESPACE,
-                new DeliveryReceiptRequest.Provider());
-        // add XMPP Ping (XEP-0199)
-        pm.addIQProvider("ping", "urn:xmpp:ping", new PingProvider());
+
+        // Data Forms
+        pm.addExtensionProvider("x", "jabber:x:data", new DataFormProvider());
+
+        // MUC User
+        pm.addExtensionProvider("x", "http://jabber.org/protocol/muc#user",
+                new MUCUserProvider());
+
+        // MUC Admin
+        pm.addIQProvider("query", "http://jabber.org/protocol/muc#admin",
+                new MUCAdminProvider());
+
+        // MUC Owner
+        pm.addIQProvider("query", "http://jabber.org/protocol/muc#owner",
+                new MUCOwnerProvider());
+
+        // Delayed Delivery
+        pm.addExtensionProvider("x", "jabber:x:delay",
+                new DelayInformationProvider());
+
+        // Version
+        try {
+            pm.addIQProvider("query", "jabber:iq:version",
+                    Class.forName("org.jivesoftware.smackx.packet.Version"));
+        } catch (ClassNotFoundException e) {
+            // Not sure what's happening here.
+        }
+
+        // VCard
+        pm.addIQProvider("vCard", "vcard-temp", new VCardProvider());
+
+        // Offline Message Requests
+        pm.addIQProvider("offline", "http://jabber.org/protocol/offline",
+                new OfflineMessageRequest.Provider());
+
+        // Offline Message Indicator
+        pm.addExtensionProvider("offline",
+                "http://jabber.org/protocol/offline",
+                new OfflineMessageInfo.Provider());
+
+        // Last Activity
+        pm.addIQProvider("query", "jabber:iq:last", new LastActivity.Provider());
+
+        // User Search
+        pm.addIQProvider("query", "jabber:iq:search", new UserSearch.Provider());
+
+        // SharedGroupsInfo
+        pm.addIQProvider("sharedgroup",
+                "http://www.jivesoftware.org/protocol/sharedgroup",
+                new SharedGroupsInfo.Provider());
+
+        // JEP-33: Extended Stanza Addressing
+        pm.addExtensionProvider("addresses",
+                "http://jabber.org/protocol/address",
+                new MultipleAddressesProvider());
+
+        // FileTransfer
+        pm.addIQProvider("si", "http://jabber.org/protocol/si",
+                new StreamInitiationProvider());
+
+        pm.addIQProvider("query", "http://jabber.org/protocol/bytestreams",
+                new BytestreamsProvider());
+
+        // Privacy
+        pm.addIQProvider("query", "jabber:iq:privacy", new PrivacyProvider());
+        pm.addIQProvider("command", "http://jabber.org/protocol/commands",
+                new AdHocCommandDataProvider());
+        pm.addExtensionProvider("malformed-action",
+                "http://jabber.org/protocol/commands",
+                new AdHocCommandDataProvider.MalformedActionError());
+        pm.addExtensionProvider("bad-locale",
+                "http://jabber.org/protocol/commands",
+                new AdHocCommandDataProvider.BadLocaleError());
+        pm.addExtensionProvider("bad-payload",
+                "http://jabber.org/protocol/commands",
+                new AdHocCommandDataProvider.BadPayloadError());
+        pm.addExtensionProvider("bad-sessionid",
+                "http://jabber.org/protocol/commands",
+                new AdHocCommandDataProvider.BadSessionIDError());
+        pm.addExtensionProvider("session-expired",
+                "http://jabber.org/protocol/commands",
+                new AdHocCommandDataProvider.SessionExpiredError());
+
 
         ServiceDiscoveryManager.setIdentityName(XMPP_IDENTITY_NAME);
         ServiceDiscoveryManager.setIdentityType(XMPP_IDENTITY_TYPE);
@@ -321,6 +484,9 @@ public class XMPPEngine {
             // 更新在线状态
             setStatusFromConfig();
 
+            //获取好友在线状态,不需要
+            //setFriendStatus();
+
             // 注册监听其他的事件，比如新消息
             registerAllListener();
 
@@ -337,6 +503,44 @@ public class XMPPEngine {
         }
 
         return mXMPPConnection.isAuthenticated();
+    }
+
+    //好友状态
+    private void setFriendStatus() {
+        Roster roster = mXMPPConnection.getRoster();
+        Collection<RosterEntry> entries = roster.getEntries();
+        //Collection<RosterGroup> entriesGroup = roster.getGroups();
+
+        //下面通过设置sleep(1000)使程序暂定1秒钟，来获取其好友列表及好友的在线状态；
+        //如果不设置sleep(1000)，则程序获取在线好友会不稳定，有时可以获取到，有时获取不到。
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        for (RosterEntry entry : entries) {
+            //获取好友在线状态
+            Presence presence = roster.getPresence(entry.getUser());
+            //User user = new User();
+            //user.setName(entry.getName());
+            //user.setUser(entry.getUser());
+            //user.setType(entry.getType());
+            //user.setSize(entry.getGroups().size());
+            //user.setStatus(presence.getStatus());
+            //user.setFrom(presence.getFrom());
+            //userInfos.add(user);
+            //Toast.makeText(FriendsActivity.this, "User:" + entry.getUser(), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(FriendsActivity.this, "isAvailable:" + presence.isAvailable(), Toast.LENGTH_SHORT).show();
+            String jid = entry.getUser();
+            if (presence.isAvailable() == true)   //判断好友是否在线
+            {
+                //相应的逻辑操作
+            }
+            Logger.d(TAG, "好友:" + jid + " " + (presence.isAvailable() ? "在线" : "不在线"));
+        }
+
     }
 
     /**************************** 登陆后联系人变化,消息变化等 ********************************/
@@ -360,10 +564,16 @@ public class XMPPEngine {
 
                 // 更新联系人状态
                 String jabberID = getJabberID(presence.getFrom());
-                RosterEntry rosterEntry = mRoster.getEntry(jabberID);
+                //RosterEntry rosterEntry = mRoster.getEntry(jabberID);
 
-                //TODO 仅更新用户对应好友的状态
+                //获取自己jid
 
+
+                //仅更新用户对应好友的状态
+                //mDataEngine.updateXMPPUserState(jabberID,status);
+                mDataEngine.updateXMPPFriendState(jabberID, getFriendStatus(presence));
+                // 更新好友状态
+                sendUserChangedIntent(ChatService.USER_UPDATE);
             }
 
             @Override
@@ -400,8 +610,8 @@ public class XMPPEngine {
                     RosterEntry rosterEntry = mRoster.getEntry(entry);
                     Logger.i(TAG, rosterEntry.getUser() + "," + rosterEntry.getName() + "," + rosterEntry.getGroups() + ","
                             + rosterEntry.getStatus() + "," + rosterEntry.getType());
-                    //TODO 仅删除用户与好友的对应关系
-
+                    //仅删除用户与好友的对应关系
+                    mDataEngine.deleteXMPPUser(rosterEntry.getUser());
                 }
             }
 
@@ -432,12 +642,71 @@ public class XMPPEngine {
         mRoster.addRosterListener(mRosterListener);
     }
 
+    //获取好友状态，转换为自定义的类型
+    private int getFriendStatus(Presence presence) {
+        Presence.Mode mode = presence.getMode();
+        String status = presence.getStatus();
+        if (status == null) status = "";
+        Presence.Type type = presence.getType();
+        Logger.d(TAG, "mode:" + mode + ",status" + status + ",type:" + type);//null 在线 avaliable
+
+//           if (mode == Mode.available) {
+//               if(mode == Mode.away){
+//                   //离开
+//                   return Const.LOGIN_STATE_ALWAY;
+//               }else if(mode == Mode.chat){
+//                   //聊天
+//                   return Const.LOGIN_STATE_LEAVE_MESSAGE;
+//               }else if(mode == Mode.dnd){
+//                   //请勿打扰
+//                   return Const.LOGIN_STATE_BUSY;
+//               }else if(mode == Mode.xa){
+//                   //Away for an extended period of time
+//                   return Const.LOGIN_STATE_ALWAY;
+//               }
+//
+//               return Const.LOGIN_STATE_ONLINE;
+//           }
+        if (type == Presence.Type.available) {
+            //在线
+            if (mode == Mode.away) {
+                //离开
+                return Const.LOGIN_STATE_ALWAY;
+            } else if (mode == Mode.chat) {
+                //聊天
+                return Const.LOGIN_STATE_LEAVE_MESSAGE;
+            } else if (mode == Mode.dnd) {
+                //请勿打扰
+                return Const.LOGIN_STATE_BUSY;
+            } else if (mode == Mode.xa) {
+                //Away for an extended period of time
+                return Const.LOGIN_STATE_ALWAY;
+            }
+
+            return Const.LOGIN_STATE_ONLINE;
+        } else if (type == Presence.Type.unavailable) {
+            //不在线
+
+            //TODO 获取隐身状态
+        }
+
+
+        return Const.LOGIN_STATE_OFFLINE;
+    }
+
     private XMPPUser getXMPPUser(RosterEntry rs) {
         XMPPUser xmppUser = new XMPPUser();
         String jid = rs.getUser();
         xmppUser.setJid(jid);
         String nickname = rs.getName();
         xmppUser.setNickname(nickname);
+
+        //获取domain,并设置,不行,所有好友,可能不是当前服务器的,要在状态改变中获取自己的jid才行
+//        String domain = SharedPreferencesUtils.getString(mContext, Const.XMPP_DOMAIN, "");
+//        String serverDomain = jid.substring(jid.indexOf("@") + 1);
+//        if (!domain.equals(serverDomain)) {
+//            SharedPreferencesUtils.setString(mContext, Const.XMPP_DOMAIN, serverDomain);
+//        }
 
         //Logger.d(TAG,"jid:" + jid + ",nickname:" + nickname);
         Collection<RosterGroup> groups = rs.getGroups();
@@ -453,7 +722,7 @@ public class XMPPEngine {
 
         RosterPacket.ItemStatus itemStatus = rs.getStatus();
         RosterPacket.ItemType itemType = rs.getType();
-        Logger.d(TAG, "status:" + itemStatus + ",type:" + itemType);
+        Logger.d(TAG, "jid:" + jid + ",status:" + itemStatus + ",type:" + itemType);
 
         return xmppUser;
     }
@@ -501,7 +770,7 @@ public class XMPPEngine {
                                           String receiptId) {
                 Logger.d(TAG, "got delivery receipt for " + receiptId);
 
-                // TODO 修改消息状态为对方已经收到
+                // 修改消息状态为对方已经收到
                 mDataEngine.updateXMPPMessageState(receiptId, DBColumns.MESSAGE_STATE_RECEIVED);
                 sendMessageChangedIntent(ChatService.MESSAGE_UPDATE);
             }
@@ -1049,6 +1318,12 @@ public class XMPPEngine {
         try {
             mXMPPConnection.getRoster().createGroup(groupName);
             Log.v("addGroup", groupName + "創建成功");
+
+            // 写入本地数据库
+            mDataEngine.addNewFriendGroup(groupName);
+            //发送好友信息变化
+            sendUserChangedIntent(ChatService.USER_UPDATE);
+
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -1142,32 +1417,58 @@ public class XMPPEngine {
      * @param userName 用户名称
      * @return 是否存在
      */
-    public List<HashMap<String, String>> searchUsers(String userName) {
+    //public List<HashMap<String, String>> searchUsers(String userName) {
+    public ArrayList<String> searchUsers(String userName) {
         if (mXMPPConnection == null)
             return null;
-        HashMap<String, String> user;
-        List<HashMap<String, String>> results = new ArrayList<HashMap<String, String>>();
+        //HashMap<String, String> user;
+        //List<HashMap<String, String>> results = new ArrayList<HashMap<String, String>>();
+        ArrayList<String> results = new ArrayList<String>();
         try {
-            new ServiceDiscoveryManager(mXMPPConnection);
-            UserSearchManager usm = new UserSearchManager(mXMPPConnection);
-            Form searchForm = usm.getSearchForm(mXMPPConnection
-                    .getServiceName());
+//            new ServiceDiscoveryManager(mXMPPConnection);
+//            UserSearchManager usm = new UserSearchManager(mXMPPConnection);
+//            Form searchForm = usm.getSearchForm(mXMPPConnection
+//                    .getServiceName());
+//            Form answerForm = searchForm.createAnswerForm();
+//            answerForm.setAnswer("userAccount", true);
+//            answerForm.setAnswer("userPhote", userName);
+//            ReportedData data = usm.getSearchResults(answerForm, "search"
+//                    + mXMPPConnection.getServiceName());
+//            Iterator<Row> it = data.getRows();
+//            Row row;
+//            while (it.hasNext()) {
+//                user = new HashMap<String, String>();
+//                row = it.next();
+//                user.put("userAccount", row.getValues("userAccount").next()
+//                        .toString());
+//                user.put("userPhote", row.getValues("userPhote").next()
+//                        .toString());
+//                results.add(user);
+//                // 若存在，则有返回,UserName一定非空，其他两个若是有设，一定非空
+//
+//                Logger.d(TAG,"userAccount:" + user.get("userAccount") + ",userPhote:" + user.get("userPhote"));
+//            }
+
+            UserSearchManager search = new UserSearchManager(mXMPPConnection);
+            //此处一定要加上 search.
+            Form searchForm = search.getSearchForm("search." + mXMPPConnection.getServiceName());
             Form answerForm = searchForm.createAnswerForm();
-            answerForm.setAnswer("userAccount", true);
-            answerForm.setAnswer("userPhote", userName);
-            ReportedData data = usm.getSearchResults(answerForm, "search"
-                    + mXMPPConnection.getServiceName());
+            answerForm.setAnswer("Username", true);
+            answerForm.setAnswer("search", userName);
+            ReportedData data = search.getSearchResults(answerForm, "search." + mXMPPConnection.getServiceName());
             Iterator<Row> it = data.getRows();
             Row row;
             while (it.hasNext()) {
-                user = new HashMap<String, String>();
+                //user = new HashMap<String, String>();
                 row = it.next();
-                user.put("userAccount", row.getValues("userAccount").next()
-                        .toString());
-                user.put("userPhote", row.getValues("userPhote").next()
-                        .toString());
-                results.add(user);
-                // 若存在，则有返回,UserName一定非空，其他两个若是有设，一定非空
+                //user.put("username", row.getValues("Username").next().toString() + mXMPPConnection.getHost());
+                //results.add(user);
+                //Logger.d(TAG, "username:" + user.get("username"));
+//                String username = row.getValues("Username").next().toString() + "@" + SharedPreferencesUtils.getString(mContext, Const.XMPP_DOMAIN, "");
+                String username = row.getValues("Username").next().toString() + "@" + mXMPPConnection.getServiceName();
+                results.add(username);
+
+                //Logger.d(TAG, "username:" + username);
             }
         } catch (XMPPException e) {
             e.printStackTrace();
@@ -1433,6 +1734,7 @@ public class XMPPEngine {
      * @param filePath 文件路径
      */
     public void sendFile(String user, String filePath) {
+        Logger.d(TAG, "send file:" + filePath + " to:" + user);
         if (mXMPPConnection == null)
             return;
         // 创建文件传输管理器
@@ -1548,7 +1850,7 @@ public class XMPPEngine {
     public int IsUserOnLine(String user) {
         String url = "http://"
                 + SharedPreferencesUtils.getString(mContext, Const.XMPP_HOST,
-                "192.168.1.100")
+                "192.168.1.101")
                 + ":9090/plugins/presence/status?"
                 + "jid="
                 + user

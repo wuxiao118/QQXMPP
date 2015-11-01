@@ -1,13 +1,13 @@
 package com.zyxb.qqxmpp.db.dao;
 
-import java.util.List;
-
 import android.content.Context;
 
 import com.zyxb.qqxmpp.bean.XMPPUser;
 import com.zyxb.qqxmpp.bean.po.DBFriendGroup;
 import com.zyxb.qqxmpp.bean.po.DBUser;
 import com.zyxb.qqxmpp.db.dao.impl.AbstractDBBaseDao;
+
+import java.util.List;
 
 public abstract class DBFriendGroupDAO extends
 		AbstractDBBaseDao<DBFriendGroup> {
@@ -23,4 +23,6 @@ public abstract class DBFriendGroupDAO extends
 	public abstract DBUser find(XMPPUser ur);
 
 	public abstract String getMaxAccount() ;
+
+	public abstract void add(String userAccount,String friendGroupName);
 }

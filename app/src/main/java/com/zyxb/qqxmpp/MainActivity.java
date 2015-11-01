@@ -43,8 +43,9 @@ import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
  *
  * 待研究问题:大量使用braodcast是否对性能影响大?使用接口回调如何?
  *
- * 下一步:
- * 发送文件功能
+ * 下一步(xmpp下):
+ * 发送文件功能(发送图片,视频,文件) 发送文件OK
+ * 添加好友  OK
  * 聊天室
  * 删除多余的代码及注释
  * 抽取broadcast部分,形成抽象公共基类,  MainActivity怎么处理?
@@ -94,6 +95,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 
 	//处理联系人及消息变化
 	private ContactMessageChangedReceiver mContactMessageChangedReceiver;
+	//处理添加好友、分组
+	//private ContactFriendGroupAndFriendReceiver mContactFriendGroupAndFriendReceiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -442,21 +445,20 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 	 * @author Administrator
 	 *
 	 */
-	private class MessageReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
-			Logger.d(TAG, "action:" + action);
-
-			if(action.equals(ChatService.USER_DATA_CHANGED)){
-
-			}else if(action.equals(ChatService.MESSAGE_DATA_CHANGED)){
-
-			}
-		}
-
-	}
+//	private class MessageReceiver extends BroadcastReceiver {
+//
+//		@Override
+//		public void onReceive(Context context, Intent intent) {
+//			String action = intent.getAction();
+//			Logger.d(TAG, "action:" + action);
+//
+//			if(action.equals(ChatService.USER_DATA_CHANGED)){
+//
+//			}else if(action.equals(ChatService.MESSAGE_DATA_CHANGED)){
+//
+//			}
+//		}
+//	}
 
 	@Override
 	protected void onResume() {
@@ -479,6 +481,13 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 		cmFilter.addAction(ChatService.MESSAGE_DATA_CHANGED);
 		cmFilter.addAction(ChatService.USER_DATA_CHANGED);
 		registerReceiver(mContactMessageChangedReceiver,cmFilter);
+
+		//好友、好友分组
+		//mContactFriendGroupAndFriendReceiver = new ContactFriendGroupAndFriendReceiver();
+		//IntentFilter cfFilter = new IntentFilter();
+		//cfFilter.addAction(ChatService.USER_CREATE_FRIEND_GROUP_SUCCESS);
+		//cfFilter.addAction(ChatService.USER_CREATE_FRIEND_GROUP_FAILED);
+		//registerReceiver(mContactMessageChangedReceiver,cfFilter);
 	}
 
 	@Override
@@ -487,6 +496,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 
 		unregisterReceiver(mConnectReceiver);
 		unregisterReceiver(mContactMessageChangedReceiver);
+		//unregisterReceiver(mContactFriendGroupAndFriendReceiver);
 	}
 
 	private class ContactMessageChangedReceiver extends BroadcastReceiver{
@@ -502,6 +512,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 				case ChatService.USER_DELETE:
 					break;
 				case ChatService.USER_UPDATE:
+					//更新好友状态信息
+					if(state == Const.FRAGMENT_STATE_CONTACT){
+						mContactFragment.updateContact();
+					}
+
 					break;
 				case ChatService.MESSAGE_ADD:
 					//更新未读消息数
@@ -528,5 +543,21 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 //			}
 		}
 	}
+
+	/**
+	 * 添加好友分组和好友
+	 */
+//	private class ContactFriendGroupAndFriendReceiver extends BroadcastReceiver{
+//		@Override
+//		public void onReceive(Context context, Intent intent) {
+//			String action = intent.getAction();
+//
+//			if(action.equals(ChatService.USER_CREATE_FRIEND_GROUP_SUCCESS)){
+//				//分组添加成功
+//			}else if(action.equals(ChatService.USER_CREATE_FRIEND_GROUP_FAILED)){
+//				//分组添加失败
+//			}
+//		}
+//	}
 
 }

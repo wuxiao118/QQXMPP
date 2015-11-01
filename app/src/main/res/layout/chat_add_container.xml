@@ -45,7 +45,60 @@
             android:text="位置"
             android:textColor="@color/gray" />
 
+        <TextView
+            android:id="@+id/tvMsgAddFile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:drawablePadding="10dp"
+            android:drawableTop="@drawable/btn_chat_add_location_selector"
+            android:gravity="center"
+            android:text="文件"
+            android:textColor="@color/gray" />
+
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:weightSum="4" >
+
+        <TextView
+            android:id="@+id/tvMsgAddRealTimeVideo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:drawablePadding="10dp"
+            android:drawableTop="@drawable/btn_chat_add_picture_selector"
+            android:gravity="center"
+            android:text="视频"
+            android:textColor="@color/gray" />
+
+        <TextView
+            android:id="@+id/tvMsgAddShake"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:drawablePadding="10dp"
+            android:drawableTop="@drawable/btn_chat_add_picture_selector"
+            android:gravity="center"
+            android:text="抖一抖"
+            android:textColor="@color/gray" />
+
+        <TextView
+            android:id="@+id/tvMsgAddMusic"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:drawablePadding="10dp"
+            android:drawableTop="@drawable/btn_chat_add_picture_selector"
+            android:gravity="center"
+            android:text="音乐"
+            android:textColor="@color/gray" />
+        </LinearLayout>
 
 
 </LinearLayout>

@@ -12,6 +12,7 @@ import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.db.dao.DBFriendGroupDAO;
 import com.zyxb.qqxmpp.db.dao.DBFriendGroupMappingDAO;
 import com.zyxb.qqxmpp.db.dao.DBUserDAO;
+import com.zyxb.qqxmpp.util.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -476,6 +477,63 @@ public class DBFriendGroupMappingDAOImpl extends DBFriendGroupMappingDAO {
 				add(mp);
 			}
 		}
+	}
+
+	@Override
+	public void updateXMPPFriendState(String userAccount, String jid, int status) {
+	//public void updateXMPPFriendState(String jid, int status) {
+		Logger.d("db","user:" + userAccount + ",jid:" + jid + ",status:" + status);
+		//更新对应状态
+		db = getTransactionDB();
+
+		//根据jid查询user_account
+		//String userAccount = userDao.findByName(jid).getAccount();
+		DBUser contact = userDao.findByName(jid);
+		if(contact == null){
+			//抛出异常,暂时不做
+			return;
+		}
+
+		String contactAccount = contact.getAccount();
+		//update friend_state set login_state=5 where user_account='100120' and
+		// exists(select * from friend_group where account='33' and user_account='100118');
+		//group_account不好获取
+//		db.execSQL("UPDATE " +DBColumns.FRIEND_STATE_TABLE_NAME
+//				+ " SET " + DBColumns.FRIEND_STATE_LOGIN_STATE + "=? WHERE "
+//				+ DBColumns.FRIEND_STATE_USER_ACCOUNT + "=? AND EXISTS(SELECT * FROM "
+//				+ DBColumns.FRIEND_GROUP_TABLE_NAME + " WHERE "
+//				+ DBColumns.FRIEND_GROUP_ACCOUNT + "=? AND "
+//				+ DBColumns.FRIEND_GROUP_USER_ACCOUNT + "=?)"
+//				,new Object[]{status,contactAccount});
+
+		//查询对应的friend_state_account,然后修改
+		//select fs.account
+		// from friend_state fs,friend_group fg
+		// where fs.[user_account]='100120'
+		// and fs.[friend_group_account]=fg.[account]
+		// and fg.[user_account]='100112'
+		Cursor cursor = db.rawQuery("SELECT fs." + DBColumns.FRIEND_STATE_ACCOUNT + " FROM "
+				+ DBColumns.FRIEND_STATE_TABLE_NAME + " fs,"
+				+ DBColumns.FRIEND_GROUP_TABLE_NAME + " fg WHERE fs."
+				+ DBColumns.FRIEND_STATE_USER_ACCOUNT + "=? AND fs."
+				+ DBColumns.FRIEND_STATE_FRIEND_GROUP_ACCOUNT + "=fg."
+				+ DBColumns.FRIEND_GROUP_ACCOUNT + " AND fg."
+				+ DBColumns.FRIEND_GROUP_USER_ACCOUNT + "=?",new String[]{contactAccount,userAccount});
+		String account = null;
+		if(cursor.moveToFirst()){
+			account = cursor.getString(0);
+		}
+		cursor.close();
+
+		if(account == null){
+			//不存在,抛出异常,暂不处理
+			return;
+		}
+
+		//修改状态
+		db.execSQL("UPDATE " + DBColumns.FRIEND_STATE_TABLE_NAME + " SET "
+				+ DBColumns.FRIEND_STATE_LOGIN_STATE + "=? WHERE "
+				+ DBColumns.FRIEND_STATE_ACCOUNT + "=?",new Object[]{status,account});
 	}
 
 	@Override

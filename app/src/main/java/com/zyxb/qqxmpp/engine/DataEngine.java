@@ -51,8 +51,8 @@ public class DataEngine {
 	/**
 	 * 最新消息
 	 *
-	 * @param listener
-	 * @return
+	 * @param listener 数据改变监听器
+	 * @return 最新消息列表
 	 */
 	public List<MessageInfo> getNewest(OnMessageChangeListener listener) {
 
@@ -62,8 +62,8 @@ public class DataEngine {
 	/**
 	 * 好友列表
 	 *
-	 * @param listener
-	 * @return
+	 * @param listener 数据改变监听器
+	 * @return 所有分组信息
 	 */
 	public List<FriendGroupInfo> getFriends(OnUserChangeListener listener) {
 		return DBEngineFactory.getDBFriendGroupEngine(mContext).getFriends(
@@ -71,11 +71,29 @@ public class DataEngine {
 	}
 
 	/**
+	 * 用户好友分组,不需要,可以服用getFriends
+	 *
+	 * @return 分组信息列表
+	 */
+//	public List<GroupInfo> getUserFriendGroups(){
+//
+//		return null;
+//	}
+
+	/**
+	 *
+	 * @param friendGroupName 分组名称
+	 */
+	public void addNewFriendGroup(String friendGroupName){
+		DBEngineFactory.getDBFriendGroupEngine(mContext).addNewFriendGroup(mUser.getAccount(),friendGroupName);
+	}
+
+	/**
 	 * 群聊
 	 *
-	 * @param groupAccount
-	 * @param listener
-	 * @return
+	 * @param groupAccount 群账号
+	 * @param listener 改变监听器,未使用,使用receiver代替
+	 * @return 群消息列表
 	 */
 	public List<MessageInfo> getGroupMessages(String groupAccount,
 											  OnMessageChangeListener listener) {
@@ -87,9 +105,9 @@ public class DataEngine {
 	/**
 	 * 好友聊天
 	 *
-	 * @param contactAccount
-	 * @param listener
-	 * @return
+	 * @param contactAccount 好友账号
+	 * @param listener 改变监听器,未使用,使用receiver代替
+	 * @return 好友聊天消息列表
 	 */
 	public List<MessageInfo> getContactMessages(String contactAccount,
 												OnMessageChangeListener listener) {
@@ -101,9 +119,9 @@ public class DataEngine {
 	/**
 	 * 系统信息
 	 *
-	 * @param sysAccount
-	 * @param listener
-	 * @return
+	 * @param sysAccount 系统消息账号
+	 * @param listener 改变监听器,未使用,使用receiver代替
+	 * @return 系统消息列表
 	 */
 	public List<MessageInfo> getSystemMessages(String sysAccount,
 											   OnMessageChangeListener listener) {
@@ -115,7 +133,7 @@ public class DataEngine {
 	/**
 	 * 群列表
 	 *
-	 * @return
+	 * @return 群类表
 	 */
 	public List<GroupInfo> getGroups() {
 
@@ -125,7 +143,7 @@ public class DataEngine {
 	/**
 	 * 群用户列表
 	 *
-	 * @return
+	 * @return 群用户列表
 	 */
 	public List<Information> getGroupFriends(String groupAccount) {
 
@@ -136,8 +154,8 @@ public class DataEngine {
 	/**
 	 * 获取好友信息
 	 *
-	 * @param account
-	 * @return
+	 * @param account 好友账号
+	 * @return 好友信息
 	 */
 	public DBUser getUserInfo(String account) {
 		return DBEngineFactory.getDBUserEngine(mContext).getUser(account);
@@ -147,8 +165,8 @@ public class DataEngine {
 	/**
 	 * 获取群信息
 	 *
-	 * @param account
-	 * @return
+	 * @param account 群账号
+	 * @return 群信息
 	 */
 	public DBGroup getGroupInfo(String account) {
 
@@ -158,9 +176,9 @@ public class DataEngine {
 	/**
 	 * 登陆
 	 *
-	 * @param username
-	 * @param pwd
-	 * @return
+	 * @param username 用户名
+	 * @param pwd 密码
+	 * @return 登陆用户
 	 */
 	public DBUser login(String username, String pwd) {
 		// DBUserDAO dao = DAOFactory.getDB3UserDAO(mContext);
@@ -185,8 +203,9 @@ public class DataEngine {
 	/**
 	 * 更新已读信息
 	 *
-	 * @param fromAccount
-	 * @param toAccount
+	 * @param fromAccount 消息放松方
+	 * @param toAccount 消息接收方
+	 * @param type 消息状态
 	 */
 	public void setReadedMessage(String fromAccount, String toAccount, int type) {
 		DBMessageEngine engine = DBEngineFactory.getDBMessageEngine(mContext);
@@ -196,8 +215,8 @@ public class DataEngine {
 	/**
 	 * 查找用户未读信息数目
 	 *
-	 * @param userAccount
-	 * @return
+	 * @param userAccount 要查找用户
+	 * @return 该用户未读消息数
 	 */
 	public int getUnReadedMessage(String userAccount) {
 		return DBEngineFactory.getDBMessageEngine(mContext)
@@ -207,9 +226,9 @@ public class DataEngine {
 	/**
 	 * 指定属性查找用户，返回未读信息数目
 	 *
-	 * @param attr
-	 * @param value
-	 * @return
+	 * @param attr 用户属性名
+	 * @param value 用户属性名对应的属性值
+	 * @return 该用户未读消息数
 	 */
 	public int getUnReadedMessage(String attr, String value) {
 		return DBEngineFactory.getDBMessageEngine(mContext)
@@ -219,9 +238,9 @@ public class DataEngine {
 	/**
 	 * 查找用户在群里面的备注
 	 *
-	 * @param groupAccount
-	 * @param userAccount
-	 * @return
+	 * @param groupAccount 群账号
+	 * @param userAccount 群好友账号
+	 * @return 群好友在群中的备注
 	 */
 	public String getGroupRemark(String groupAccount, String userAccount) {
 
@@ -232,8 +251,8 @@ public class DataEngine {
 	/**
 	 * 查找群人数
 	 *
-	 * @param groupAccount
-	 * @return
+	 * @param groupAccount 群账号
+	 * @return 群总人数
 	 */
 	public int getGroupNum(String groupAccount) {
 
@@ -244,8 +263,8 @@ public class DataEngine {
 	/**
 	 * 当前好友信息(包括remark,channel等信息) 不包含自己
 	 *
-	 * @param contactAccount
-	 * @return
+	 * @param contactAccount 好友账号
+	 * @return 好友信息
 	 */
 	public Contact getUserFriend(String contactAccount) {
 		return DBEngineFactory.getDBFriendGroupEngine(mContext).getFriend(
@@ -255,8 +274,9 @@ public class DataEngine {
 	/**
 	 * 群好友信息 包含自己
 	 *
-	 * @param contactAccount
-	 * @return
+	 * @param contactAccount 群好友账号
+	 * @param groupAccount 群账号
+	 * @return 群好友信息
 	 */
 	public Contact getGroupFriend(String groupAccount, String contactAccount) {
 		return DBEngineFactory.getDBGroupEngine(mContext).getFriend(
@@ -266,9 +286,9 @@ public class DataEngine {
 	/**
 	 * 好友备注
 	 *
-	 * @param userAccount
-	 * @param contactAccount
-	 * @return
+	 * @param userAccount 登陆用户账号
+	 * @param contactAccount 好友账号
+	 * @return 好友备注
 	 */
 	public String getRemark(String userAccount, String contactAccount) {
 		return DBEngineFactory.getDBFriendGroupEngine(mContext).getRemark(
@@ -278,8 +298,8 @@ public class DataEngine {
 	/**
 	 * 判断是否为自己好友
 	 *
-	 * @param contactAccount
-	 * @return
+	 * @param contactAccount 好友账号
+	 * @return 是否为自己好友
 	 */
 	public boolean isMyFriend(String contactAccount) {
 		return DBEngineFactory.getDBFriendGroupEngine(mContext).checkFriend(
@@ -289,7 +309,7 @@ public class DataEngine {
 	/**
 	 * 添加消息
 	 *
-	 * @param message
+	 * @param message xmpp消息
 	 * @return 添加message的id
 	 */
 	public String addMessage(XMPPMessage message) {
@@ -300,7 +320,7 @@ public class DataEngine {
 	/**
 	 * 添加收到的xmpp新消息
 	 *
-	 * @param message
+	 * @param message xmpp消息
 	 */
 	public void addNewXMPPMessge(XMPPMessage message) {
 		message.setTo(mUser.getAccount());
@@ -311,7 +331,7 @@ public class DataEngine {
 	/**
 	 * 删除jid用户
 	 *
-	 * @param jid
+	 * @param jid xmpp好友jid
 	 */
 	public void deleteXMPPUser(String jid) {
 		DBEngineFactory.getDBFriendGroupEngine(mContext).delete(
@@ -321,7 +341,7 @@ public class DataEngine {
 	/**
 	 * 添加xmpp好友
 	 *
-	 * @param contact
+	 * @param contact xmpp好友
 	 */
 	public void addXMPPUser(XMPPUser contact) {
 		Logger.d(
@@ -337,17 +357,23 @@ public class DataEngine {
 	/**
 	 * 更新xmpp好友
 	 *
-	 * @param contact
+	 * @param contact xmpp好友
 	 */
 	public void updateXMPPUser(XMPPUser contact) {
 		DBEngineFactory.getDBFriendGroupEngine(mContext).update(
 				mUser.getAccount(), contact);
 	}
 
+	//更新好友状态
+	public void updateXMPPFriendState(String jid,int status){
+		DBEngineFactory.getDBFriendGroupEngine(mContext).updateXMPPFriendState(mUser.getAccount(),jid,status);
+		//DBEngineFactory.getDBFriendGroupEngine(mContext).updateXMPPFriendState(jid,status);
+	}
+
 	/**
 	 * 获取登陆xmpp用户,不存在则添加,并添加默认分组[我的设备,我的好友]
 	 *
-	 * @param ur
+	 * @param ur xmpp好友
 	 */
 	public DBUser getXMPPUser(XMPPUser ur) {
 		// return DBEngineFactory.getDBUserEngine(mContext).find(ur);

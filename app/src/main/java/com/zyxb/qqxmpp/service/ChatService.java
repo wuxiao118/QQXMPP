@@ -13,6 +13,8 @@ import com.zyxb.qqxmpp.util.Const;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
 
+import java.util.ArrayList;
+
 /**
  * 登陆，登出，注册及XMPP相关功能
  *
@@ -76,6 +78,21 @@ public class ChatService extends Service {
     public static final int MESSAGE_TYPE_VIDEO = 3;//视频文件
     public static final int MESSAGE_TYPE_REALTIME_VIDEO = 4;//实时视频
 
+    //好友
+    private CreateFriendGroupReceiver mCreateFriendGroupReceiver;
+    public static final String USER_CREATE_FRIEND_GROUP = "com.zyxb.qqxmpp.USER_CREATE_FRIEND_GROUP";
+    //public static final String USER_CREATE_FRIEND_GROUP_SUCCESS = "com.zyxb.qqxmpp.USER_CREATE_FRIEND_GROUP_SUCCESS";
+    //public static final String USER_CREATE_FRIEND_GROUP_FAILED = "com.zyxb.qqxmpp.USER_CREATE_FRIEND_GROUP_FAILED";
+
+    //发送文件
+    public static final String MESSAGE_SEND_FILE = "com.zyxb.qqxmpp.MESSAGE_SEND_FILE";
+    private SendFileReceiver mSendFileReceiver;
+
+    //搜索用户
+    public static final String USER_SEARCH = "com.zyxb.qqxmpp.USER_SEARCH";
+    private UserSearchReceiver mUserSearchReceiver;
+    public static final String USER_SEARCH_RESULT = "com.zyxb.qqxmpp.USER_SEARCH_RESULT";
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -123,7 +140,23 @@ public class ChatService extends Service {
 
         //服务器改变
 
+        //创建新分组
+        mCreateFriendGroupReceiver = new CreateFriendGroupReceiver();
+        IntentFilter friendGroupIntent = new IntentFilter();
+        friendGroupIntent.addAction(USER_CREATE_FRIEND_GROUP);
+        registerReceiver(mCreateFriendGroupReceiver,friendGroupIntent);
 
+        //发送文件
+        mSendFileReceiver = new SendFileReceiver();
+        IntentFilter sendFileIntent = new IntentFilter();
+        sendFileIntent.addAction(MESSAGE_SEND_FILE);
+        registerReceiver(mSendFileReceiver,sendFileIntent);
+
+        //搜索用户
+        mUserSearchReceiver = new UserSearchReceiver();
+        IntentFilter userSearchIntent = new IntentFilter();
+        userSearchIntent.addAction(USER_SEARCH);
+        registerReceiver(mUserSearchReceiver,userSearchIntent);
     }
 
     @Override
@@ -143,6 +176,9 @@ public class ChatService extends Service {
         unregisterReceiver(mAutoLoginReceiver);
         unregisterReceiver(mRegisterReceiver);
         unregisterReceiver(mMessageReceiver);
+        unregisterReceiver(mCreateFriendGroupReceiver);
+        unregisterReceiver(mSendFileReceiver);
+        unregisterReceiver(mUserSearchReceiver);
     }
 
     @Override
@@ -179,7 +215,6 @@ public class ChatService extends Service {
     /**
      * 登陆
      *
-     * @return
      */
     public void login(String account, String pwd, String ressource) {
         getmEngine();
@@ -200,7 +235,7 @@ public class ChatService extends Service {
     /**
      * 注销
      *
-     * @return
+     * @return 是否登出成功
      */
     public boolean logout() {
         getmEngine();
@@ -210,16 +245,18 @@ public class ChatService extends Service {
 
     public int register(String account, String password) {
         getmEngine();
-        int result = mEngine.regist(account, password);
+        //int result = mEngine.regist(account, password);
 
-        return result;
+        //return result;
+        return mEngine.regist(account,password);
     }
 
     /**
      * 发送消息
      *
-     * @param toJid
-     * @param msg
+     * @param account 消息的id
+     * @param toJid 消息接收方jid
+     * @param msg 消息内容
      */
     public void sendMessage(String account, String toJid, String msg) {
         getmEngine();
@@ -367,6 +404,78 @@ public class ChatService extends Service {
                     //mEngine.sendMessage(id,toJid,message);
                     sendMessage(id,toJid,message);
                     break;
+            }
+        }
+    }
+
+    /**
+     * 创建好友分组
+     */
+    private class CreateFriendGroupReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String groupName = intent.getStringExtra("friendGroupName");
+            mEngine.addGroup(groupName);
+
+//            new Thread(){
+//                @Override
+//                public void run() {
+//                    boolean isCreated = mEngine.addGroup(groupName);
+//                    if(isCreated){
+//                        //创建成功
+//                        Intent createSuccessIntent = new Intent();
+//                        createSuccessIntent.setAction(ChatService.USER_CREATE_FRIEND_GROUP_SUCCESS);
+//                        mService.sendBroadcast(createSuccessIntent);
+//                    }else{
+//                        //创建失败
+//                        Intent createFailIntent = new Intent();
+//                        createFailIntent.setAction(ChatService.USER_CREATE_FRIEND_GROUP_FAILED);
+//                        mService.sendBroadcast(createFailIntent);
+//                    }
+//                }
+//            }.start();
+        }
+    }
+
+    /**
+     * 发送文件
+     */
+    private class SendFileReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String filePath = intent.getStringExtra("filePath");
+            final String toJid = intent.getStringExtra("toJid") + "/Spark 2.6.3";
+
+            //向spark发送文件没问题,接收文件还未调试
+            new Thread(){
+                @Override
+                public void run() {
+                    mEngine.sendFile(toJid,filePath);
+                }
+            }.start();
+        }
+    }
+
+    private class UserSearchReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String username = intent.getStringExtra("username");
+
+            //如果登陆了
+            if (mEngine != null) {
+                //可以搜索到用户
+                new Thread() {
+                    @Override
+                    public void run() {
+                        ArrayList<String> names = mEngine.searchUsers(username);
+
+                        //发送结果result
+                        Intent searchResultIntent = new Intent();
+                        searchResultIntent.setAction(ChatService.USER_SEARCH_RESULT);
+                        searchResultIntent.putStringArrayListExtra("result", names);
+                        mService.sendBroadcast(searchResultIntent);
+                    }
+                }.start();
             }
         }
     }

@@ -525,7 +525,44 @@ public class ConnectService extends Service {
                         "Ping: alarm received, but not connected to server.");
                 // disconnectedReceiver(SERVER_DISCONNECTED_NOT_RESPONSE);
 
-                // 收到ping消息,但是未登陆
+                //停止alarm
+                if(isPingRunning){
+                    ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
+                            .cancel(mPingAlarmPendIntent);
+                    isPingRunning = false;
+                }
+
+                if(isPongRunning){
+                    ((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE))
+                            .cancel(mPongTimeoutAlarmPendIntent);
+                    isPongRunning = false;
+                }
+
+                // ping超时,未连接到服务器,重新连接,重复代码,抽取为方法
+                if (isRunning || isConnected) {
+                    disconnect();
+
+                    if (mCloseLatch != null) {
+                        try {
+                            mCloseLatch.await();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                mCloseLatch = null;
+                isRunning = false;
+                isConnected = false;
+                mXMPPConnection = null;
+                //清空后,chat service中任然有值，不同的变量
+                if (mEngine != null) {
+                    mEngine.clear();
+                    mEngine = null;
+                }
+                RECONNECT_TIMES = 1;
+
+                connect();
             }
         }
     }
