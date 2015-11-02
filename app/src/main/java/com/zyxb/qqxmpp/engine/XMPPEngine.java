@@ -1773,7 +1773,12 @@ public class XMPPEngine {
                 // Check to see if the request should be accepted
 
                 System.out.println("接收语音文件");
-                // Accept it
+
+                //TODO 判断文件类型，如果是普通文件,需要确认是否接收
+                String fileName = request.getFileName();
+                String fileSize = request.getFileSize() + "";
+
+                // Accept it 如果是语音或者图片,直接接收
                 IncomingFileTransfer transfer = request.accept();
                 try {
 

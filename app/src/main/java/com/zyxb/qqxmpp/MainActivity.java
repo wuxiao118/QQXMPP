@@ -47,6 +47,7 @@ import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
  * 发送文件功能(发送图片,视频,文件) 发送文件OK
  * 添加好友  OK
  * 聊天室
+ * 日志
  * 删除多余的代码及注释
  * 抽取broadcast部分,形成抽象公共基类,  MainActivity怎么处理?
  * 改造connectservice,chatservice通用化(接口回调/broadcast receiver)?
