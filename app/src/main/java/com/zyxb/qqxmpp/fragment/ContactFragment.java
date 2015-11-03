@@ -70,7 +70,7 @@ public class ContactFragment extends Fragment implements OnItemClickListener,
     private static final int FRIEND_POSITION = 0;
     private static final int FRIEND_GROUP_POSITION = 1;
     //dialog
-    private AlertDialog mDialog;
+    //private AlertDialog mDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -199,7 +199,8 @@ public class ContactFragment extends Fragment implements OnItemClickListener,
                                         break;
                                     case FRIEND_GROUP_POSITION:
                                         //添加好友分组
-                                        showFriendGroupDialog();
+                                        //showFriendGroupDialog();
+                                        new FriendGroupDialog(mContext);
                                         break;
                                 }
                             }
@@ -223,6 +224,7 @@ public class ContactFragment extends Fragment implements OnItemClickListener,
         private EditText etContent ;
         private TextView tvSearch ;
         private UserSearchAdapter adapter;
+        private AlertDialog mDialog;
 
         //监听user search
         private UserSearchResultReceiver mUserSearchResultReceiver;
@@ -416,77 +418,85 @@ public class ContactFragment extends Fragment implements OnItemClickListener,
         }
     }
 
-    //TODO 抽取为类
-    //添加分组
-    private void showFriendGroupDialog() {
-        final EditText et = new EditText(mContext);
-        mDialog = new AlertDialog.Builder(mContext)
-                .setTitle("输入分组名称").setView(et).setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String groupName = et.getText().toString();
-                        if (groupName.trim().equals("")) {
-                            Toast.makeText(mContext, "分组名称不能为空", Toast.LENGTH_LONG).show();
-                            keepDialogOpen();
+    private class FriendGroupDialog{
+        private Context mContext;
+        private AlertDialog mDialog;
+        private EditText etInput;
 
-                            return;
-                        }
+        public FriendGroupDialog(Context context){
+            mContext = context;
+            etInput = new EditText(mContext);
 
-                        //比较是否存在,若存在,重新输入
-                        //List<GroupInfo> infos = mEngine.getGroups();
-                        //mEngine.getUserFriendGroups();
-                        boolean isExists = false;
-                        for (FriendGroupInfo info : groups) {
-                            if (info.getName().equals(groupName)) {
-                                isExists = true;
+            init();
+        }
 
-                                break;
+        private void init(){
+            mDialog = new AlertDialog.Builder(mContext)
+                    .setTitle("输入分组名称").setView(etInput).setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            String groupName = etInput.getText().toString();
+                            if (groupName.trim().equals("")) {
+                                Toast.makeText(mContext, "分组名称不能为空", Toast.LENGTH_LONG).show();
+                                keepDialogOpen();
+
+                                return;
                             }
+
+                            //比较是否存在,若存在,重新输入
+                            boolean isExists = false;
+                            for (FriendGroupInfo info : groups) {
+                                if (info.getName().equals(groupName)) {
+                                    isExists = true;
+
+                                    break;
+                                }
+                            }
+
+                            if (isExists) {
+                                Toast.makeText(mContext, "分组存在", Toast.LENGTH_LONG).show();
+                                keepDialogOpen();
+
+                                return;
+                            }
+
+                            //添加分组
+                            Intent friendGroupIntent = new Intent();
+                            friendGroupIntent.setAction(ChatService.USER_CREATE_FRIEND_GROUP);
+                            friendGroupIntent.putExtra("friendGroupName", groupName);
+                            mContext.sendBroadcast(friendGroupIntent);
+
+                            closeDialog();
                         }
-
-                        if (isExists) {
-                            Toast.makeText(mContext, "分组存在", Toast.LENGTH_LONG).show();
-                            keepDialogOpen();
-
-                            return;
+                    }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            closeDialog();
                         }
-
-                        //添加分组
-                        Intent friendGroupIntent = new Intent();
-                        friendGroupIntent.setAction(ChatService.USER_CREATE_FRIEND_GROUP);
-                        friendGroupIntent.putExtra("friendGroupName", groupName);
-                        mContext.sendBroadcast(friendGroupIntent);
-
-                        closeDialog();
-                    }
-                }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        closeDialog();
-                    }
-                }).create();
-        mDialog.show();
-    }
-
-    private void keepDialogOpen() {
-        try {
-            Field field = mDialog.getClass().getSuperclass().getDeclaredField("mShowing");//dialog可能未初始化
-            field.setAccessible(true);
-            field.set(mDialog, false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void closeDialog() {
-        try {
-            java.lang.reflect.Field field = mDialog.getClass().getSuperclass().getDeclaredField("mShowing");
-            field.setAccessible(true);
-            field.set(mDialog, true);
-        } catch (Exception e) {
-            e.printStackTrace();
+                    }).create();
+            mDialog.show();
         }
 
+        private void keepDialogOpen() {
+            try {
+                Field field = mDialog.getClass().getSuperclass().getDeclaredField("mShowing");//dialog可能未初始化
+                field.setAccessible(true);
+                field.set(mDialog, false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void closeDialog() {
+            try {
+                java.lang.reflect.Field field = mDialog.getClass().getSuperclass().getDeclaredField("mShowing");
+                field.setAccessible(true);
+                field.set(mDialog, true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     @Override

@@ -131,12 +131,12 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
     private NewMessageReceiver mNewMessageReceiver;
 
     //浏览文件 抽取为单独类
-    private String[] sdCards;
-    private int[] sdIcons;
-    private File[] sdFiles;
-    private FileAdapter adapter;
-    private int filePosition = -1;
-    private AlertDialog mDialog;
+//    private String[] sdCards;
+//    private int[] sdIcons;
+//    private File[] sdFiles;
+//    private FileAdapter adapter;
+//    private int filePosition = -1;
+//    private AlertDialog mDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -511,7 +511,8 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                 break;
             case R.id.tvMsgAddFile:
                 // 发送文件
-                showFileDialog();
+                //showFileDialog();
+                new FileDialog(mContext);
                 break;
             case R.id.tvMsgAddRealTimeVideo:
                 // 实时视频
@@ -528,372 +529,352 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
         }
     }
 
-    //TODO 抽取为类
-    private void showFileDialog() {
-        //手机自身内存
-        String phonePath = SDUtil.getPhoneCardPath();
+    private class FileDialog{
+        private Context mContext;
+        private String phonePath;
+        private String sdOutPath;
+        private String sdInPath;
+        private String[] sdCards;
+        private int[] sdIcons;
+        private File[] sdFiles;
 
-        //sd卡路径
-        String sdOutPath = null;
+        private int filePosition = -1;
+        private FileAdapter mAdapter;
+        private ExplorerFileFilter mFileFilter;
+        private AlertDialog mDialog;
 
-        //判断sd卡是否能用
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            sdOutPath = SDUtil.getSDCardPath();
+        private View view;
+        private TextView tvPath,tvBack;
+        private ListView lvFiles;
+
+        public FileDialog(Context context){
+            mContext = context;
+
+            initDialogData();
+            ui();
+            event();
+            show();
         }
 
-        //获取sd卡路径
-        String sdInPath = SDUtil.getNormalSDCardPath();
-        //String sdOutPath = SDUtil.getSDCardPath();
-        Logger.d(TAG, "手机自身内存:" + phonePath + ",内部sd卡:" + sdInPath + ",外部sd卡:" + sdOutPath);
+        private void initDialogData(){
+            //手机自身内存
+            phonePath = SDUtil.getPhoneCardPath();
 
-        //数据
-//        String[] sdCards;
-//        int[] sdIcons;
-//        File[] sdFiles;
-//        FileAdapter adapter;
+            //sd卡路径
+            sdOutPath = null;
 
-        if (sdOutPath == null) {
-            sdCards = new String[]{"Device data"};
-            sdIcons = new int[]{R.drawable.dir_phone};
-            sdFiles = new File[]{new File(phonePath)};
-        } else if (sdInPath.equals(sdOutPath)) {
-            //只有一张卡
-            //tvPath.setText(sdInPath.substring(0, sdInPath.lastIndexOf("/")));
-            //tvPath.setText("root");
+            //判断sd卡是否能用
+            if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                sdOutPath = SDUtil.getSDCardPath();
+            }
 
-            //初始化数据
-            sdCards = new String[]{"Device data", "SD memory card"};
-            sdIcons = new int[]{R.drawable.dir_phone, R.drawable.dir_sdcard};
-            sdFiles = new File[]{new File(phonePath), new File(sdOutPath)};
-        } else {
-            //两张卡
-            //tvPath.setText("sd");
-            //设置adapter数据
+            //获取sd卡路径
+            sdInPath = SDUtil.getNormalSDCardPath();
+            //String sdOutPath = SDUtil.getSDCardPath();
+            //Logger.d(TAG, "手机自身内存:" + phonePath + ",内部sd卡:" + sdInPath + ",外部sd卡:" + sdOutPath);
 
-            //初始化数据
-            sdCards = new String[]{"Device data", "Device storage", "SD memory card"};
-            sdIcons = new int[]{R.drawable.dir_phone, R.drawable.dir_sdcard, R.drawable.dir_sdcard};
-            sdFiles = new File[]{new File(phonePath), new File(sdInPath), new File(sdOutPath)};
+            if (sdOutPath == null) {
+                sdCards = new String[]{"Device data"};
+                sdIcons = new int[]{R.drawable.dir_phone};
+                sdFiles = new File[]{new File(phonePath)};
+            } else if (sdInPath.equals(sdOutPath)) {
+                //只有一张卡
+                //初始化数据
+                sdCards = new String[]{"Device data", "SD memory card"};
+                sdIcons = new int[]{R.drawable.dir_phone, R.drawable.dir_sdcard};
+                sdFiles = new File[]{new File(phonePath), new File(sdOutPath)};
+            } else {
+                //两张卡
+                //初始化数据
+                sdCards = new String[]{"Device data", "Device storage", "SD memory card"};
+                sdIcons = new int[]{R.drawable.dir_phone, R.drawable.dir_sdcard, R.drawable.dir_sdcard};
+                sdFiles = new File[]{new File(phonePath), new File(sdInPath), new File(sdOutPath)};
+            }
         }
 
-        final ExplorerFileFilter fileFilter = new ExplorerFileFilter();
-        //view
-        View view = LayoutInflater.from(mContext).inflate(R.layout.chat_file, null);
-        final TextView tvPath = (TextView) view.findViewById(R.id.tvChatFilePath);
-        final ListView lvFiles = (ListView) view.findViewById(R.id.lvChatFileList);
-        final TextView tvBack = (TextView) view.findViewById(R.id.tvChatFileBack);
-        tvPath.setText("root");
-        lvFiles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                filePosition = -1;
-                File f = sdFiles[i];
-                if (f.isDirectory()) {
-                    if (f.listFiles() != null && f.listFiles(fileFilter).length > 0) {
-                        String path = sdFiles[i].getAbsolutePath();
-                        tvPath.setText(path);
-                        tvBack.setVisibility(View.VISIBLE);
+        private void ui(){
+            view = LayoutInflater.from(mContext).inflate(R.layout.chat_file, null);
+            tvPath = (TextView) view.findViewById(R.id.tvChatFilePath);
+            lvFiles = (ListView) view.findViewById(R.id.lvChatFileList);
+            tvBack = (TextView) view.findViewById(R.id.tvChatFileBack);
+            tvPath.setText("root");
+        }
 
-                        //更新list数据
-                        sdFiles = f.listFiles(fileFilter);
-                        adapter.setFiles(sdFiles);
-                        adapter.setIcons(null);
-                        adapter.setNames(null);
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        Toast.makeText(mContext, "文件夹为空", Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    //文件,选中
-                    //RadioButton rd = (RadioButton)view.findViewById(R.id.rbChatFileSelection);
-                    //rd.setSelected(true);
-                    //重新设定adapter,数据没有改变,notifyDataSetChanged不会刷新列表??刷新了,但是没有设置为选中状态
-                    //adapter.setSelectPosition(i);
-                    //lvFiles.setAdapter(adapter);//没用
-                    //adapter.notifyDataSetChanged();
+        private void event(){
+            lvFiles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    filePosition = -1;
+                    File f = sdFiles[i];
+                    if (f.isDirectory()) {
+                        if (f.listFiles() != null && f.listFiles(mFileFilter).length > 0) {
+                            String path = sdFiles[i].getAbsolutePath();
+                            tvPath.setText(path);
+                            tvBack.setVisibility(View.VISIBLE);
 
-                    //不行
-                    //RadioButton rd = (RadioButton)view.findViewById(R.id.rbChatFileSelection);
-                    //rd.setSelected(true);
-                    //view.invalidate();
-
-                    //属性设置错误,应该设置radio button的check属性而不是select属性
-
-                    //Logger.d(TAG,"click file");
-                    adapter.setSelectPosition(i);
-                    adapter.setFiles(sdFiles);
-                    adapter.notifyDataSetChanged();//执行了,但是没有显示为选中状态
-
-                    filePosition = i;
-                }
-            }
-        });
-
-        tvBack.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                filePosition = -1;
-                String path = tvPath.getText().toString();
-                //是否为顶级目录
-                //手机自身内存
-                String phonePath = SDUtil.getPhoneCardPath();
-                //sd卡路径
-                String sdOutPath = null;
-                String sdInPath = null;
-                //判断sd卡是否能用
-                if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                    sdOutPath = SDUtil.getSDCardPath();
-                    sdInPath = SDUtil.getNormalSDCardPath();
-                }
-
-                if (path.equals(phonePath) || (sdOutPath != null && sdOutPath.equals(path)) || (sdInPath != null && sdInPath.equals(path))) {
-                    //初始化,重复代码,可以抽取
-                    if (sdOutPath == null) {
-                        sdCards = new String[]{"Device data"};
-                        sdIcons = new int[]{R.drawable.dir_phone};
-                        sdFiles = new File[]{new File(phonePath)};
-                    } else if (sdInPath.equals(sdOutPath)) {
-                        //只有一张卡
-                        //初始化数据
-                        sdCards = new String[]{"Device data", "SD memory card"};
-                        sdIcons = new int[]{R.drawable.dir_phone, R.drawable.dir_sdcard};
-                        sdFiles = new File[]{new File(phonePath), new File(sdOutPath)};
-                    } else {
-                        //两张卡
-                        //初始化数据
-                        sdCards = new String[]{"Device data", "Device storage", "SD memory card"};
-                        sdIcons = new int[]{R.drawable.dir_phone, R.drawable.dir_sdcard, R.drawable.dir_sdcard};
-                        sdFiles = new File[]{new File(phonePath), new File(sdInPath), new File(sdOutPath)};
-                    }
-
-                    //设置adapter数据
-                    adapter.setFiles(sdFiles);
-                    adapter.setIcons(sdIcons);
-                    adapter.setNames(sdCards);
-                    adapter.setSelectPosition(-1);
-                    adapter.notifyDataSetChanged();
-
-                    tvBack.setVisibility(View.GONE);
-                    tvPath.setText("root");
-
-                    return;
-                }
-
-                String newPath = path.substring(0, path.lastIndexOf(File.separatorChar));
-                tvPath.setText(newPath);
-                sdFiles = new File(newPath).listFiles(fileFilter);
-                adapter.setFiles(sdFiles);
-                adapter.setSelectPosition(-1);
-                adapter.notifyDataSetChanged();
-            }
-        });
-
-        //设置adapter数据
-        adapter = new FileAdapter(sdFiles);
-        adapter.setIcons(sdIcons);
-        adapter.setNames(sdCards);
-        lvFiles.setAdapter(adapter);
-
-        mDialog = new AlertDialog.Builder(mContext)
-                .setTitle("选择要发送的文件")
-                .setView(view)
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (filePosition == -1) {
-                            //未选择
-                            Toast.makeText(mContext, "还未选择文件", Toast.LENGTH_LONG).show();
-                            keepDialogOpen();
+                            //更新list数据
+                            sdFiles = f.listFiles(mFileFilter);
+                            mAdapter.setFiles(sdFiles);
+                            mAdapter.setIcons(null);
+                            mAdapter.setNames(null);
+                            mAdapter.notifyDataSetChanged();
                         } else {
-                            String filePath = sdFiles[filePosition].getAbsolutePath();
-                            Logger.d(TAG,"send file:" + filePath);
-                            //TODO 写入数据库,文件标示为待发送,若服务器未连接,可等服务器连接后,后台默默发送
+                            Toast.makeText(mContext, "文件夹为空", Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        //更新选择
+                        mAdapter.setSelectPosition(i);
+                        mAdapter.setFiles(sdFiles);
+                        mAdapter.notifyDataSetChanged();
 
-                            if (mApp.isConnected()) {
-                                //发送文件Intent
-                                Intent sendFileIntent = new Intent();
-                                sendFileIntent.setAction(ChatService.MESSAGE_SEND_FILE);
-                                sendFileIntent.putExtra("filePath", filePath);
-                                sendFileIntent.putExtra("toJid",toJid);
-                                mContext.sendBroadcast(sendFileIntent);
+                        filePosition = i;
+                    }
+                }
+            });
+
+            tvBack.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    filePosition = -1;
+                    String path = tvPath.getText().toString();
+
+                    //最初数据
+                    initDialogData();
+                    //是否回到根
+                    if (path.equals(phonePath) || (sdOutPath != null && sdOutPath.equals(path)) || (sdInPath != null && sdInPath.equals(path))) {
+
+                        //设置adapter数据
+                        mAdapter.setFiles(sdFiles);
+                        mAdapter.setIcons(sdIcons);
+                        mAdapter.setNames(sdCards);
+                        mAdapter.setSelectPosition(-1);
+                        mAdapter.notifyDataSetChanged();
+
+                        tvBack.setVisibility(View.GONE);
+                        tvPath.setText("root");
+
+                        return;
+                    }
+
+                    mFileFilter = new ExplorerFileFilter();
+
+                    String newPath = path.substring(0, path.lastIndexOf(File.separatorChar));
+                    tvPath.setText(newPath);
+                    sdFiles = new File(newPath).listFiles(mFileFilter);
+                    mAdapter.setFiles(sdFiles);
+                    mAdapter.setSelectPosition(-1);
+                    mAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+
+        private void show(){
+            //设置adapter数据
+            mAdapter = new FileAdapter(sdFiles);
+            mAdapter.setIcons(sdIcons);
+            mAdapter.setNames(sdCards);
+            lvFiles.setAdapter(mAdapter);
+
+            mDialog = new AlertDialog.Builder(mContext)
+                    .setTitle("选择要发送的文件")
+                    .setView(view)
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (filePosition == -1) {
+                                //未选择
+                                Toast.makeText(mContext, "还未选择文件", Toast.LENGTH_LONG).show();
+                                keepDialogOpen();
+                            } else {
+                                String filePath = sdFiles[filePosition].getAbsolutePath();
+                                Logger.d(TAG,"send file:" + filePath);
+                                //TODO 写入数据库,文件标示为待发送,若服务器未连接,可等服务器连接后,后台默默发送
+
+                                if (mApp.isConnected()) {
+                                    //发送文件Intent
+                                    Intent sendFileIntent = new Intent();
+                                    sendFileIntent.setAction(ChatService.MESSAGE_SEND_FILE);
+                                    sendFileIntent.putExtra("filePath", filePath);
+                                    sendFileIntent.putExtra("toJid",toJid);
+                                    mContext.sendBroadcast(sendFileIntent);
+                                }
+
+                                closeDialog();
                             }
-
+                        }
+                    }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
                             closeDialog();
                         }
-                    }
-                }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        closeDialog();
-                    }
-                }).create();
-        mDialog.show();
-    }
-
-    //重复代码(ContactFragment),之后优化
-    private void keepDialogOpen() {
-        try {
-            Field field = mDialog.getClass().getSuperclass().getDeclaredField("mShowing");//dialog可能未初始化
-            field.setAccessible(true);
-            field.set(mDialog, false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void closeDialog() {
-        try {
-            java.lang.reflect.Field field = mDialog.getClass().getSuperclass().getDeclaredField("mShowing");
-            field.setAccessible(true);
-            field.set(mDialog, true);
-        } catch (Exception e) {
-            e.printStackTrace();
+                    }).create();
+            mDialog.show();
         }
 
-    }
-
-    private class FileAdapter extends BaseAdapter {
-        private File[] files;
-        private int[] icons;
-        private String[] names;
-        private LayoutInflater inflater;
-        private ExplorerFileFilter fileFilter;
-        private int selectPosition = -1;
-
-        public FileAdapter(File[] files) {
-            this.files = files;
-            inflater = LayoutInflater.from(mContext);
-            fileFilter = new ExplorerFileFilter();
-        }
-
-        public void setSelectPosition(int selectPosition) {
-            this.selectPosition = selectPosition;
-        }
-
-        public void setFiles(File[] files) {
-            this.files = files;
-        }
-
-        public void setNames(String[] names) {
-            this.names = names;
-        }
-
-        public void setIcons(int[] icons) {
-            this.icons = icons;
-        }
-
-        @Override
-        public int getCount() {
-            return files.length;
-        }
-
-        @Override
-        public Object getItem(int i) {
-            return files[i];
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return i;
-        }
-
-        @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
-            ViewHolder holder;
-            if (view == null) {
-                view = inflater.inflate(R.layout.chat_file_list_item, null);
-                holder = new ViewHolder();
-                holder.ivIcon = (ImageView) view.findViewById(R.id.ivChatFileIcon);
-                holder.tvName = (TextView) view.findViewById(R.id.tvChatFileName);
-                holder.tvCreateTime = (TextView) view.findViewById(R.id.tvChatFileCreateTime);
-                holder.rbSelection = (RadioButton) view.findViewById(R.id.rbChatFileSelection);
-                view.setTag(holder);
-            } else {
-                holder = (ViewHolder) view.getTag();
-            }
-
-            if ((i & 1) == 0) {
-                view.setBackgroundColor(getResources().getColor(R.color.bg_blue));
-            } else {
-                view.setBackgroundColor(getResources().getColor(R.color.blue));
-            }
-
-            //设置值
-            if (icons != null) {
-                holder.ivIcon.setImageResource(icons[i]);
-            } else {
-                File f = files[i];
-                if (f.isDirectory()) {
-                    if (null != f.listFiles() && f.listFiles(fileFilter).length > 0) {
-                        //holder.ivIcon.setImageResource(getIconRes(f.getName()));
-                        holder.ivIcon.setImageResource(R.drawable.folder_);
-                    } else {
-                        holder.ivIcon.setImageResource(R.drawable.folder);
-                    }
-                } else {
-                    holder.ivIcon.setImageResource(getIconRes(f.getName()));
-                }
-            }
-
-            if (names != null) {
-                holder.tvName.setText(names[i]);
-            } else {
-                String name = files[i].getName();
-                holder.tvName.setText(name);
-            }
-
-            if (files[i].isDirectory()) {
-                holder.rbSelection.setVisibility(View.INVISIBLE);
-            } else {
-                holder.rbSelection.setVisibility(View.VISIBLE);
-                //Logger.d("adapter","before");
-                if (selectPosition == i) {
-                    //Logger.d("adapter","after");
-//                    holder.rbSelection.setSelected(true);//不行，不是选中状态
-                    holder.rbSelection.setChecked(true);
-                }else{
-                    holder.rbSelection.setChecked(false);
-                }
-            }
-
-            long time = files[i].lastModified();
-            holder.tvCreateTime.setText(DateUtils.format(time, "yyyy-MM-dd"));
-
-            return view;
-        }
-
-        private int getIconRes(String filename) {
-
-            String suffix = filename.substring(filename.lastIndexOf(".") + 1).trim();
-
+        private void keepDialogOpen() {
             try {
-                Field field = Class.forName("com.zyxb.qqxmpp.R$drawable").getField(
-                        suffix);
-                return field.getInt(field);
+                Field field = mDialog.getClass().getSuperclass().getDeclaredField("mShowing");//dialog可能未初始化
+                field.setAccessible(true);
+                field.set(mDialog, false);
             } catch (Exception e) {
-                return R.drawable.default_fileicon;
+                e.printStackTrace();
+            }
+        }
+
+        private void closeDialog() {
+            try {
+                java.lang.reflect.Field field = mDialog.getClass().getSuperclass().getDeclaredField("mShowing");
+                field.setAccessible(true);
+                field.set(mDialog, true);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
         }
-    }
 
-    static class ViewHolder {
-        public ImageView ivIcon;
-        public TextView tvName, tvCreateTime;
-        public RadioButton rbSelection;
-    }
+        private class FileAdapter extends BaseAdapter {
+            private File[] files;
+            private int[] icons;
+            private String[] names;
+            private LayoutInflater inflater;
+            private ExplorerFileFilter fileFilter;
+            private int selectPosition = -1;
 
-    //文件过滤器
-    class ExplorerFileFilter implements FileFilter {
+            public FileAdapter(File[] files) {
+                this.files = files;
+                inflater = LayoutInflater.from(mContext);
+                fileFilter = new ExplorerFileFilter();
+            }
 
-        @Override
-        public boolean accept(File pathname) {
-            if (!pathname.getName().startsWith("."))
-                return true;
+            public void setSelectPosition(int selectPosition) {
+                this.selectPosition = selectPosition;
+            }
 
-            return false;
+            public void setFiles(File[] files) {
+                this.files = files;
+            }
+
+            public void setNames(String[] names) {
+                this.names = names;
+            }
+
+            public void setIcons(int[] icons) {
+                this.icons = icons;
+            }
+
+            @Override
+            public int getCount() {
+                return files.length;
+            }
+
+            @Override
+            public Object getItem(int i) {
+                return files[i];
+            }
+
+            @Override
+            public long getItemId(int i) {
+                return i;
+            }
+
+            @Override
+            public View getView(int i, View view, ViewGroup viewGroup) {
+                ViewHolder holder;
+                if (view == null) {
+                    view = inflater.inflate(R.layout.chat_file_list_item, null);
+                    holder = new ViewHolder();
+                    holder.ivIcon = (ImageView) view.findViewById(R.id.ivChatFileIcon);
+                    holder.tvName = (TextView) view.findViewById(R.id.tvChatFileName);
+                    holder.tvCreateTime = (TextView) view.findViewById(R.id.tvChatFileCreateTime);
+                    holder.rbSelection = (RadioButton) view.findViewById(R.id.rbChatFileSelection);
+                    view.setTag(holder);
+                } else {
+                    holder = (ViewHolder) view.getTag();
+                }
+
+                if ((i & 1) == 0) {
+                    view.setBackgroundColor(getResources().getColor(R.color.bg_blue));
+                } else {
+                    view.setBackgroundColor(getResources().getColor(R.color.blue));
+                }
+
+                //设置值
+                if (icons != null) {
+                    holder.ivIcon.setImageResource(icons[i]);
+                } else {
+                    File f = files[i];
+                    if (f.isDirectory()) {
+                        if (null != f.listFiles() && f.listFiles(fileFilter).length > 0) {
+                            //holder.ivIcon.setImageResource(getIconRes(f.getName()));
+                            holder.ivIcon.setImageResource(R.drawable.folder_);
+                        } else {
+                            holder.ivIcon.setImageResource(R.drawable.folder);
+                        }
+                    } else {
+                        holder.ivIcon.setImageResource(getIconRes(f.getName()));
+                    }
+                }
+
+                if (names != null) {
+                    holder.tvName.setText(names[i]);
+                } else {
+                    String name = files[i].getName();
+                    holder.tvName.setText(name);
+                }
+
+                if (files[i].isDirectory()) {
+                    holder.rbSelection.setVisibility(View.INVISIBLE);
+                } else {
+                    holder.rbSelection.setVisibility(View.VISIBLE);
+                    //Logger.d("adapter","before");
+                    if (selectPosition == i) {
+                        //Logger.d("adapter","after");
+//                    holder.rbSelection.setSelected(true);//不行，不是选中状态
+                        holder.rbSelection.setChecked(true);
+                    }else{
+                        holder.rbSelection.setChecked(false);
+                    }
+                }
+
+                long time = files[i].lastModified();
+                holder.tvCreateTime.setText(DateUtils.format(time, "yyyy-MM-dd"));
+
+                return view;
+            }
+
+            private int getIconRes(String filename) {
+
+                String suffix = filename.substring(filename.lastIndexOf(".") + 1).trim();
+
+                try {
+                    Field field = Class.forName("com.zyxb.qqxmpp.R$drawable").getField(
+                            suffix);
+                    return field.getInt(field);
+                } catch (Exception e) {
+                    return R.drawable.default_fileicon;
+                }
+
+            }
         }
 
+        private class ViewHolder {
+            public ImageView ivIcon;
+            public TextView tvName, tvCreateTime;
+            public RadioButton rbSelection;
+        }
+
+        //文件过滤器
+        private class ExplorerFileFilter implements FileFilter {
+
+            @Override
+            public boolean accept(File pathname) {
+                if (!pathname.getName().startsWith("."))
+                    return true;
+
+                return false;
+            }
+
+        }
     }
 
     @Override
@@ -1076,5 +1057,4 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
             mChatAdapter.notifyDataSetChanged();
         }
     }
-
 }

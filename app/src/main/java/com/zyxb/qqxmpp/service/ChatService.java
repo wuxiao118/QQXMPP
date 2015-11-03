@@ -78,7 +78,7 @@ public class ChatService extends Service {
     public static final int MESSAGE_TYPE_VIDEO = 3;//视频文件
     public static final int MESSAGE_TYPE_REALTIME_VIDEO = 4;//实时视频
 
-    //好友
+    //添加好友分组
     private CreateFriendGroupReceiver mCreateFriendGroupReceiver;
     public static final String USER_CREATE_FRIEND_GROUP = "com.zyxb.qqxmpp.USER_CREATE_FRIEND_GROUP";
     //public static final String USER_CREATE_FRIEND_GROUP_SUCCESS = "com.zyxb.qqxmpp.USER_CREATE_FRIEND_GROUP_SUCCESS";
@@ -292,10 +292,8 @@ public class ChatService extends Service {
                 }
 
                 //重新获取Engine,服务器更换时，需要重新获取Engine
-                //connect service中清除XMPPEngine中engine值时,chat service中获取不为空,why
-                //理解 a = new XMPPEngine(...);b=a; a=null; b不等于null
                 resetEngine();
-                //getmEngine();//不行,理由同上
+                //登陆
                 login(username.split("@")[0], pwd, ressource);
                 isLogin = true;
             } else if (action.equals(ConnectService.LOGIN_SERVER_DISCONNECTED)) {
@@ -415,25 +413,15 @@ public class ChatService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String groupName = intent.getStringExtra("friendGroupName");
-            mEngine.addGroup(groupName);
-
-//            new Thread(){
-//                @Override
-//                public void run() {
-//                    boolean isCreated = mEngine.addGroup(groupName);
-//                    if(isCreated){
-//                        //创建成功
-//                        Intent createSuccessIntent = new Intent();
-//                        createSuccessIntent.setAction(ChatService.USER_CREATE_FRIEND_GROUP_SUCCESS);
-//                        mService.sendBroadcast(createSuccessIntent);
-//                    }else{
-//                        //创建失败
-//                        Intent createFailIntent = new Intent();
-//                        createFailIntent.setAction(ChatService.USER_CREATE_FRIEND_GROUP_FAILED);
-//                        mService.sendBroadcast(createFailIntent);
-//                    }
-//                }
-//            }.start();
+            if(mEngine != null) {
+                new Thread(){
+                    @Override
+                    public void run() {
+                        mEngine.addGroup(groupName);
+                    }
+                }.start();
+                //mEngine.addGroup(groupName);
+            }
         }
     }
 
@@ -445,6 +433,8 @@ public class ChatService extends Service {
         public void onReceive(Context context, Intent intent) {
             final String filePath = intent.getStringExtra("filePath");
             final String toJid = intent.getStringExtra("toJid") + "/Spark 2.6.3";
+            if(mEngine == null)
+                return;
 
             //向spark发送文件没问题,接收文件还未调试
             new Thread(){
