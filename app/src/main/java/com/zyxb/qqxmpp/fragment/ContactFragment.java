@@ -416,6 +416,7 @@ public class ContactFragment extends Fragment implements OnItemClickListener,
         }
     }
 
+    //TODO 抽取为类
     //添加分组
     private void showFriendGroupDialog() {
         final EditText et = new EditText(mContext);

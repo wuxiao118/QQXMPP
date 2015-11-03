@@ -528,6 +528,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
         }
     }
 
+    //TODO 抽取为类
     private void showFileDialog() {
         //手机自身内存
         String phonePath = SDUtil.getPhoneCardPath();

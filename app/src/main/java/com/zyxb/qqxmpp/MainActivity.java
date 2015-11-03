@@ -523,6 +523,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 					//更新未读消息数
 					initUnReadMessage();
 
+					//TODO 更新图标显示未读消息数
+
 					//如果在消息界面，更新消息
 					if(state == Const.FRAGMENT_STATE_MESSAGE){
 						mMessageFragment.updateNewMessage();

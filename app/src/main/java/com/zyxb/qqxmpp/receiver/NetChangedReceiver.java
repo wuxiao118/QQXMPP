@@ -45,8 +45,8 @@ public class NetChangedReceiver extends BroadcastReceiver {
 		// 未开启网络连接,如果服务开启,关闭服务
 		// 锁屏下,关闭服务
 		if (!isConnected || action.equals(Intent.ACTION_SCREEN_OFF)) {
-			stopConnectService();
 			stopChatService();
+			stopConnectService();
 		} else if (isConnected || action.equals(Intent.ACTION_BOOT_COMPLETED)
 				|| action.equals(Intent.ACTION_SCREEN_ON)) {
 			Logger.d(TAG, "start login service");

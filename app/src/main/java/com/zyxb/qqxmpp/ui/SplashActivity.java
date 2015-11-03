@@ -114,25 +114,30 @@ public class SplashActivity extends Activity {
     }
 
     private void init() {
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.setTitle("数据初始化...");
-        mProgressDialog.show();
+        // 检查数据库,导入数据
+        if(DBInit.isEmpty(mContext)) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.setTitle("数据初始化...");
+            mProgressDialog.show();
 
-        new Thread() {
-            @Override
-            public void run() {
-                // 检查数据库,导入数据
-                if (DBInit.isEmpty(SplashActivity.this)) {
+            new Thread() {
+                @Override
+                public void run() {
+                    // 检查数据库,导入数据
+                    //if (DBInit.isEmpty(SplashActivity.this)) {
                     DBInit.create(SplashActivity.this);
-                }
+                    //}
 
-                Message msg = Message.obtain();
-                msg.what = INIT_PROGRESS_DISMISS;
-                mHandler.sendMessage(msg);
-            }
-        }.start();
+                    Message msg = Message.obtain();
+                    msg.what = INIT_PROGRESS_DISMISS;
+                    mHandler.sendMessage(msg);
+                }
+            }.start();
+        }else{
+            startLogin();
+        }
     }
 
     private void startLogin() {
