@@ -179,6 +179,15 @@ public class DBColumns {
 	public static final int MESSAGE_TYPE_CONTACT = 2;
 	public static final int MESSAGE_TYPE_ALL = 3;
 
+	// 消息本身类型
+	public static final String MESSAGE_MSG_TYPE_IMAGE = "image";//图片
+	public static final String MESSAGE_MSG_TYPE_TEXT = "text";//文本
+	public static final String MESSAGE_MSG_TYPE_VIDEO = "video";//视频
+	public static final String MESSAGE_MSG_TYPE_LOCATION = "location";//位置
+	public static final String MESSAGE_MSG_TYPE_MUSIC = "music";//音乐
+	public static final String MESSAGE_MSG_TYPE_VOICE = "voice";//语音
+	public static final String MESSAGE_MSG_TYPE_FILE = "file";
+
 	// 消息状态
 	public static final String[] MESSAGE_STATES = { "CREATED", "SENDING",
 			"SENDED", "RECEIVED", "READED", "FAIL" };

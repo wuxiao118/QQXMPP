@@ -140,6 +140,8 @@ public class DBMessageEngine {
 			info.setMsg(m.getMsg());
 			info.setState(m.getState());
 			info.setType(m.getType());
+			//存储msgType
+			info.setMsgType(m.getData1());
 
 			// from
 			DBUser u = m.getFrom();
@@ -171,12 +173,12 @@ public class DBMessageEngine {
 				ifrom.setComments(fgDao.getRemark(currentAccount,
 						u.getAccount()));
 			}
-			ifrom = null;
+			//ifrom = null;
 
 			infos.add(info);
-			info = null;
+			//info = null;
 		}
-		ms = null;
+		//ms = null;
 		dao.close();
 		fgDao.close();
 
@@ -189,7 +191,7 @@ public class DBMessageEngine {
 		List<DBMessage> ms = dao.findSystemMessage(userAccount, sysAccount);
 
 		List<MessageInfo> infos = new ArrayList<MessageInfo>();
-		MessageInfo info = null;
+		MessageInfo info; //= null;
 		for (int i = 0; i < ms.size(); i++) {
 			DBMessage m = ms.get(i);
 			info = new MessageInfo();
@@ -199,6 +201,8 @@ public class DBMessageEngine {
 			info.setMsg(m.getMsg());
 			info.setState(m.getState());
 			info.setType(m.getType());
+			//存储msgType
+			info.setMsgType(m.getData1());
 
 			// from
 			DBSystemGroup sg = m.getFromGroup();
@@ -207,12 +211,12 @@ public class DBMessageEngine {
 			ifrom.setName(sg.getName());
 			ifrom.setIcon(sg.getIcon());
 			info.setFrom(ifrom);
-			ifrom = null;
+			//ifrom = null;
 
 			infos.add(info);
-			info = null;
+			//info = null;
 		}
-		ms = null;
+		//ms = null;
 		dao.close();
 
 		return infos;
@@ -235,6 +239,8 @@ public class DBMessageEngine {
 			info.setMsg(m.getMsg());
 			info.setState(m.getState());
 			info.setType(m.getType());
+			//存储msgType
+			info.setMsgType(m.getData1());
 
 			// from
 			DBUser u = m.getFrom();
@@ -247,7 +253,7 @@ public class DBMessageEngine {
 			ifrom.setGroupTitle(gmDao.getGroupTitle(u.getAccount(), m
 					.getToGroup().getAccount()));
 			info.setFrom(ifrom);
-			ifrom = null;
+			//ifrom = null;
 
 			// to
 			DBGroup g = m.getToGroup();
@@ -256,13 +262,13 @@ public class DBMessageEngine {
 			ifrom.setName(g.getName());
 			ifrom.setIcon(g.getIcon());
 			info.setTo(ifrom);
-			ifrom = null;
+			//ifrom = null;
 
 			infos.add(info);
-			info = null;
+			//info = null;
 
 		}
-		ms = null;
+		//ms = null;
 		dao.close();
 		gmDao.close();
 

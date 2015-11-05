@@ -77,7 +77,7 @@ public class ChatService extends Service {
     public static final int MESSAGE_TYPE_VOICE = 2;//语音文件
     public static final int MESSAGE_TYPE_VIDEO = 3;//视频文件
     public static final int MESSAGE_TYPE_REALTIME_VIDEO = 4;//实时视频
-
+    public static final int MESSAGE_TYPE_IMAGE = 5;//图片
     //添加好友分组
     private CreateFriendGroupReceiver mCreateFriendGroupReceiver;
     public static final String USER_CREATE_FRIEND_GROUP = "com.zyxb.qqxmpp.USER_CREATE_FRIEND_GROUP";

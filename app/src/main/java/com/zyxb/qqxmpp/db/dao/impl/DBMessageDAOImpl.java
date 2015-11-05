@@ -911,11 +911,12 @@ public class DBMessageDAOImpl extends DBMessageDAO {
 						+ "," + DBColumns.MESSAGE_MSG + ","
 						+ DBColumns.MESSAGE_CREATE_TIME + ","
 						+ DBColumns.MESSAGE_TYPE + ","
-						+ DBColumns.MESSAGE_STATE + ") VALUES(?,?,?,?,?,?,?)",
+						+ DBColumns.MESSAGE_STATE + ","
+						+ DBColumns.MESSAGE_DATA1 + ") VALUES(?,?,?,?,?,?,?,?)",
 				//new Object[] { account, contact.getAccount(), message.getTo(),
                 new Object[] { account, from, to,
 						message.getMsg(), message.getCreateTime(),
-						message.getMsgType(), message.getState() });
+						message.getMsgType(), message.getState(),message.getData1() });
 
 		return account;
 

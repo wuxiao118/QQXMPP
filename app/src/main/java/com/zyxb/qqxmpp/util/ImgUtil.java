@@ -1,17 +1,18 @@
 package com.zyxb.qqxmpp.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.lang.ref.SoftReference;
-import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.os.Handler;
 import android.os.Message;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.lang.ref.SoftReference;
+import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SuppressLint("HandlerLeak")
 public class ImgUtil {
@@ -100,6 +101,32 @@ public class ImgUtil {
 		bitmap = decodeBitmap(bitmap);
 		if (!imgCaches.containsKey(path)) {
 			//imgCaches.put(path, new SoftReference<Bitmap>(bitmap));
+			addCache(path, bitmap);
+		}
+		return bitmap;
+	}
+
+	public Bitmap loadBitmapFromLocal(String path,int height,int width){
+		if (path == null) {
+			return null;
+		}
+		BitmapFactory.Options options = new Options();
+		options.inJustDecodeBounds = true;
+		Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+		float scale = 1;
+		if (options.outWidth > width && options.outWidth > options.outHeight) {
+			scale = options.outWidth / width;
+		} else if (options.outHeight > height
+				&& options.outHeight > options.outWidth) {
+			scale = options.outHeight / height;
+		} else {
+			scale = 1;
+		}
+		options.inSampleSize = (int) scale;
+		options.inJustDecodeBounds = false;
+		bitmap = BitmapFactory.decodeFile(path, options);
+		bitmap = decodeBitmap(bitmap);
+		if (!imgCaches.containsKey(path)) {
 			addCache(path, bitmap);
 		}
 		return bitmap;

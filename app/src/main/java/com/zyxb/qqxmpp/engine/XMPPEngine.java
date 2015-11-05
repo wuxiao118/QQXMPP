@@ -12,6 +12,7 @@ import com.zyxb.qqxmpp.bean.XMPPMessage;
 import com.zyxb.qqxmpp.bean.XMPPUser;
 import com.zyxb.qqxmpp.db.DBColumns;
 import com.zyxb.qqxmpp.service.ChatService;
+import com.zyxb.qqxmpp.util.AppShortCutUtil;
 import com.zyxb.qqxmpp.util.Const;
 import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
@@ -892,6 +893,9 @@ public class XMPPEngine {
                         xmppMsg.setState(DBColumns.MESSAGE_STATE_RECEIVED);
                         mDataEngine.addNewXMPPMessge(xmppMsg);
                         sendMessageChangedIntent(ChatService.MESSAGE_ADD);
+
+                        //更新图标消息数
+                        AppShortCutUtil.addNumShortCut(mContext, null, true, mDataEngine.getUnReadedMessage() + "", true);
 
                         //发送收到新消息广播
                         //Intent newMsgIntent = new Intent();

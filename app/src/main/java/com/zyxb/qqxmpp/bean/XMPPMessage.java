@@ -12,6 +12,7 @@ public class XMPPMessage implements Parcelable {
 	private long createTime;
 	private int msgType;
 	private int state;
+	private String data1;
 
 	public static final Parcelable.Creator<XMPPMessage> CREATOR = new Creator<XMPPMessage>() {
 
@@ -31,6 +32,7 @@ public class XMPPMessage implements Parcelable {
 			message.createTime = source.readLong();
 			message.msgType = source.readInt();
 			message.state = source.readInt();
+			message.data1 = source.readString();
 
 			return message;
 		}
@@ -100,6 +102,14 @@ public class XMPPMessage implements Parcelable {
 		this.state = state;
 	}
 
+	public String getData1() {
+		return data1;
+	}
+
+	public void setData1(String data1) {
+		this.data1 = data1;
+	}
+
 	@Override
 	public int describeContents() {
 		return 0;
@@ -115,6 +125,7 @@ public class XMPPMessage implements Parcelable {
 		dest.writeLong(createTime);
 		dest.writeInt(msgType);
 		dest.writeInt(state);
+		dest.writeString(data1);
 	}
 
 	@Override

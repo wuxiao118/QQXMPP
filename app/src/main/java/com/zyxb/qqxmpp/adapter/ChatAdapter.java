@@ -24,6 +24,7 @@ import com.zyxb.qqxmpp.ui.FriendDtailActivity;
 import com.zyxb.qqxmpp.ui.GroupFriendCardActivity;
 import com.zyxb.qqxmpp.ui.LoginUserDetail;
 import com.zyxb.qqxmpp.util.DateUtils;
+import com.zyxb.qqxmpp.util.ImgUtil;
 import com.zyxb.qqxmpp.util.MyExpressionUtil;
 import com.zyxb.qqxmpp.util.PopupUtils;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
@@ -143,9 +144,9 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 			}
 
 			holder.tvRightName.setVisibility(View.GONE);
-			holder.tvRightContent.setText(MyExpressionUtil.prase(mContext,
-					holder.tvRightContent, message.getMsg()));
-			holder.ivRightImage.setVisibility(View.GONE);
+			//holder.tvRightContent.setText(MyExpressionUtil.prase(mContext,
+			//		holder.tvRightContent, message.getMsg()));
+			//holder.ivRightImage.setVisibility(View.GONE);
 			holder.ivRightLoc.setVisibility(View.GONE);
 			holder.tvRightGroupTitle.setVisibility(View.GONE);
 			// holder.pbLeftLoading.setVisibility(View.GONE);
@@ -159,6 +160,23 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 				holder.pbRightLoading.setVisibility(View.GONE);
 				holder.ivRightMessageState.setVisibility(View.GONE);
 			}
+
+			//发送图片
+			String msgType = message.getMsgType();
+			if(msgType != null && message.getMsgType().equals(DBColumns.MESSAGE_MSG_TYPE_IMAGE)){
+				holder.tvRightContent.setVisibility(View.GONE);
+				holder.ivRightImage.setVisibility(View.VISIBLE);
+				holder.ivRightImage.setImageBitmap(ImgUtil.getInstance().loadBitmapFromLocal(message.getMsg(),200,200));
+			}else{
+				holder.tvRightContent.setVisibility(View.VISIBLE);
+				holder.ivRightImage.setVisibility(View.GONE);
+				holder.tvRightContent.setText(MyExpressionUtil.prase(mContext,
+						holder.tvRightContent, message.getMsg()));
+			}
+
+			//Logger.d("ChatActivity","msgType:" + msgType);
+
+			//TODO 发送位置信息
 
 		} else {
 			// 左边
@@ -205,12 +223,25 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
 			}
 
 			// holder.tvLeftContent.setText(message.getMsg());
-			holder.tvLeftContent.setText(MyExpressionUtil.prase(mContext,
-					holder.tvLeftContent, message.getMsg()));
+			//holder.tvLeftContent.setText(MyExpressionUtil.prase(mContext,
+			//		holder.tvLeftContent, message.getMsg()));
 			holder.ivLeftImage.setVisibility(View.GONE);
 			holder.ivLeftLoc.setVisibility(View.GONE);
 
 			holder.pbLeftLoading.setVisibility(View.GONE);
+
+			//发送图片
+			String msgType = message.getMsgType();
+			if(msgType != null && message.getMsgType().equals(DBColumns.MESSAGE_MSG_TYPE_IMAGE)){
+				holder.tvLeftContent.setVisibility(View.GONE);
+				holder.ivLeftImage.setVisibility(View.VISIBLE);
+				holder.ivLeftImage.setImageBitmap(ImgUtil.getInstance().loadBitmapFromLocal(message.getMsg(),200,200));
+			}else{
+				holder.tvLeftContent.setVisibility(View.VISIBLE);
+				holder.ivLeftImage.setVisibility(View.GONE);
+				holder.tvLeftContent.setText(MyExpressionUtil.prase(mContext,
+						holder.tvLeftContent, message.getMsg()));
+			}
 		}
 
 		holder.ivLeftIcon.setOnClickListener(this);

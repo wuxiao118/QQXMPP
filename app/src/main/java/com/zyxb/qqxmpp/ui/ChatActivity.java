@@ -3,13 +3,12 @@ package com.zyxb.qqxmpp.ui;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -422,7 +421,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                 }
                 break;
             case R.id.tvMsgSend:
-                // 发送按钮
+                // 发送文本消息
                 String text = etInput.getText().toString();
                 if (text.trim().equals("")) {
                     Toast.makeText(this, "不能发送空消息", Toast.LENGTH_SHORT).show();
@@ -485,7 +484,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 
                 break;
             case R.id.tvMsgAddPic:
-                // 添加图片
+                // 发送相册照片
                 Intent picIntent = new Intent();
                 /* 开启Pictures画面Type设定为image */
                 picIntent.setType("image/*");
@@ -501,7 +500,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 
                 break;
             case R.id.tvMsgAddCamera:
-                // 从相机添加图片
+                // 发送相机拍摄图片
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(cameraIntent, INTENT_CAMERA);
                 break;
@@ -529,7 +528,335 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
         }
     }
 
-    private class FileDialog{
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case INTENT_PICTURE:
+//                    Uri uri = data.getData();
+//                    Logger.d(TAG + " uri ", uri.toString());
+//                    ContentResolver cr = this.getContentResolver();
+//                    try {
+//                        Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri));
+//                        //显示图片
+//
+//                    } catch (FileNotFoundException e) {
+//                        Logger.d(TAG + " Exception", e.getMessage());
+//                    }
+
+                    /*
+                    try {
+                        Uri originalUri = data.getData();        //获得图片的uri
+                        //ContentResolver cr = this.getContentResolver();
+
+                        Bitmap bm = MediaStore.Images.Media.getBitmap(cr, originalUri); //显得到bitmap图片
+                        //这里开始的第二部分，获取图片的路径：
+                        String[] proj = {MediaStore.Images.Media.DATA};
+
+                        //好像是android多媒体数据库的封装接口，具体的看Android文档
+                        Cursor cursor = managedQuery(originalUri, proj, null, null, null);
+
+                        //按我个人理解 这个是获得用户选择的图片的索引值
+                        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+
+                        //将光标移至开头 ，这个很重要，不小心很容易引起越界
+                        cursor.moveToFirst();
+
+                        //最后根据索引值获取图片路径
+                        String path = cursor.getString(column_index);
+                    }catch(FileNotFoundException e){
+
+                    }catch(IOException e){
+
+                    }*/
+
+                    //获得图片的uri
+                    Uri originalUri = data.getData();
+
+                    //获取图片的路径：
+                    String[] proj = {MediaStore.Images.Media.DATA};
+                    //好像是android多媒体数据库的封装接口，具体的看Android文档
+                    Cursor cursor = managedQuery(originalUri, proj, null, null, null);
+                    //按我个人理解 这个是获得用户选择的图片的索引值
+                    int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                    //将光标移至开头 ，这个很重要，不小心很容易引起越界
+                    cursor.moveToFirst();
+                    //最后根据索引值获取图片路径
+                    String path = cursor.getString(column_index);
+                    Logger.d(TAG,"image path:" + path);
+
+                    // 添加数据并设置状态
+                    XMPPMessage message = new XMPPMessage();
+                    long time = new Date().getTime();
+                    message.setCreateTime(time);
+                    message.setMsg(path);
+                    message.setFrom(user.getAccount());
+                    message.setTo(account);
+                    message.setMsgType(messageType);
+                    message.setData1(DBColumns.MESSAGE_MSG_TYPE_IMAGE);
+                    message.setState(DBColumns.MESSAGE_STATE_SENDING);
+                    // 数据库中添加数据 ,先由engine写入数据库
+                    // 连接服务器service完成后由service负责写入数据
+                    String id = mEngine.addMessage(message);
+
+                    // 更新数据,service完成后,由service广播,在receiver中更新
+                    switch (messageType) {
+                        case DBColumns.MESSAGE_TYPE_CONTACT:
+                            messages = mEngine.getContactMessages(account, this);
+                            break;
+                        case DBColumns.MESSAGE_TYPE_GROUP:
+                            messages = mEngine.getGroupMessages(account, this);
+                            break;
+                        case DBColumns.MESSAGE_TYPE_SYS:
+                            messages = mEngine.getSystemMessages(account, this);
+                            break;
+                    }
+                    mChatAdapter.setMessages(messages);
+                    mChatAdapter.notifyDataSetChanged();
+
+                    etInput.setText("");
+
+                    //滚动到最下方
+                    dlMsgList.setSelection(messages.size() - 1);
+
+                    // 关闭键盘
+                    hideSoftInputView();
+
+                    // 如果网络连通,并登陆,通过smack发送
+                    if (mApp.isConnected()) {
+                        //绑定service发送or使用sendBroadcast发送
+                        //暂定使用sendBroadcast发送
+                        Intent msgIntent = new Intent();
+                        //msgIntent.setAction(ChatService.XMPP_MESSAGE);
+                        //msgIntent.putExtra("xmpp_message_type", ChatService.MESSAGE_TYPE_IMAGE);
+                        //msgIntent.putExtra("id", id);
+                        //msgIntent.putExtra("toJid", toJid);
+                        //msgIntent.putExtra("message", path);
+                        msgIntent.setAction(ChatService.MESSAGE_SEND_FILE);
+                        msgIntent.putExtra("filePath", path);
+                        msgIntent.putExtra("toJid", toJid);
+                        sendBroadcast(msgIntent);
+                    }
+
+                    break;
+                case INTENT_CAMERA:
+                    String sdStatus = Environment.getExternalStorageState();
+                    if (!sdStatus.equals(Environment.MEDIA_MOUNTED)) { // 检测sd是否可用
+                        Log.i("TestFile",
+                                "SD card is not avaiable/writeable right now.");
+                        return;
+                    }
+                    String name = new DateFormat().format("yyyyMMdd_hhmmss", Calendar.getInstance(Locale.CHINA)) + ".jpg";
+                    Toast.makeText(this, name, Toast.LENGTH_LONG).show();
+                    Bundle bundle = data.getExtras();
+                    Bitmap bitmap = (Bitmap) bundle.get("data");// 获取相机返回的数据，并转换为Bitmap图片格式
+
+                    FileOutputStream b = null;
+                    //???????????????????????????????为什么不能直接保存在系统相册位置呢？？？？？？？？？？？？
+                    File file = new File("/sdcard/myImage/");
+                    file.mkdirs();// 创建文件夹
+                    String fileName = "/sdcard/myImage/" + name;
+
+                    try {
+                        b = new FileOutputStream(fileName);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, b);// 把数据写入文件
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            b.flush();
+                            b.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    //修改数据库,更新数据源
+
+                    // 添加数据并设置状态
+                    XMPPMessage msg = new XMPPMessage();
+                    long tm = new Date().getTime();
+                    msg.setCreateTime(tm);
+                    msg.setMsg(fileName);
+                    msg.setFrom(user.getAccount());
+                    msg.setTo(account);
+                    msg.setMsgType(messageType);
+                    msg.setData1(DBColumns.MESSAGE_MSG_TYPE_IMAGE);
+                    msg.setState(DBColumns.MESSAGE_STATE_SENDING);
+                    // 数据库中添加数据 ,先由engine写入数据库
+                    // 连接服务器service完成后由service负责写入数据
+                    String idd = mEngine.addMessage(msg);
+
+                    // 更新数据,service完成后,由service广播,在receiver中更新
+                    switch (messageType) {
+                        case DBColumns.MESSAGE_TYPE_CONTACT:
+                            messages = mEngine.getContactMessages(account, this);
+                            break;
+                        case DBColumns.MESSAGE_TYPE_GROUP:
+                            messages = mEngine.getGroupMessages(account, this);
+                            break;
+                        case DBColumns.MESSAGE_TYPE_SYS:
+                            messages = mEngine.getSystemMessages(account, this);
+                            break;
+                    }
+                    mChatAdapter.setMessages(messages);
+                    mChatAdapter.notifyDataSetChanged();
+
+                    etInput.setText("");
+
+                    //滚动到最下方
+                    dlMsgList.setSelection(messages.size() - 1);
+
+                    // 关闭键盘
+                    hideSoftInputView();
+
+                    // 如果网络连通,并登陆,通过smack发送
+                    if (mApp.isConnected()) {
+                        //绑定service发送or使用sendBroadcast发送
+                        //暂定使用sendBroadcast发送
+                        Intent msgIntent = new Intent();
+                        //msgIntent.setAction(ChatService.XMPP_MESSAGE);
+                        //msgIntent.putExtra("xmpp_message_type", DBColumns.MESSAGE_MSG_TYPE_IMAGE);
+                        //msgIntent.putExtra("id", idd);
+                        //msgIntent.putExtra("toJid", toJid);
+                        //msgIntent.putExtra("message", fileName);
+                        msgIntent.setAction(ChatService.MESSAGE_SEND_FILE);
+                        msgIntent.putExtra("filePath", fileName);
+                        msgIntent.putExtra("toJid", toJid);
+                        sendBroadcast(msgIntent);
+                    }
+
+                    break;
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // 让输入框获取焦点
+                etInput.requestFocus();
+            }
+        }, 100);
+
+        //启动消息监听
+        mNewMessageReceiver = new NewMessageReceiver();
+        IntentFilter newMsgFilter = new IntentFilter();
+        newMsgFilter.addAction(ChatService.MESSAGE_DATA_CHANGED);
+        registerReceiver(mNewMessageReceiver, newMsgFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        unregisterReceiver(mNewMessageReceiver);
+    }
+
+    /**
+     * 监听返回键
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            hideSoftInputView();
+            if (llFaceContainer.getVisibility() == View.VISIBLE) {
+                llFaceContainer.setVisibility(View.GONE);
+            } else if (llAddContainer.getVisibility() == View.VISIBLE) {
+                llAddContainer.setVisibility(View.GONE);
+            } else {
+                finish();
+                UIAnimUtils.sildRightOut(this);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void show(LinearLayout ll) {
+        // 如果键盘弹出状态,关闭键盘
+        hideSoftInputView();
+
+        hide();
+        ll.setVisibility(View.VISIBLE);
+    }
+
+    private void hide() {
+        llFaceContainer.setVisibility(View.GONE);
+        llAddContainer.setVisibility(View.GONE);
+        isShowAdd = false;
+        isShowFace = false;
+    }
+
+    @Override
+    public void onRefresh() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                dlMsgList.onRefreshCompleteHeader();
+                Toast.makeText(mContext, "刷新完成", Toast.LENGTH_LONG).show();
+            }
+
+        }, 1000);
+    }
+
+    @Override
+    public void onPreMessageChange(int type) {
+
+    }
+
+    @Override
+    public void onMessageChanged(int type) {
+
+    }
+
+    @Override
+    public void onError(int type) {
+
+    }
+
+    /**
+     * 监听新消息
+     */
+    private class NewMessageReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //消息状态改变,刷新
+            switch (messageType) {
+                case DBColumns.MESSAGE_TYPE_CONTACT:
+                    messages = mEngine.getContactMessages(account, ChatActivity.this);
+                    //修改消息状态为已读
+                    mEngine.setReadedMessage(account, mUser.getAccount(), messageType);
+
+                    break;
+                case DBColumns.MESSAGE_TYPE_GROUP:
+                    messages = mEngine.getGroupMessages(account, ChatActivity.this);
+                    //修改消息状态为已读
+                    mEngine.setReadedMessage(null, account, messageType);
+
+                    break;
+                case DBColumns.MESSAGE_TYPE_SYS:
+                    messages = mEngine.getSystemMessages(account, ChatActivity.this);
+                    //修改消息状态为已读
+                    mEngine.setReadedMessage(account, mUser.getAccount(), messageType);
+
+                    break;
+            }
+
+            mChatAdapter.setMessages(messages);
+            mChatAdapter.notifyDataSetChanged();
+        }
+    }
+
+    //TODO 如何得知对方确认接收还是拒绝接收?获取发送的进度?
+    private class FileDialog {
         private Context mContext;
         private String phonePath;
         private String sdOutPath;
@@ -544,10 +871,10 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
         private AlertDialog mDialog;
 
         private View view;
-        private TextView tvPath,tvBack;
+        private TextView tvPath, tvBack;
         private ListView lvFiles;
 
-        public FileDialog(Context context){
+        public FileDialog(Context context) {
             mContext = context;
 
             initDialogData();
@@ -556,7 +883,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
             show();
         }
 
-        private void initDialogData(){
+        private void initDialogData() {
             //手机自身内存
             phonePath = SDUtil.getPhoneCardPath();
 
@@ -592,7 +919,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
             }
         }
 
-        private void ui(){
+        private void ui() {
             view = LayoutInflater.from(mContext).inflate(R.layout.chat_file, null);
             tvPath = (TextView) view.findViewById(R.id.tvChatFilePath);
             lvFiles = (ListView) view.findViewById(R.id.lvChatFileList);
@@ -600,7 +927,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
             tvPath.setText("root");
         }
 
-        private void event(){
+        private void event() {
             lvFiles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -668,7 +995,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
             });
         }
 
-        private void show(){
+        private void show() {
             //设置adapter数据
             mAdapter = new FileAdapter(sdFiles);
             mAdapter.setIcons(sdIcons);
@@ -687,15 +1014,50 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                                 keepDialogOpen();
                             } else {
                                 String filePath = sdFiles[filePosition].getAbsolutePath();
-                                Logger.d(TAG,"send file:" + filePath);
+                                Logger.d(TAG, "send file:" + filePath);
                                 //TODO 写入数据库,文件标示为待发送,若服务器未连接,可等服务器连接后,后台默默发送
+                                XMPPMessage msg = new XMPPMessage();
+                                long tm = new Date().getTime();
+                                msg.setCreateTime(tm);
+                                msg.setMsg(filePath);
+                                msg.setFrom(user.getAccount());
+                                msg.setTo(account);
+                                msg.setMsgType(messageType);
+                                msg.setData1(DBColumns.MESSAGE_MSG_TYPE_FILE);
+                                msg.setState(DBColumns.MESSAGE_STATE_SENDING);
+                                // 数据库中添加数据 ,先由engine写入数据库
+                                // 连接服务器service完成后由service负责写入数据
+                                String idd = mEngine.addMessage(msg);
+
+                                // 更新数据,service完成后,由service广播,在receiver中更新
+                                switch (messageType) {
+                                    case DBColumns.MESSAGE_TYPE_CONTACT:
+                                        messages = mEngine.getContactMessages(account, ChatActivity.this);
+                                        break;
+                                    case DBColumns.MESSAGE_TYPE_GROUP:
+                                        messages = mEngine.getGroupMessages(account, ChatActivity.this);
+                                        break;
+                                    case DBColumns.MESSAGE_TYPE_SYS:
+                                        messages = mEngine.getSystemMessages(account, ChatActivity.this);
+                                        break;
+                                }
+                                mChatAdapter.setMessages(messages);
+                                mChatAdapter.notifyDataSetChanged();
+
+                                etInput.setText("");
+
+                                //滚动到最下方
+                                dlMsgList.setSelection(messages.size() - 1);
+
+                                // 关闭键盘
+                                hideSoftInputView();
 
                                 if (mApp.isConnected()) {
                                     //发送文件Intent
                                     Intent sendFileIntent = new Intent();
                                     sendFileIntent.setAction(ChatService.MESSAGE_SEND_FILE);
                                     sendFileIntent.putExtra("filePath", filePath);
-                                    sendFileIntent.putExtra("toJid",toJid);
+                                    sendFileIntent.putExtra("toJid", toJid);
                                     mContext.sendBroadcast(sendFileIntent);
                                 }
 
@@ -831,7 +1193,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                         //Logger.d("adapter","after");
 //                    holder.rbSelection.setSelected(true);//不行，不是选中状态
                         holder.rbSelection.setChecked(true);
-                    }else{
+                    } else {
                         holder.rbSelection.setChecked(false);
                     }
                 }
@@ -874,187 +1236,6 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                 return false;
             }
 
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case INTENT_PICTURE:
-                    Uri uri = data.getData();
-                    Logger.d(TAG + " uri ", uri.toString());
-                    ContentResolver cr = this.getContentResolver();
-                    try {
-                        Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri));
-
-                    } catch (FileNotFoundException e) {
-                        Logger.d(TAG + " Exception", e.getMessage());
-                    }
-
-                    //显示图片
-
-                    break;
-                case INTENT_CAMERA:
-                    String sdStatus = Environment.getExternalStorageState();
-                    if (!sdStatus.equals(Environment.MEDIA_MOUNTED)) { // 检测sd是否可用
-                        Log.i("TestFile",
-                                "SD card is not avaiable/writeable right now.");
-                        return;
-                    }
-                    String name = new DateFormat().format("yyyyMMdd_hhmmss", Calendar.getInstance(Locale.CHINA)) + ".jpg";
-                    Toast.makeText(this, name, Toast.LENGTH_LONG).show();
-                    Bundle bundle = data.getExtras();
-                    Bitmap bitmap = (Bitmap) bundle.get("data");// 获取相机返回的数据，并转换为Bitmap图片格式
-
-                    FileOutputStream b = null;
-                    //???????????????????????????????为什么不能直接保存在系统相册位置呢？？？？？？？？？？？？
-                    File file = new File("/sdcard/myImage/");
-                    file.mkdirs();// 创建文件夹
-                    String fileName = "/sdcard/myImage/" + name;
-
-                    try {
-                        b = new FileOutputStream(fileName);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, b);// 把数据写入文件
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            b.flush();
-                            b.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    //显示图片
-
-                    break;
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // 让输入框获取焦点
-                etInput.requestFocus();
-            }
-        }, 100);
-
-        //启动消息监听
-        mNewMessageReceiver = new NewMessageReceiver();
-        IntentFilter newMsgFilter = new IntentFilter();
-        newMsgFilter.addAction(ChatService.MESSAGE_DATA_CHANGED);
-        registerReceiver(mNewMessageReceiver, newMsgFilter);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        unregisterReceiver(mNewMessageReceiver);
-    }
-
-    /**
-     * 监听返回键
-     */
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            hideSoftInputView();
-            if (llFaceContainer.getVisibility() == View.VISIBLE) {
-                llFaceContainer.setVisibility(View.GONE);
-            } else if (llAddContainer.getVisibility() == View.VISIBLE) {
-                llAddContainer.setVisibility(View.GONE);
-            } else {
-                finish();
-                UIAnimUtils.sildRightOut(this);
-            }
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    private void show(LinearLayout ll) {
-        // 如果键盘弹出状态,关闭键盘
-        hideSoftInputView();
-
-        hide();
-        ll.setVisibility(View.VISIBLE);
-    }
-
-    private void hide() {
-        llFaceContainer.setVisibility(View.GONE);
-        llAddContainer.setVisibility(View.GONE);
-        isShowAdd = false;
-        isShowFace = false;
-    }
-
-    @Override
-    public void onRefresh() {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                dlMsgList.onRefreshCompleteHeader();
-                Toast.makeText(mContext, "刷新完成", Toast.LENGTH_LONG).show();
-            }
-
-        }, 1000);
-    }
-
-    @Override
-    public void onPreMessageChange(int type) {
-
-    }
-
-    @Override
-    public void onMessageChanged(int type) {
-
-    }
-
-    @Override
-    public void onError(int type) {
-
-    }
-
-    /**
-     * 监听新消息
-     */
-    private class NewMessageReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //消息状态改变,刷新
-            switch (messageType) {
-                case DBColumns.MESSAGE_TYPE_CONTACT:
-                    messages = mEngine.getContactMessages(account, ChatActivity.this);
-                    //修改消息状态为已读
-                    mEngine.setReadedMessage(account, mUser.getAccount(), messageType);
-
-                    break;
-                case DBColumns.MESSAGE_TYPE_GROUP:
-                    messages = mEngine.getGroupMessages(account, ChatActivity.this);
-                    //修改消息状态为已读
-                    mEngine.setReadedMessage(null, account, messageType);
-
-                    break;
-                case DBColumns.MESSAGE_TYPE_SYS:
-                    messages = mEngine.getSystemMessages(account, ChatActivity.this);
-                    //修改消息状态为已读
-                    mEngine.setReadedMessage(account, mUser.getAccount(), messageType);
-
-                    break;
-            }
-
-            mChatAdapter.setMessages(messages);
-            mChatAdapter.notifyDataSetChanged();
         }
     }
 }

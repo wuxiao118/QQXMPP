@@ -44,7 +44,7 @@ import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
  * 待研究问题:大量使用braodcast是否对性能影响大?使用接口回调如何?
  *
  * 下一步(xmpp下):
- * 发送文件功能(发送图片,视频,文件) 发送文件OK
+ * 发送文件功能(发送图片,视频,文件) 发送文件基本OK(如何获取对方是否接受文件?显示效果调整,接收文件)
  * 添加好友  OK
  * 聊天室
  * 日志
@@ -522,8 +522,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
 				case ChatService.MESSAGE_ADD:
 					//更新未读消息数
 					initUnReadMessage();
-
-					//TODO 更新图标显示未读消息数
 
 					//如果在消息界面，更新消息
 					if(state == Const.FRAGMENT_STATE_MESSAGE){

@@ -223,6 +223,10 @@ public class DataEngine {
 				.getUnReadedMessages(userAccount);
 	}
 
+	public int getUnReadedMessage(){
+		return DBEngineFactory.getDBMessageEngine(mContext).getUnReadedMessages(mUser.getAccount());
+	}
+
 	/**
 	 * 指定属性查找用户，返回未读信息数目
 	 *
