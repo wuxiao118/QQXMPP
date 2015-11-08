@@ -323,6 +323,11 @@ public class DBObjectHelper {
         message.setCreateTime(cursor.getLong(cursor
                 .getColumnIndex(DBColumns.MESSAGE_CREATE_TIME)));
         message.setData1(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA1)));
+        message.setData2(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA2)));
+        message.setData3(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA3)));
+        message.setData4(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA4)));
+        message.setData5(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA5)));
+        message.setData6(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA6)));
 
         return message;
     }
@@ -365,6 +370,11 @@ public class DBObjectHelper {
         message.setCreateTime(cursor.getLong(cursor
                 .getColumnIndex(DBColumns.MESSAGE_CREATE_TIME)));
         message.setData1(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA1)));
+        message.setData2(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA2)));
+        message.setData3(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA3)));
+        message.setData4(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA4)));
+        message.setData5(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA5)));
+        message.setData6(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA6)));
 
         return message;
     }
@@ -414,6 +424,11 @@ public class DBObjectHelper {
         message.setCreateTime(cursor.getLong(cursor
                 .getColumnIndex(DBColumns.MESSAGE_CREATE_TIME)));
         message.setData1(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA1)));
+        message.setData2(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA2)));
+        message.setData3(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA3)));
+        message.setData4(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA4)));
+        message.setData5(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA5)));
+        message.setData6(cursor.getString(cursor.getColumnIndex(DBColumns.MESSAGE_DATA6)));
 
         return message;
     }

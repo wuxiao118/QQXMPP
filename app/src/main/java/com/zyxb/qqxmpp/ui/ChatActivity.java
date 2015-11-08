@@ -16,6 +16,8 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -54,6 +56,7 @@ import com.zyxb.qqxmpp.util.Logger;
 import com.zyxb.qqxmpp.util.MyExpressionUtil;
 import com.zyxb.qqxmpp.util.SDUtil;
 import com.zyxb.qqxmpp.util.UIAnimUtils;
+import com.zyxb.qqxmpp.view.AudioRecorderButton;
 import com.zyxb.qqxmpp.view.DropdownListView;
 import com.zyxb.qqxmpp.view.DropdownListView.OnRefreshListenerHeader;
 
@@ -69,6 +72,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * 代码可读性：
+ * 把表情、语音、添加抽取为单独的类
+ */
 public class ChatActivity extends BaseActivity implements OnClickListener,
         OnRefreshListenerHeader, OnMessageChangeListener {
     private static final String TAG = "ChatActivity";
@@ -104,6 +111,13 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
     private TextView tvAddRealTimeVideo;
     private TextView tvAddShake;
     private TextView tvAddMusic;
+    //private ImageView ivAddVoice;
+    //private LinearLayout llVoice;
+    private ImageView ivVoice;
+    //private TextView tvVoice;
+    //private Button btVoice;
+    private AudioRecorderButton btVoice;
+    private boolean isKeyBoard = true;
 
     // 底部face/add是否显示
     private boolean isShowFace = false;
@@ -168,6 +182,11 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
         tvAddRealTimeVideo = findView(R.id.tvMsgAddRealTimeVideo);
         tvAddShake = findView(R.id.tvMsgAddShake);
         tvAddMusic = findView(R.id.tvMsgAddMusic);
+        //ivAddVoice = findView(R.id.ivMsgAddVoice);
+        //llVoice = findView(R.id.llMsgAddVoice);
+        ivVoice = findView(R.id.ivMsgChatVoice);
+        //tvVoice = findView(R.id.tvMsgVoice);
+        btVoice = findView(R.id.btMsgVoice);
 
         initUI();
         initData();
@@ -289,8 +308,94 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
         tvAddRealTimeVideo.setOnClickListener(this);
         tvAddShake.setOnClickListener(this);
         tvAddMusic.setOnClickListener(this);
+        //ivAddVoice.setOnClickListener(this);
+        //llVoice.setOnClickListener(this);
+        ivVoice.setOnClickListener(this);
+        //tvVoice.setOnClickListener(this);
+//        tvVoice.setOnTouchListener(new OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                return false;
+//            }
+//        });
+        btVoice.setAudioFinishRecorderListener(new AudioRecorderButton.AudioFinishRecorderListener() {
+            @Override
+            public void onFinish(float seconds, String filePath) {
+                // 添加数据并设置状态
+                XMPPMessage message = new XMPPMessage();
+                long time = new Date().getTime();
+                message.setCreateTime(time);
+                message.setMsg(filePath);
+                message.setFrom(user.getAccount());
+                message.setTo(account);
+                message.setMsgType(messageType);
+                message.setData1(DBColumns.MESSAGE_MSG_TYPE_VOICE);
+                message.setState(DBColumns.MESSAGE_STATE_SENDING);
+                message.setData2(seconds + "");
+                // 数据库中添加数据 ,先由engine写入数据库
+                // 连接服务器service完成后由service负责写入数据
+                String id = mEngine.addMessage(message);
+
+                // 更新数据,service完成后,由service广播,在receiver中更新
+                switch (messageType) {
+                    case DBColumns.MESSAGE_TYPE_CONTACT:
+                        messages = mEngine.getContactMessages(account, ChatActivity.this);
+                        break;
+                    case DBColumns.MESSAGE_TYPE_GROUP:
+                        messages = mEngine.getGroupMessages(account, ChatActivity.this);
+                        break;
+                    case DBColumns.MESSAGE_TYPE_SYS:
+                        messages = mEngine.getSystemMessages(account, ChatActivity.this);
+                        break;
+                }
+                mChatAdapter.setMessages(messages);
+                mChatAdapter.notifyDataSetChanged();
+
+                //滚动到最下方
+                dlMsgList.setSelection(messages.size() - 1);
+
+                // 如果网络连通,并登陆,通过smack发送
+                if (mApp.isConnected()) {
+                    //绑定service发送or使用sendBroadcast发送
+                    //暂定使用sendBroadcast发送
+                    Intent msgIntent = new Intent();
+                    msgIntent.setAction(ChatService.MESSAGE_SEND_FILE);
+                    msgIntent.putExtra("filePath", filePath);
+                    msgIntent.putExtra("toJid", toJid);
+                    sendBroadcast(msgIntent);
+                }
+            }
+        });
 
         etInput.setOnClickListener(this);
+
+        //文本改变
+        etInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.toString().equals("")) {
+                    tvSend.setVisibility(View.GONE);
+                    //ivAddVoice.setVisibility(View.VISIBLE);
+                    //llVoice.setVisibility(View.VISIBLE);
+                    ivVoice.setVisibility(View.VISIBLE);
+                } else {
+                    tvSend.setVisibility(View.VISIBLE);
+                    //ivAddVoice.setVisibility(View.GONE);
+                    //llVoice.setVisibility(View.GONE);
+                    ivVoice.setVisibility(View.GONE);
+                }
+            }
+        });
 
         // 初始化消息列表
         dlMsgList.setOnRefreshListenerHead(this);
@@ -377,6 +482,39 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                 // phone
 
                 break;
+            //case R.id.ivMsgAddVoice:
+            //case R.id.llMsgAddVoice:
+            case R.id.ivMsgChatVoice:
+                // 语音切换按钮
+                //隐藏输入法、表情,如果弹出
+                hideSoftInputView();
+                if (isShowFace) {
+                    hide();
+                }
+                if (isShowAdd) {
+                    hide();
+                }
+
+                if (isKeyBoard) {
+                    //输入框换成语音
+//                    etInput.setVisibility(View.GONE);
+//                    tvVoice.setVisibility(View.VISIBLE);
+//                    ivVoice.setImageResource(R.drawable.btn_chat_add_keyboard_selector);
+//                    isKeyBoard = false;
+                    showVoice();
+                } else {
+                    //换成输入框
+//                    etInput.setVisibility(View.VISIBLE);
+//                    tvVoice.setVisibility(View.GONE);
+//                    ivVoice.setImageResource(R.drawable.btn_chat_add_voice_selector);
+//                    isKeyBoard = true;
+                    showKeyBoard();
+                }
+
+                break;
+//            case R.id.tvMsgVoice:
+//                // 语音说话按钮
+//                break;
             case R.id.ivMsgTitleRight:
                 // 个人/群/系统组 信息
                 Intent intent = null;
@@ -407,6 +545,11 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                     show(llFaceContainer);
                     isShowFace = true;
                 }
+
+                //语音情况下,点击时,回到键盘输入状态
+                if (!isKeyBoard) {
+                    showKeyBoard();
+                }
                 break;
             case R.id.etMsgInput:
                 hide();
@@ -418,6 +561,10 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                 } else {
                     show(llAddContainer);
                     isShowAdd = true;
+                }
+                //语音情况下,点击时,回到键盘输入状态
+                if (!isKeyBoard) {
+                    showKeyBoard();
                 }
                 break;
             case R.id.tvMsgSend:
@@ -528,6 +675,26 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
         }
     }
 
+    //显示键盘输入状态
+    private void showKeyBoard() {
+        //换成输入框
+        etInput.setVisibility(View.VISIBLE);
+        //tvVoice.setVisibility(View.GONE);
+        btVoice.setVisibility(View.GONE);
+        ivVoice.setImageResource(R.drawable.btn_chat_add_voice_selector);
+        isKeyBoard = true;
+    }
+
+    //显示语音输入状态
+    private void showVoice() {
+        //输入框换成语音
+        etInput.setVisibility(View.GONE);
+        //tvVoice.setVisibility(View.VISIBLE);
+        btVoice.setVisibility(View.VISIBLE);
+        ivVoice.setImageResource(R.drawable.btn_chat_add_keyboard_selector);
+        isKeyBoard = false;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
@@ -583,7 +750,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                     cursor.moveToFirst();
                     //最后根据索引值获取图片路径
                     String path = cursor.getString(column_index);
-                    Logger.d(TAG,"image path:" + path);
+                    Logger.d(TAG, "image path:" + path);
 
                     // 添加数据并设置状态
                     XMPPMessage message = new XMPPMessage();

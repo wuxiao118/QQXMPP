@@ -142,6 +142,8 @@ public class DBMessageEngine {
 			info.setType(m.getType());
 			//存储msgType
 			info.setMsgType(m.getData1());
+			//时间
+			info.setMediaTime(m.getData2());
 
 			// from
 			DBUser u = m.getFrom();

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="10dp" >
+    android:padding="10dp">
 
     <TextView
         android:id="@+id/tvChatTime"
@@ -15,9 +15,9 @@
 
     <LinearLayout
         android:id="@+id/llChatLeft"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal">
 
         <com.zyxb.qqxmpp.view.CircleImageView2
             android:id="@+id/ciChatLeftIcon"
@@ -30,12 +30,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/tvChatLeftGroupTitle"
@@ -62,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingRight="30dp" >
+                android:paddingRight="30dp">
 
                 <TextView
                     android:id="@+id/tvChatLeftContent"
@@ -79,11 +79,16 @@
                     android:textColor="@color/black"
                     android:textSize="14sp" />
 
+                <FrameLayout
+                    android:id="@+id/flChatLeftImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/chatfrom_bg"
+                    android:visibility="gone">
                 <ImageView
                     android:id="@+id/ivChatLeftImage"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:background="@drawable/chatfrom_bg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingBottom="5dp"
                     android:paddingLeft="15dp"
@@ -91,7 +96,8 @@
                     android:paddingTop="5dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/skin_about_brand"
-                    android:visibility="gone" />
+                     />
+                </FrameLayout>
 
                 <ImageView
                     android:id="@+id/ivChatLeftLoc"
@@ -116,6 +122,92 @@
                     android:paddingLeft="2dp"
                     android:visibility="gone" />
 
+                <FrameLayout
+                    android:id="@+id/flChatLeftVoice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/chatfrom_bg"
+                    android:visibility="gone">
+
+                    <View
+                        android:id="@+id/vChatLeftVoice"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_gravity="center_vertical|left"
+                        android:background="@drawable/receive_voice3" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvChatLeftVoiceTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="3dp"
+                    android:text="1'"
+                    android:textColor="#ff777777"
+                    android:visibility="gone" />
+
+                <RelativeLayout
+                    android:id="@+id/rlChatLeftFile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/chatfrom_bg"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/ivChatLeftFileIcon"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/file_archive" />
+
+                    <TextView
+                        android:id="@+id/tvChatLeftFileName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/ivChatLeftFileIcon"
+                        android:text="file name" />
+
+                    <TextView
+                        android:id="@+id/tvChatLeftFileSize"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/tvChatLeftFileName"
+                        android:layout_toRightOf="@id/ivChatLeftFileIcon"
+                        android:text="file size" />
+
+                    <TextView
+                        android:id="@+id/tvChatLeftFileAccept"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/ivChatLeftFileIcon"
+                        android:layout_margin="3dp"
+                        android:background="@drawable/btn_chat_file_receive_accept_bg"
+                        android:text="接收"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvChatLeftFileRefuse"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/ivChatLeftFileIcon"
+                        android:layout_margin="3dp"
+                        android:layout_toRightOf="@id/tvChatLeftFileAccept"
+                        android:background="@drawable/btn_chat_file_receive_accept_bg"
+                        android:text="拒绝"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvChatLeftFileState"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/ivChatLeftFileIcon"
+                        android:layout_margin="3dp"
+                        android:background="@drawable/btn_chat_file_receive_accept_bg"
+                        android:text="对方取消/已接收/已取消"
+                        android:visibility="gone" />
+                </RelativeLayout>
+
                 <ProgressBar
                     android:id="@+id/pbChatLeftLoading"
                     android:layout_width="24dp"
@@ -133,7 +225,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="right"
-        android:orientation="horizontal" >
+        android:orientation="horizontal">
 
         <com.zyxb.qqxmpp.view.CircleImageView2
             android:id="@+id/ciChatRightIcon"
@@ -148,7 +240,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/ciChatRightIcon"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/tvChatRightGroupTitle"
@@ -178,7 +270,7 @@
             android:layout_toLeftOf="@id/ciChatRightIcon"
             android:orientation="horizontal"
             android:paddingLeft="30dp"
-            android:paddingTop="5dp" >
+            android:paddingTop="5dp">
 
             <ImageView
                 android:id="@+id/ivChatRightLoading"
@@ -204,8 +296,83 @@
                 android:layout_height="24dp"
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/chat_loading"
+                android:indeterminate="false"
                 android:indeterminateDrawable="@drawable/loading"
                 android:paddingLeft="2dp" />
+
+            <RelativeLayout
+                android:id="@+id/rlChatRightFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chatto_bg"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/ivChatRightFileIcon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/file_archive" />
+
+                <TextView
+                    android:id="@+id/tvChatRightFileName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/ivChatRightFileIcon"
+                    android:text="file name" />
+
+                <TextView
+                    android:id="@+id/tvChatRightFileSize"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tvChatRightFileName"
+                    android:layout_toRightOf="@id/ivChatRightFileIcon"
+                    android:text="file size" />
+
+                <TextView
+                    android:id="@+id/tvChatRightFileCancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ivChatRightFileIcon"
+                    android:layout_margin="3dp"
+                    android:background="@drawable/btn_chat_file_receive_accept_bg"
+                    android:text="取消"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvChatRightFileState"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ivChatRightFileIcon"
+                    android:layout_margin="3dp"
+                    android:background="@drawable/btn_chat_file_receive_accept_bg"
+                    android:text="对方拒绝/已发送/已取消"
+                    android:visibility="gone" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tvChatRightVoiceTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="3dp"
+                android:text="1'"
+                android:textColor="#ff777777"
+                android:visibility="gone" />
+
+            <FrameLayout
+                android:id="@+id/flChatRightVoice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chatto_bg"
+                android:visibility="gone">
+
+                <View
+                    android:id="@+id/vChatRightVoice"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center_vertical|right"
+                    android:background="@drawable/adj" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/tvChatRightContent"
@@ -222,28 +389,30 @@
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
-            <ImageView
-                android:id="@+id/ivChatRightImage"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_below="@id/llChatRightName"
-                android:layout_toLeftOf="@id/ciChatRightIcon"
+            <FrameLayout
+                android:id="@+id/flChatRightImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@drawable/chatto_bg"
-                android:gravity="center"
-                android:paddingBottom="5dp"
-                android:paddingLeft="15dp"
-                android:paddingRight="5dp"
-                android:paddingTop="5dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/skin_about_brand"
-                android:visibility="gone" />
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/ivChatRightImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="5dp"
+                    android:paddingTop="5dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/skin_about_brand" />
+            </FrameLayout>
 
             <ImageView
                 android:id="@+id/ivChatRightLoc"
                 android:layout_width="200dp"
                 android:layout_height="120dp"
-                android:layout_below="@id/llChatRightName"
-                android:layout_toLeftOf="@id/ciChatRightIcon"
                 android:background="@drawable/chatto_bg"
                 android:gravity="center"
                 android:paddingBottom="5dp"

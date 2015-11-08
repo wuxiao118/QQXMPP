@@ -10,6 +10,7 @@ public class MessageInfo {
     private int count;
     private int state;
     private String msgType;//chat,image,video,file
+    private String mediaTime;//语音，视频时间
 
     public int getState() {
         return state;
@@ -81,5 +82,13 @@ public class MessageInfo {
 
     public void setMsgType(String msgType) {
         this.msgType = msgType;
+    }
+
+    public String getMediaTime() {
+        return mediaTime;
+    }
+
+    public void setMediaTime(String mediaTime) {
+        this.mediaTime = mediaTime;
     }
 }

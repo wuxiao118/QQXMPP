@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/chat_bg_color"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,12 +14,12 @@
         android:paddingBottom="5dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:paddingTop="5dp" >
+        android:paddingTop="5dp">
 
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="@drawable/button_details_gohome" />
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/btn_back_selector" />
 
         <TextView
             android:id="@+id/tvMsgTitleLeft"
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvMsgTitleName"
@@ -55,15 +55,15 @@
 
         <ImageView
             android:id="@+id/ivMsgTitleSecond"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:background="@drawable/dianhua" />
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/btn_chat_title_phone2_selector" />
 
         <ImageView
             android:id="@+id/ivMsgTitleRight"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:background="@drawable/wode" />
+            android:background="@drawable/btn_chat_title_contact_selector" />
     </LinearLayout>
 
     <LinearLayout
@@ -72,14 +72,14 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:orientation="horizontal"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="24dp"
@@ -107,7 +107,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="24dp"
@@ -140,7 +140,7 @@
         android:id="@+id/llMsgBottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <View
             android:layout_width="match_parent"
@@ -150,7 +150,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="#F5F6F7" >
+            android:background="#F5F6F7">
 
             <ImageView
                 android:id="@+id/ivMsgChatFace"
@@ -169,20 +169,92 @@
                 android:layout_toRightOf="@id/ivMsgChatFace"
                 android:src="@drawable/btn_chat_add_selector" />
 
-            <EditText
-                android:id="@+id/etMsgInput"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="33dp"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="5dip"
-                android:layout_toLeftOf="@+id/tvMsgSend"
-                android:layout_toRightOf="@id/ivMsgChatAdd"
-                android:background="@drawable/chat_input_bg"
-                android:maxLength="240"
-                android:padding="2dip"
-                android:singleLine="true"
-                android:textSize="14sp" />
+                android:layout_toLeftOf="@+id/flMsgSend"
+                android:layout_toRightOf="@id/ivMsgChatAdd">
 
+                <EditText
+                    android:id="@+id/etMsgInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/chat_input_bg"
+                    android:maxLength="240"
+                    android:padding="2dip"
+                    android:singleLine="true"
+                    android:textSize="14sp" />
+
+                <!--
+                <TextView
+                    android:id="@+id/tvMsgVoice"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/iv_chat_round_corner_rect_bg"
+                    android:gravity="center"
+                    android:maxLength="240"
+                    android:padding="2dip"
+                    android:text="按住 说话"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+                    -->
+                <com.zyxb.qqxmpp.view.AudioRecorderButton
+                    android:id="@+id/btMsgVoice"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/iv_chat_round_corner_rect_bg"
+                    android:text="@string/str_recorder_normal"
+                    android:textColor="@color/dark_gray"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/flMsgSend"
+                android:layout_width="50dp"
+                android:layout_height="30dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dp">
+
+                <TextView
+                    android:id="@+id/tvMsgSend"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_login_selector"
+                    android:gravity="center"
+                    android:text="发 送"
+                    android:textColor="#ffffff"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <!--
+                <LinearLayout
+                    android:id="@+id/llMsgAddVoice"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                     click事件发生在linearlayout上
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:src="@drawable/btn_chat_add_voice_selector" />
+                </LinearLayout>
+-->
+                <ImageView
+                    android:id="@+id/ivMsgChatVoice"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:src="@drawable/btn_chat_add_voice_selector" />
+            </FrameLayout>
+
+            <!--
             <TextView
                 android:id="@+id/tvMsgSend"
                 android:layout_width="50dp"
@@ -195,6 +267,7 @@
                 android:text="发 送"
                 android:textColor="#ffffff"
                 android:textSize="14sp" />
+                -->
         </RelativeLayout>
 
         <View
