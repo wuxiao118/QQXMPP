@@ -1788,7 +1788,9 @@ public class XMPPEngine {
             }else if(transfer.getStatus().equals(FileTransfer.Status.complete)) {
                 //修改文件为已经发送
                 //Logger.d(TAG, "send file msg id:" + id);
-                mDataEngine.updateXMPPMessageState(id, DBColumns.MESSAGE_STATE_RECEIVED);
+                //不行,chat activity更新消息时，会将received消息修改为readed
+                //mDataEngine.updateXMPPMessageState(id, DBColumns.MESSAGE_STATE_RECEIVED);
+                mDataEngine.updateXMPPMessageState(id, DBColumns.MESSAGE_STATE_SENDED);
             }
 
             //更新消息列表

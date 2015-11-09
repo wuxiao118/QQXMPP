@@ -302,14 +302,16 @@
                     android:layout_height="32dp"
                     android:src="@drawable/file_archive" />
 
+                <!--跑马灯效果导致list view刷新时候该条会闪动
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:ellipsize="marquee"
+                    -->
                 <TextView
                     android:id="@+id/tvChatRightFileName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/ivChatRightFileIcon"
                     android:singleLine="true"
-                    android:marqueeRepeatLimit="marquee_forever"
-                    android:ellipsize="marquee"
                     android:text="file name" />
 
                 <TextView

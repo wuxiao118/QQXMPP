@@ -264,7 +264,8 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
                         //holder.tvLeftFileRefuse.setText("对方已拒绝");
                         holder.tvRightFileCancel.setVisibility(View.VISIBLE);
                         holder.tvRightFileCancel.setText("对方拒绝接收");
-                    }else if(message.getState() == DBColumns.MESSAGE_STATE_RECEIVED){
+//                    }else if(message.getState() == DBColumns.MESSAGE_STATE_RECEIVED){
+                    }else if(message.getState() == DBColumns.MESSAGE_STATE_SENDED){
                         //holder.tvLeftFileAccept.setVisibility(View.VISIBLE);
                         //holder.tvLeftFileRefuse.setVisibility(View.VISIBLE);
                         //holder.tvLeftFileAccept.setText("打开");

@@ -999,7 +999,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
     private class NewMessageReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            //消息状态改变,刷新
+            //消息状态改变,刷新(会将received状态的消息修改为readed)
             switch (messageType) {
                 case DBColumns.MESSAGE_TYPE_CONTACT:
                     messages = mEngine.getContactMessages(account, ChatActivity.this);
@@ -1023,6 +1023,8 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
 
             mChatAdapter.setMessages(messages);
             mChatAdapter.notifyDataSetChanged();
+
+            //TODO 判断如果消息是当前聊天消息，移动到最后条目
         }
     }
 
