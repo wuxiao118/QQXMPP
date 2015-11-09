@@ -433,6 +433,7 @@ public class ChatService extends Service {
         public void onReceive(Context context, Intent intent) {
             final String filePath = intent.getStringExtra("filePath");
             final String toJid = intent.getStringExtra("toJid") + "/Spark 2.6.3";
+            final String id = intent.getStringExtra("id");
             if(mEngine == null)
                 return;
 
@@ -440,7 +441,8 @@ public class ChatService extends Service {
             new Thread(){
                 @Override
                 public void run() {
-                    mEngine.sendFile(toJid,filePath);
+                    //mEngine.sendFile(toJid,filePath);
+                    mEngine.sendFile(id,toJid,filePath);
                 }
             }.start();
         }

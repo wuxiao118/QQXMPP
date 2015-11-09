@@ -235,4 +235,8 @@ public class AudioRecorderButton extends Button {
             }
         }
     }
+
+    public void close(){
+        mAudioManager.release();
+    }
 }

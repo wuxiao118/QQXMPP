@@ -256,6 +256,32 @@ public class ChatAdapter extends BaseAdapter implements OnClickListener,
                     holder.ivRightFileIcon.setImageResource(getIconRes(filename));
                     holder.tvRightFileName.setText(filename.substring(filename.lastIndexOf(File.separator) + 1, filename.lastIndexOf(".")));
                     holder.tvRightFileSize.setText(getSize(filename));
+
+                    //显示文件已经接收还是对方取消
+                    if(message.getState() == DBColumns.MESSAGE_STATE_CANCELED){
+                        //holder.tvLeftFileAccept.setVisibility(View.GONE);
+                        //holder.tvLeftFileRefuse.setVisibility(View.VISIBLE);
+                        //holder.tvLeftFileRefuse.setText("对方已拒绝");
+                        holder.tvRightFileCancel.setVisibility(View.VISIBLE);
+                        holder.tvRightFileCancel.setText("对方拒绝接收");
+                    }else if(message.getState() == DBColumns.MESSAGE_STATE_RECEIVED){
+                        //holder.tvLeftFileAccept.setVisibility(View.VISIBLE);
+                        //holder.tvLeftFileRefuse.setVisibility(View.VISIBLE);
+                        //holder.tvLeftFileAccept.setText("打开");
+                        //holder.tvLeftFileRefuse.setText("打开文件夹");
+                        holder.tvRightFileCancel.setVisibility(View.VISIBLE);
+                        holder.tvRightFileCancel.setText("对方已接收");
+                    }else if(message.getState() == DBColumns.MESSAGE_STATE_SENDING){
+                        //holder.tvLeftFileAccept.setVisibility(View.VISIBLE);
+                        //holder.tvLeftFileRefuse.setVisibility(View.GONE);
+                        //holder.tvLeftFileAccept.setText("取消");
+                        holder.tvRightFileCancel.setVisibility(View.VISIBLE);
+                        holder.tvRightFileCancel.setText("取消");
+                    }else{
+                        //holder.tvLeftFileAccept.setVisibility(View.GONE);
+                        //holder.tvLeftFileRefuse.setVisibility(View.GONE);
+                        holder.tvRightFileCancel.setVisibility(View.GONE);
+                    }
                 }
             } else {
                 holder.tvRightContent.setVisibility(View.VISIBLE);

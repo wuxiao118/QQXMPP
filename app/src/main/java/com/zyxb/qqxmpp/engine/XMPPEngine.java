@@ -52,6 +52,7 @@ import org.jivesoftware.smackx.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.bytestreams.socks5.provider.BytestreamsProvider;
 import org.jivesoftware.smackx.carbons.Carbon;
 import org.jivesoftware.smackx.carbons.CarbonManager;
+import org.jivesoftware.smackx.filetransfer.FileTransfer;
 import org.jivesoftware.smackx.filetransfer.FileTransferListener;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
@@ -811,6 +812,8 @@ public class XMPPEngine {
         if (isAuthenticated()) {
             registerMessageListener();
             registerMessageSendFailureListener();
+            // 文件接收
+            //receivedFile();
             // ping-pong在连接中处理
             // registerPongListener();
             sendOfflineMessages();
@@ -1737,18 +1740,61 @@ public class XMPPEngine {
      * @param user     文件发送对象
      * @param filePath 文件路径
      */
-    public void sendFile(String user, String filePath) {
+    //public void sendFile(String user, String filePath) {
+    public void sendFile(String id, String user, String filePath) {
         Logger.d(TAG, "send file:" + filePath + " to:" + user);
         if (mXMPPConnection == null)
             return;
         // 创建文件传输管理器
         FileTransferManager manager = new FileTransferManager(mXMPPConnection);
+
         // 创建输出的文件传输
         OutgoingFileTransfer transfer = manager
                 .createOutgoingFileTransfer(user);
         // 发送文件
         try {
             transfer.sendFile(new File(filePath), "You won't believe this!");
+
+            //Logger.d(TAG, "send file status:" + transfer.getStatus());
+            //监听文件是否接受
+            long startTime = -1;
+            while (!transfer.isDone()) {
+                //Logger.d(TAG,"current status:" + transfer.getStatus());
+
+                if (transfer.getStatus().equals(FileTransfer.Status.error)) {
+                    Logger.d(TAG, "error!!!" + transfer.getError());
+                } else {
+                    double progress = transfer.getProgress();
+                    if (progress > 0.0 && startTime == -1) {
+                        startTime = System.currentTimeMillis();
+                    }
+                    progress *= 100;
+                    Logger.d(TAG, "status=" + transfer.getStatus());
+                    Logger.d(TAG, "progress=" + progress + "%");
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            //文件对方是接受还是拒绝
+            //Logger.d(TAG,"done status:" + transfer.getStatus());
+            if(transfer.getStatus().equals(FileTransfer.Status.refused)){
+                //拒绝
+                transfer.cancel();
+                mDataEngine.updateXMPPMessageState(id, DBColumns.MESSAGE_STATE_CANCELED);
+            }else if(transfer.getStatus().equals(FileTransfer.Status.complete)) {
+                //修改文件为已经发送
+                //Logger.d(TAG, "send file msg id:" + id);
+                mDataEngine.updateXMPPMessageState(id, DBColumns.MESSAGE_STATE_RECEIVED);
+            }
+
+            //更新消息列表
+            Intent intent = new Intent();
+            intent.setAction(ChatService.MESSAGE_DATA_CHANGED);
+            mContext.sendBroadcast(intent);
         } catch (XMPPException e) {
             e.printStackTrace();
         }

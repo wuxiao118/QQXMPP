@@ -362,6 +362,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                     msgIntent.setAction(ChatService.MESSAGE_SEND_FILE);
                     msgIntent.putExtra("filePath", filePath);
                     msgIntent.putExtra("toJid", toJid);
+                    msgIntent.putExtra("id",id);
                     sendBroadcast(msgIntent);
                 }
             }
@@ -680,6 +681,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
         //换成输入框
         etInput.setVisibility(View.VISIBLE);
         //tvVoice.setVisibility(View.GONE);
+        btVoice.close();
         btVoice.setVisibility(View.GONE);
         ivVoice.setImageResource(R.drawable.btn_chat_add_voice_selector);
         isKeyBoard = true;
@@ -802,6 +804,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                         msgIntent.setAction(ChatService.MESSAGE_SEND_FILE);
                         msgIntent.putExtra("filePath", path);
                         msgIntent.putExtra("toJid", toJid);
+                        msgIntent.putExtra("id",id);
                         sendBroadcast(msgIntent);
                     }
 
@@ -890,6 +893,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                         msgIntent.setAction(ChatService.MESSAGE_SEND_FILE);
                         msgIntent.putExtra("filePath", fileName);
                         msgIntent.putExtra("toJid", toJid);
+                        msgIntent.putExtra("id",idd);
                         sendBroadcast(msgIntent);
                     }
 
@@ -1225,6 +1229,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener,
                                     sendFileIntent.setAction(ChatService.MESSAGE_SEND_FILE);
                                     sendFileIntent.putExtra("filePath", filePath);
                                     sendFileIntent.putExtra("toJid", toJid);
+                                    sendFileIntent.putExtra("id",idd);
                                     mContext.sendBroadcast(sendFileIntent);
                                 }
 

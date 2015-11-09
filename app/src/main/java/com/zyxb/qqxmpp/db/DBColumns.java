@@ -197,6 +197,7 @@ public class DBColumns {
 	public static final int MESSAGE_STATE_RECEIVED = 3;
 	public static final int MESSAGE_STATE_READED = 4;
 	public static final int MESSAGE_STATE_FAIL = 5;
+	public static final int MESSAGE_STATE_CANCELED = 6;
 
 	// 正常信息
 	public static final int RESULT_OK = 1;
