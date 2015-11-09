@@ -48,7 +48,9 @@ import com.zyxb.qqxmpp.util.SharedPreferencesUtils;
  * 添加好友  OK
  * 聊天室
  * 日志
+ * 发送失败或者网络未连接待发送的文件或文字，网络连接后自动发送
  * 最新消息改为滑动删除/长按消息弹出popWindow(删除,复制...)
+ * 屏幕适配
  * 删除多余的代码及注释
  * 抽取broadcast部分,形成抽象公共基类,  MainActivity怎么处理?
  * 改造connectservice,chatservice通用化(接口回调/broadcast receiver)?
